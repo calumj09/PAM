@@ -1,8 +1,53 @@
+/* Tailwind CSS v3 style imports for compatibility */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background-color: #f9fafb;
+/* Global styles */
+@layer base {
+  :root {
+    --pam-red: #7D0820;
+    --pam-pink: #F9B1BC;
+    --pam-cream: #FFFBF8;
+    /* Soft pastels for mums */
+    --buttermilk: #FFF8DC;
+    --peach: #FFDBAC;
+    --lavender: #E6E6FA;
+    --soft-pink: #FFE4E1;
+    --mint: #F0FFF0;
+  }
+
+  body {
+    @apply bg-gray-50;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* iOS-style safe area padding */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-pam-red {
+    color: var(--pam-red);
+  }
+  .bg-pam-red {
+    background-color: var(--pam-red);
+  }
+  .text-pam-pink {
+    color: var(--pam-pink);
+  }
+  .bg-pam-pink {
+    background-color: var(--pam-pink);
+  }
+  .text-pam-cream {
+    color: var(--pam-cream);
+  }
+  .bg-pam-cream {
+    background-color: var(--pam-cream);
+  }
 }

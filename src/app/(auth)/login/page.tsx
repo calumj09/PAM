@@ -4,9 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -17,30 +14,11 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  // Check if we're in demo mode
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
 
-    // Demo mode - skip authentication
-    if (isDemoMode) {
-      if (!email || !password) {
-        setError('Please enter email and password')
-        setIsLoading(false)
-        return
-      }
-
-      // Simulate loading and redirect to dashboard
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 1000)
-      return
-    }
-
-    // Real Supabase authentication
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -60,99 +38,103 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-pam-red font-heading mb-2">
-            PAM
-          </h1>
-          <p className="text-gray-600">
-            Welcome back to your parenting assistant
-          </p>
-          {isDemoMode && (
-            <div className="mt-2 p-2 bg-blue-100 border border-blue-300 rounded text-sm text-blue-800">
-              🧪 Demo Mode - Authentication bypassed for testing
-            </div>
-          )}
+        {/* App Icon and Branding */}
+        <div className="text-center mb-12">
+          <div className="w-20 h-20 bg-red-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
+            <span className="text-3xl font-bold text-white">P</span>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">PAM</h1>
+          <p className="text-gray-600 text-base">Parent Admin Manager</p>
+          <p className="text-gray-500 text-sm mt-1">Your one-stop companion for new mums</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign in to your account</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <Input
+        {/* Login Form */}
+        <div className="bg-white rounded-2xl shadow-xl p-6">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <input
                 type="email"
-                label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                 placeholder="Enter your email"
                 required
               />
-              
-              <Input
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
                 type="password"
-                label="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                 placeholder="Enter your password"
                 required
               />
+            </div>
 
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-600">{error}</p>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-red-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Signing In...
                 </div>
+              ) : (
+                'Sign In'
               )}
+            </button>
+          </form>
 
-              <Button
-                type="submit"
-                isLoading={isLoading}
-                className="w-full"
-              >
-                {isDemoMode ? 'Enter Demo' : 'Sign In'}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center space-y-3">
+          <div className="mt-6 text-center space-y-4">
+            <Link 
+              href="/forgot-password" 
+              className="text-sm text-red-600 hover:text-red-700 font-medium"
+            >
+              Forgot Password?
+            </Link>
+            
+            <div className="flex items-center">
+              <div className="flex-1 border-t border-gray-200"></div>
+              <span className="px-3 text-sm text-gray-500">or</span>
+              <div className="flex-1 border-t border-gray-200"></div>
+            </div>
+            
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
               <Link 
-                href="/forgot-password" 
-                className="block text-sm text-pam-red hover:text-pam-red/80"
+                href="/signup" 
+                className="text-red-600 hover:text-red-700 font-semibold"
               >
-                Forgot your password?
+                Create Account
               </Link>
-              
-              <p className="text-sm text-gray-600">
-                Don&apos;t have an account?{' '}
-                <Link 
-                  href="/signup" 
-                  className="text-pam-red hover:text-pam-red/80 font-medium"
-                >
-                  Create one
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {isDemoMode && (
-          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <h3 className="font-medium text-green-900 mb-2">🚀 Quick Demo Access</h3>
-            <p className="text-sm text-green-800 mb-3">
-              Use any email/password combination to access the demo dashboard and test the growth tracking features.
             </p>
-            <div className="text-sm text-green-700">
-              <p><strong>Demo Features Available:</strong></p>
-              <ul className="list-disc list-inside space-y-1 mt-1">
-                <li>Growth tracking with charts</li>
-                <li>Add measurements</li>
-                <li>View growth history</li>
-                <li>Export healthcare reports</li>
-              </ul>
-            </div>
           </div>
-        )}
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-8">
+          <p className="text-xs text-gray-500">
+            Designed for Australian families with children aged 0-3
+          </p>
+        </div>
       </div>
     </div>
   )

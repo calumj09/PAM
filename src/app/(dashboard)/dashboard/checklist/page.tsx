@@ -2,38 +2,45 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { ChecklistService, ChecklistItemRecord } from '@/lib/services/checklist-service'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { formatDateAustralian } from '@/lib/utils'
+import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
 import { 
   CheckCircleIcon, 
-  ClockIcon,
-  HeartIcon,
-  DocumentTextIcon,
+  ClockIcon, 
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+  SparklesIcon,
+  CalendarDaysIcon,
+  BeakerIcon,
   UserGroupIcon,
-  CalendarDaysIcon
+  PlusIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline'
-import { CheckCircleIcon as CheckCircleSolidIcon } from '@heroicons/react/24/solid'
-import Link from 'next/link'
+import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
 interface Child {
-  id: string
-  name: string
+  id: string;
+  name: string;
+  date_of_birth: string;
+}
+
+interface CompletedItem {
+  id: string;
+  child_id: string;
+  checklist_item_id: string;
+  completed_at: string;
 }
 
 export default function ChecklistPage() {
-  const [checklistItems, setChecklistItems] = useState<ChecklistItemRecord[]>([])
   const [children, setChildren] = useState<Child[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedChild, setSelectedChild] = useState<Child | null>(null)
+  const [completedItems, setCompletedItems] = useState<CompletedItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
-  
+  const [expandedSections, setExpandedSections] = useState<string[]>(['due', 'upcoming'])
   const supabase = createClient()
 
   useEffect(() => {
     loadData()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   const loadData = async () => {
     try {
@@ -43,119 +50,119 @@ export default function ChecklistPage() {
       // Load children
       const { data: childrenData } = await supabase
         .from('children')
-        .select('id, name')
+        .select('*')
         .eq('user_id', user.id)
+        .order('date_of_birth', { ascending: true })
 
-      setChildren(childrenData || [])
+      if (childrenData && childrenData.length > 0) {
+        setChildren(childrenData)
+        setSelectedChild(childrenData[0])
+        
+        // Load completed items
+        const { data: completedData } = await supabase
+          .from('checklist_completions')
+          .select('*')
+          .in('child_id', childrenData.map(c => c.id))
 
-      // Load checklist items
-      const items = await ChecklistService.getAllChecklistItems()
-      setChecklistItems(items)
-    } catch (error) {
-      console.error('Error loading checklist data:', error)
-      setError('Failed to load checklist data')
+        setCompletedItems(completedData || [])
+      }
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleToggleComplete = async (itemId: string, isCompleted: boolean) => {
-    try {
-      if (isCompleted) {
-        await ChecklistService.markItemIncomplete(itemId)
-      } else {
-        await ChecklistService.markItemCompleted(itemId)
+  const toggleItemCompletion = async (itemId: string) => {
+    if (!selectedChild) return
+
+    const existingCompletion = completedItems.find(
+      ci => ci.child_id === selectedChild.id && ci.checklist_item_id === itemId
+    )
+
+    if (existingCompletion) {
+      // Remove completion
+      await supabase
+        .from('checklist_completions')
+        .delete()
+        .eq('id', existingCompletion.id)
+
+      setCompletedItems(prev => prev.filter(ci => ci.id !== existingCompletion.id))
+    } else {
+      // Add completion
+      const { data } = await supabase
+        .from('checklist_completions')
+        .insert({
+          child_id: selectedChild.id,
+          checklist_item_id: itemId,
+          completed_at: new Date().toISOString()
+        })
+        .select()
+        .single()
+
+      if (data) {
+        setCompletedItems(prev => [...prev, data])
       }
-      
-      // Update local state
-      setChecklistItems(items => 
-        items.map(item => 
-          item.id === itemId 
-            ? { 
-                ...item, 
-                is_completed: !isCompleted, 
-                completed_date: !isCompleted ? new Date().toISOString() : null 
-              }
-            : item
-        )
-      )
-    } catch (error) {
-      console.error('Error toggling item completion:', error)
-      setError('Failed to update item status')
     }
+  }
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => 
+      prev.includes(section) 
+        ? prev.filter(s => s !== section)
+        : [...prev, section]
+    )
   }
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'immunization': return <HeartIcon className="w-5 h-5 text-red-500" />
-      case 'registration': return <DocumentTextIcon className="w-5 h-5 text-blue-500" />
-      case 'milestone': return <UserGroupIcon className="w-5 h-5 text-purple-500" />
-      case 'checkup': return <CalendarDaysIcon className="w-5 h-5 text-green-500" />
-      default: return <CheckCircleIcon className="w-5 h-5 text-gray-500" />
+      case 'immunization':
+        return BeakerIcon
+      case 'registration':
+        return UserGroupIcon
+      case 'milestone':
+        return SparklesIcon
+      case 'checkup':
+        return CalendarDaysIcon
+      default:
+        return InformationCircleIcon
     }
   }
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'immunization': return 'border-red-200 bg-red-50'
-      case 'registration': return 'border-blue-200 bg-blue-50'
-      case 'milestone': return 'border-purple-200 bg-purple-50'
-      case 'checkup': return 'border-green-200 bg-green-50'
-      default: return 'border-gray-200 bg-gray-50'
-    }
-  }
-
-  const getItemStatus = (item: ChecklistItemRecord) => {
-    if (item.is_completed) return 'completed'
-    
-    const dueDate = new Date(item.due_date)
-    const now = new Date()
-    
-    if (dueDate < now) return 'overdue'
-    
-    const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    if (daysUntilDue <= 7) return 'upcoming'
-    
-    return 'future'
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">Completed</span>
-      case 'overdue':
-        return <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full font-medium">Overdue</span>
-      case 'upcoming':
-        return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full font-medium">Due Soon</span>
-      case 'future':
-        return <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-medium">Upcoming</span>
+      case 'immunization':
+        return 'bg-green-50 text-green-600 border-green-200'
+      case 'registration':
+        return 'bg-blue-50 text-blue-600 border-blue-200'
+      case 'milestone':
+        return 'bg-purple-50 text-purple-600 border-purple-200'
+      case 'checkup':
+        return 'bg-orange-50 text-orange-600 border-orange-200'
       default:
-        return null
+        return 'bg-gray-50 text-gray-600 border-gray-200'
     }
   }
 
-  const filteredItems = selectedCategory === 'all' 
-    ? checklistItems 
-    : checklistItems.filter(item => item.category === selectedCategory)
-
-  const getChildName = (childId: string) => {
-    const child = children.find(c => c.id === childId)
-    return child ? child.name : 'Unknown Child'
+  const getItemStatus = (item: any, birthDate: Date) => {
+    const dueDate = calculateDueDate(birthDate, item)
+    const now = new Date()
+    const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    
+    if (daysUntilDue < -30) return 'overdue'
+    if (daysUntilDue < 0) return 'due'
+    if (daysUntilDue <= 7) return 'upcoming'
+    return 'future'
   }
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-3/4 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        </div>
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-pulse">
-              <div className="h-32 bg-gray-200 rounded-xl"></div>
-            </div>
-          ))}
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-md mx-auto animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-3/4 mb-6"></div>
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-24 bg-gray-200 rounded-2xl"></div>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -163,178 +170,316 @@ export default function ChecklistPage() {
 
   if (children.length === 0) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-heading">
-            Checklist & Reminders
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Keep track of important appointments and milestones
-          </p>
+      <div className="min-h-screen bg-gray-50 p-4">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-2xl font-bold text-gray-900 mb-6">Checklist</h1>
+          <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
+            <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">No Children Added</h2>
+            <p className="text-sm text-gray-600 mb-6">Add your child to see their personalized Australian immunization and milestone checklist</p>
+            <a href="/dashboard/children" className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors">
+              <PlusIcon className="w-5 h-5" />
+              Add Your First Child
+            </a>
+          </div>
         </div>
-
-        <Card>
-          <CardContent className="text-center py-12">
-            <CheckCircleIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No children added yet</h3>
-            <p className="text-gray-600 mb-6">
-              Add your first child to see their personalized checklist with immunizations, registrations, and milestones
-            </p>
-            <Link href="/dashboard/children">
-              <Button>Add Your First Child</Button>
-            </Link>
-          </CardContent>
-        </Card>
       </div>
     )
   }
 
+  const checklistItems = selectedChild ? getChecklistForChild(new Date(selectedChild.date_of_birth)) : []
+  const birthDate = selectedChild ? new Date(selectedChild.date_of_birth) : new Date()
+
+  // Group items by status
+  const groupedItems = checklistItems.reduce((acc, item) => {
+    const isCompleted = completedItems.some(
+      ci => ci.child_id === selectedChild?.id && ci.checklist_item_id === item.id
+    )
+    
+    if (isCompleted) {
+      acc.completed.push(item)
+    } else {
+      const status = getItemStatus(item, birthDate)
+      if (status === 'overdue' || status === 'due') {
+        acc.due.push(item)
+      } else if (status === 'upcoming') {
+        acc.upcoming.push(item)
+      } else {
+        acc.future.push(item)
+      }
+    }
+    
+    return acc
+  }, { due: [], upcoming: [], future: [], completed: [] } as any)
+
+  // Calculate stats
+  const totalItems = checklistItems.length
+  const completedCount = groupedItems.completed.length
+  const completionRate = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-heading">
-          Checklist & Reminders
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Keep track of important appointments and milestones
-        </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
+        <div className="max-w-md mx-auto px-4 py-4">
+          <h1 className="text-xl font-semibold text-gray-900">Australian Checklist</h1>
+          
+          {/* Child Selector */}
+          {children.length > 1 && (
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
+              {children.map(child => (
+                <button
+                  key={child.id}
+                  onClick={() => setSelectedChild(child)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                    selectedChild?.id === child.id
+                      ? 'bg-red-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {child.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Progress Bar */}
+          <div className="mt-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <span>{completedCount} of {totalItems} completed</span>
+              <span>{completionRate}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                style={{ width: `${completionRate}%` }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{error}</p>
-        </div>
-      )}
-
-      {/* Category Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {[
-          { key: 'all', label: 'All Items', icon: CheckCircleIcon },
-          { key: 'immunization', label: 'Immunizations', icon: HeartIcon },
-          { key: 'registration', label: 'Registration', icon: DocumentTextIcon },
-          { key: 'milestone', label: 'Milestones', icon: UserGroupIcon },
-          { key: 'checkup', label: 'Health Checks', icon: CalendarDaysIcon }
-        ].map((category) => {
-          const Icon = category.icon
-          return (
+      <div className="max-w-md mx-auto px-4 py-6 pb-24 space-y-4">
+        {/* Due/Overdue Items */}
+        {groupedItems.due.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
             <button
-              key={category.key}
-              onClick={() => setSelectedCategory(category.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                selectedCategory === category.key
-                  ? 'bg-pam-red text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              onClick={() => toggleSection('due')}
+              className="w-full px-4 py-3 flex items-center justify-between bg-red-50 text-left"
             >
-              <Icon className="w-4 h-4" />
-              {category.label}
+              <div className="flex items-center gap-2">
+                <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
+                <h2 className="font-semibold text-gray-900">Action Required</h2>
+                <span className="px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
+                  {groupedItems.due.length}
+                </span>
+              </div>
+              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
+                expandedSections.includes('due') ? 'rotate-180' : ''
+              }`} />
             </button>
-          )
-        })}
-      </div>
-
-      {/* Checklist Items */}
-      {filteredItems.length === 0 ? (
-        <Card>
-          <CardContent className="text-center py-8">
-            <CheckCircleIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-600">No items in this category</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {filteredItems.map((item) => {
-            const status = getItemStatus(item)
-            const childName = getChildName(item.child_id)
             
-            return (
-              <Card 
-                key={item.id} 
-                className={`border-l-4 transition-all ${getCategoryColor(item.category)} ${
-                  item.is_completed ? 'opacity-75' : ''
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-start gap-3">
-                        <button
-                          onClick={() => handleToggleComplete(item.id, item.is_completed)}
-                          className="mt-1 flex-shrink-0 transition-colors"
-                        >
-                          {item.is_completed ? (
-                            <CheckCircleSolidIcon className="w-6 h-6 text-green-500" />
-                          ) : (
-                            <div className="w-6 h-6 border-2 border-gray-300 rounded-full hover:border-pam-red transition-colors" />
-                          )}
-                        </button>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            {getCategoryIcon(item.category)}
-                            <h3 className={`font-semibold ${item.is_completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                              {item.title}
-                            </h3>
-                          </div>
-                          
-                          <p className={`text-sm mb-2 ${item.is_completed ? 'text-gray-400' : 'text-gray-600'}`}>
-                            {item.description}
-                          </p>
-                          
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <UserGroupIcon className="w-4 h-4" />
-                              {childName}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <ClockIcon className="w-4 h-4" />
-                              Due: {formatDateAustralian(new Date(item.due_date))}
-                            </span>
-                          </div>
-
-                          {item.metadata?.vaccines && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500 mb-1">Vaccines:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {item.metadata.vaccines.map((vaccine: string, index: number) => (
-                                  <span key={index} className="px-2 py-1 bg-white border border-gray-200 rounded text-xs">
-                                    {vaccine}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {item.metadata?.requirements && (
-                            <div className="mt-2">
-                              <p className="text-xs text-gray-500 mb-1">Required documents:</p>
-                              <ul className="text-xs text-gray-600 list-disc list-inside">
-                                {item.metadata.requirements.map((req: string, index: number) => (
-                                  <li key={index}>{req}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
+            {expandedSections.includes('due') && (
+              <div className="p-4 space-y-3">
+                {groupedItems.due.map((item: any) => {
+                  const dueDate = calculateDueDate(birthDate, item)
+                  const Icon = getCategoryIcon(item.category)
+                  
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => toggleItemCompletion(item.id)}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all"
+                    >
+                      <div className={`p-2 rounded-xl border ${getCategoryColor(item.category)}`}>
+                        <Icon className="w-5 h-5" />
                       </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        <p className="text-xs text-red-600 font-medium mt-2">
+                          Due: {dueDate.toLocaleDateString('en-AU', { 
+                            day: 'numeric', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })}
+                        </p>
+                      </div>
+                      <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex-shrink-0 mt-1"></div>
                     </div>
-                    
-                    <div className="flex flex-col items-end gap-2">
-                      {getStatusBadge(status)}
-                      
-                      {item.completed_date && (
-                        <span className="text-xs text-green-600">
-                          ✓ {formatDateAustralian(new Date(item.completed_date))}
-                        </span>
-                      )}
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Upcoming Items */}
+        {groupedItems.upcoming.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <button
+              onClick={() => toggleSection('upcoming')}
+              className="w-full px-4 py-3 flex items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-2">
+                <ClockIcon className="w-5 h-5 text-orange-600" />
+                <h2 className="font-semibold text-gray-900">Coming Soon</h2>
+                <span className="px-2 py-0.5 bg-orange-100 text-orange-600 text-xs rounded-full">
+                  {groupedItems.upcoming.length}
+                </span>
+              </div>
+              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
+                expandedSections.includes('upcoming') ? 'rotate-180' : ''
+              }`} />
+            </button>
+            
+            {expandedSections.includes('upcoming') && (
+              <div className="p-4 space-y-3">
+                {groupedItems.upcoming.map((item: any) => {
+                  const dueDate = calculateDueDate(birthDate, item)
+                  const Icon = getCategoryIcon(item.category)
+                  
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => toggleItemCompletion(item.id)}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all"
+                    >
+                      <div className={`p-2 rounded-xl border ${getCategoryColor(item.category)}`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Due: {dueDate.toLocaleDateString('en-AU', { 
+                            day: 'numeric', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })}
+                        </p>
+                      </div>
+                      <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex-shrink-0 mt-1"></div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      )}
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Future Items */}
+        {groupedItems.future.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <button
+              onClick={() => toggleSection('future')}
+              className="w-full px-4 py-3 flex items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-2">
+                <CalendarDaysIcon className="w-5 h-5 text-gray-600" />
+                <h2 className="font-semibold text-gray-900">Upcoming</h2>
+                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                  {groupedItems.future.length}
+                </span>
+              </div>
+              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
+                expandedSections.includes('future') ? 'rotate-180' : ''
+              }`} />
+            </button>
+            
+            {expandedSections.includes('future') && (
+              <div className="p-4 space-y-3">
+                {groupedItems.future.map((item: any) => {
+                  const dueDate = calculateDueDate(birthDate, item)
+                  const Icon = getCategoryIcon(item.category)
+                  
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => toggleItemCompletion(item.id)}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all opacity-75"
+                    >
+                      <div className={`p-2 rounded-xl border ${getCategoryColor(item.category)}`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Due: {dueDate.toLocaleDateString('en-AU', { 
+                            day: 'numeric', 
+                            month: 'short', 
+                            year: 'numeric' 
+                          })}
+                        </p>
+                      </div>
+                      <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex-shrink-0 mt-1"></div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Completed Items */}
+        {groupedItems.completed.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <button
+              onClick={() => toggleSection('completed')}
+              className="w-full px-4 py-3 flex items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircleIcon className="w-5 h-5 text-green-600" />
+                <h2 className="font-semibold text-gray-900">Completed</h2>
+                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-full">
+                  {groupedItems.completed.length}
+                </span>
+              </div>
+              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
+                expandedSections.includes('completed') ? 'rotate-180' : ''
+              }`} />
+            </button>
+            
+            {expandedSections.includes('completed') && (
+              <div className="p-4 space-y-3">
+                {groupedItems.completed.map((item: any) => {
+                  const Icon = getCategoryIcon(item.category)
+                  const completion = completedItems.find(
+                    ci => ci.child_id === selectedChild?.id && ci.checklist_item_id === item.id
+                  )
+                  
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => toggleItemCompletion(item.id)}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all opacity-60"
+                    >
+                      <div className={`p-2 rounded-xl border opacity-50 ${getCategoryColor(item.category)}`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 line-through">{item.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                        {completion && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            Completed: {new Date(completion.completed_at).toLocaleDateString('en-AU', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </p>
+                        )}
+                      </div>
+                      <CheckCircleSolid className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
