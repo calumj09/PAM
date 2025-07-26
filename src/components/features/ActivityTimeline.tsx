@@ -1,8 +1,6 @@
 'use client'
 
 import { ActivityWithDetails } from '@/types/tracker'
-import { Card, CardContent } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
 import { TrashIcon, ClockIcon } from '@heroicons/react/24/outline'
 
 interface ActivityTimelineProps {
@@ -109,15 +107,13 @@ export function ActivityTimeline({ activities, onDeleteActivity, childName }: Ac
 
   if (activities.length === 0) {
     return (
-      <Card>
-        <CardContent className="text-center py-12">
-          <ClockIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No activities yet today</h3>
-          <p className="text-gray-600">
-            Use the quick entry buttons above to start tracking {childName}&apos;s activities
-          </p>
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl shadow-sm text-center py-12 px-6">
+        <ClockIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No activities yet today</h3>
+        <p className="text-gray-600">
+          Use the quick entry buttons above to start tracking {childName}&apos;s activities
+        </p>
+      </div>
     )
   }
 
@@ -138,63 +134,59 @@ export function ActivityTimeline({ activities, onDeleteActivity, childName }: Ac
         const duration = formatDuration(activity.duration_minutes)
         
         return (
-          <Card key={activity.id} className={`border-l-4 ${colorClass}`}>
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3 flex-1">
-                  <span className="text-2xl">{icon}</span>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-gray-900">
-                        {activity.activity_type?.name || 'Unknown Activity'}
-                      </h4>
-                      {duration && (
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                          {duration}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="text-sm text-gray-600 mb-2">
-                      {formatTime(activity.started_at)}
-                      {activity.ended_at && activity.ended_at !== activity.started_at && (
-                        <span> - {formatTime(activity.ended_at)}</span>
-                      )}
-                    </div>
-
-                    {details.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-2">
-                        {details.map((detail, i) => (
-                          <span 
-                            key={i}
-                            className="px-2 py-1 bg-white border border-gray-200 rounded text-xs"
-                          >
-                            {detail}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {activity.notes && (
-                      <p className="text-sm text-gray-700 italic">
-                        &quot;{activity.notes}&quot;
-                      </p>
+          <div key={activity.id} className={`bg-white rounded-2xl shadow-sm border-l-4 p-4 ${colorClass}`}>
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3 flex-1">
+                <span className="text-2xl">{icon}</span>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-medium text-gray-900">
+                      {activity.activity_type?.name || 'Unknown Activity'}
+                    </h4>
+                    {duration && (
+                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                        {duration}
+                      </span>
                     )}
                   </div>
-                </div>
+                  
+                  <div className="text-sm text-gray-600 mb-2">
+                    {formatTime(activity.started_at)}
+                    {activity.ended_at && activity.ended_at !== activity.started_at && (
+                      <span> - {formatTime(activity.ended_at)}</span>
+                    )}
+                  </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onDeleteActivity(activity.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 ml-2"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                </Button>
+                  {details.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {details.map((detail, i) => (
+                        <span 
+                          key={i}
+                          className="px-2 py-1 bg-gray-50 border border-gray-200 rounded-lg text-xs"
+                        >
+                          {detail}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {activity.notes && (
+                    <p className="text-sm text-gray-700 italic">
+                      &quot;{activity.notes}&quot;
+                    </p>
+                  )}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+
+              <button
+                onClick={() => onDeleteActivity(activity.id)}
+                className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors ml-2"
+              >
+                <TrashIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         )
       })}
     </div>

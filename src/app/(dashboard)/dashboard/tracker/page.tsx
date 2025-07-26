@@ -145,42 +145,47 @@ export default function TrackerPage() {
 
   if (children.length === 0) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-heading">
-            Baby Tracker
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Track feeding, sleep, and daily activities
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-orange-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
+          <div className="max-w-md mx-auto px-4 py-4">
+            <h1 className="text-xl font-semibold text-gray-900">Baby Tracker</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Track your baby's daily activities
+            </p>
+          </div>
         </div>
 
-        <Card>
-          <CardContent className="text-center py-12">
-            <CalendarDaysIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No children added yet</h3>
+        <div className="max-w-md mx-auto px-4 py-6">
+          <div className="bg-white rounded-2xl shadow-sm text-center py-12 px-6">
+            <div className="text-6xl mb-4">👶</div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to start tracking?</h3>
             <p className="text-gray-600 mb-6">
-              Add your first child to start tracking their daily activities
+              Add your baby's profile to start tracking their daily activities, feeding, and sleep patterns.
             </p>
-            <Link href="/dashboard/children">
-              <Button>Add Your First Child</Button>
+            <Link href="/dashboard/children" className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors">
+              <UserGroupIcon className="w-5 h-5" />
+              Add Your Baby
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-heading">
-          Baby Tracker
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Track feeding, sleep, and daily activities
-        </p>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-orange-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
+        <div className="max-w-md mx-auto px-4 py-4">
+          <h1 className="text-xl font-semibold text-gray-900">Baby Tracker</h1>
+          <p className="text-sm text-gray-600 mt-1">
+            Track {selectedChild?.name || 'your baby'}'s daily activities
+          </p>
+        </div>
       </div>
+
+      <div className="max-w-md mx-auto px-4 py-6 pb-24 space-y-4">
 
       {error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -188,22 +193,21 @@ export default function TrackerPage() {
         </div>
       )}
 
-      {/* Child Selector */}
-      {children.length > 1 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
+        {/* Child Selector */}
+        {children.length > 1 && (
+          <div className="bg-white rounded-2xl shadow-sm p-4">
+            <div className="flex items-center gap-2 mb-3">
               <UserGroupIcon className="w-5 h-5 text-gray-500" />
               <span className="font-medium text-gray-700">Select Child:</span>
             </div>
-            <div className="flex gap-2 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto pb-2">
               {children.map((child) => (
                 <button
                   key={child.id}
                   onClick={() => setSelectedChild(child)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors whitespace-nowrap ${
                     selectedChild?.id === child.id
-                      ? 'bg-pam-red text-white'
+                      ? 'bg-red-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -211,21 +215,18 @@ export default function TrackerPage() {
                 </button>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {/* Date Navigator */}
-      <Card>
-        <CardContent className="p-4">
+        {/* Date Navigator */}
+        <div className="bg-white rounded-2xl shadow-sm p-4">
           <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={() => navigateDate('prev')}
+              className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors"
             >
-              <ArrowLeftIcon className="w-4 h-4" />
-            </Button>
+              <ArrowLeftIcon className="w-5 h-5 text-gray-600" />
+            </button>
 
             <div className="text-center">
               <div className="font-semibold text-gray-900">
@@ -240,85 +241,74 @@ export default function TrackerPage() {
               </div>
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={() => navigateDate('next')}
               disabled={isFuture(new Date(selectedDate.getTime() + 24 * 60 * 60 * 1000))}
+              className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ArrowRightIcon className="w-4 h-4" />
-            </Button>
+              <ArrowRightIcon className="w-5 h-5 text-gray-600" />
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Daily Stats */}
-      {dailyStats && (
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="text-center">
-            <CardContent className="p-4">
+        {/* Daily Stats */}
+        {dailyStats && (
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white rounded-2xl shadow-sm text-center p-4">
               <div className="text-2xl mb-2">🍼</div>
               <div className="text-2xl font-bold text-gray-900">{dailyStats.feeding_count}</div>
               <div className="text-sm text-gray-600">Feedings</div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card className="text-center">
-            <CardContent className="p-4">
+            <div className="bg-white rounded-2xl shadow-sm text-center p-4">
               <div className="text-2xl mb-2">😴</div>
               <div className="text-2xl font-bold text-gray-900">
                 {Math.round(dailyStats.sleep_duration_minutes / 60 * 10) / 10}h
               </div>
               <div className="text-sm text-gray-600">Sleep</div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card className="text-center">
-            <CardContent className="p-4">
+            <div className="bg-white rounded-2xl shadow-sm text-center p-4">
               <div className="text-2xl mb-2">👶</div>
               <div className="text-2xl font-bold text-gray-900">{dailyStats.diaper_changes}</div>
               <div className="text-sm text-gray-600">Diapers</div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </div>
+          </div>
+        )}
 
-      {/* Voice Input */}
-      {selectedChild && !isFuture(selectedDate) && (
-        <VoiceInput
-          childId={selectedChild.id}
-          childName={selectedChild.name}
-          onActivityAdded={handleActivityAdded}
-        />
-      )}
+        {/* Voice Input */}
+        {selectedChild && !isFuture(selectedDate) && (
+          <VoiceInput
+            childId={selectedChild.id}
+            childName={selectedChild.name}
+            onActivityAdded={handleActivityAdded}
+          />
+        )}
 
-      {/* Quick Entry Buttons */}
-      {selectedChild && !isFuture(selectedDate) && (
-        <QuickEntryButtons
-          childId={selectedChild.id}
-          childName={selectedChild.name}
-          onActivityAdded={handleActivityAdded}
-        />
-      )}
+        {/* Quick Entry Buttons */}
+        {selectedChild && !isFuture(selectedDate) && (
+          <QuickEntryButtons
+            childId={selectedChild.id}
+            childName={selectedChild.name}
+            onActivityAdded={handleActivityAdded}
+          />
+        )}
 
-      {/* Activity Timeline */}
-      {selectedChild && (
-        <ActivityTimeline
-          activities={activities}
-          onDeleteActivity={handleDeleteActivity}
-          childName={selectedChild.name}
-        />
-      )}
+        {/* Activity Timeline */}
+        {selectedChild && (
+          <ActivityTimeline
+            activities={activities}
+            onDeleteActivity={handleDeleteActivity}
+            childName={selectedChild.name}
+          />
+        )}
 
-      {/* Analytics Preview */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ChartBarIcon className="w-5 h-5" />
-            Coming Soon: Analytics & Patterns
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        {/* Analytics Preview */}
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <ChartBarIcon className="w-5 h-5 text-gray-600" />
+            <h3 className="font-semibold text-gray-900">Coming Soon: Analytics & Patterns</h3>
+          </div>
           <div className="text-center py-6 text-gray-500">
             <ChartBarIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p className="text-sm">
@@ -327,8 +317,8 @@ export default function TrackerPage() {
               Export reports for healthcare visits.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

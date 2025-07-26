@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/Card'
 import { TrackerService } from '@/lib/services/tracker-service'
 import { QuickFeedingEntry, QuickSleepEntry, QuickDiaperEntry } from '@/types/tracker'
 
@@ -127,52 +126,50 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
   ]
 
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-lg">⚡</span>
-          <h3 className="font-semibold text-gray-900">Quick Track for {childName}</h3>
+    <div className="bg-white rounded-2xl shadow-sm p-4">
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-lg">⚡</span>
+        <h3 className="font-semibold text-gray-900">Quick Track for {childName}</h3>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
+      )}
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-sm text-red-600">{error}</p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3">
-          {quickButtons.map((button) => (
-            <button
-              key={button.id}
-              onClick={() => handleQuickEntry(button.id, {})}
-              disabled={isLoading === button.id}
-              className={`p-4 rounded-lg border transition-all text-left ${button.color} ${
-                isLoading === button.id ? 'opacity-50 cursor-wait' : ''
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{button.emoji}</span>
-                <div className="flex-1">
-                  <div className="font-medium text-sm">{button.label}</div>
-                  <div className="text-xs opacity-75">{button.description}</div>
-                </div>
+      <div className="grid grid-cols-2 gap-3">
+        {quickButtons.map((button) => (
+          <button
+            key={button.id}
+            onClick={() => handleQuickEntry(button.id, {})}
+            disabled={isLoading === button.id}
+            className={`p-4 rounded-xl border transition-all text-left ${button.color} ${
+              isLoading === button.id ? 'opacity-50 cursor-wait' : ''
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{button.emoji}</span>
+              <div className="flex-1">
+                <div className="font-medium text-sm">{button.label}</div>
+                <div className="text-xs opacity-75">{button.description}</div>
               </div>
-              
-              {isLoading === button.id && (
-                <div className="mt-2 flex items-center justify-center">
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
+            </div>
+            
+            {isLoading === button.id && (
+              <div className="mt-2 flex items-center justify-center">
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+          </button>
+        ))}
+      </div>
 
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-xs text-gray-500 text-center">
-            Tap any button for quick entry with default values. For detailed tracking, use the full form below.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <p className="text-xs text-gray-500 text-center">
+          Tap any button for quick entry with default values.
+        </p>
+      </div>
+    </div>
   )
 }
