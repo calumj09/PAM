@@ -66,9 +66,9 @@ export default function SignupPage() {
         console.error('Auth error:', authError)
         setError(authError.message)
       } else if (data.user) {
-        console.log('Signup successful, redirecting...')
-        // Success - redirect to today page
-        router.push('/dashboard/today')
+        console.log('Signup successful, redirecting to onboarding...')
+        // Success - redirect to onboarding flow
+        router.push('/onboarding')
       } else {
         setError('Signup failed - no user returned')
       }
