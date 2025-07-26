@@ -35,7 +35,7 @@ export default function ChecklistPage() {
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [completedItems, setCompletedItems] = useState<CompletedItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [expandedSections, setExpandedSections] = useState<string[]>(['due', 'upcoming'])
+  const [expandedWeeks, setExpandedWeeks] = useState<string[]>([])
   const supabase = createClient()
 
   useEffect(() => {
@@ -65,6 +65,10 @@ export default function ChecklistPage() {
           .in('child_id', childrenData.map(c => c.id))
 
         setCompletedItems(completedData || [])
+        
+        // Auto-expand current week
+        const currentWeek = getCurrentWeek(new Date(childrenData[0].date_of_birth))
+        setExpandedWeeks([`week-${currentWeek}`])
       }
     } finally {
       setIsLoading(false)
@@ -104,11 +108,11 @@ export default function ChecklistPage() {
     }
   }
 
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => 
-      prev.includes(section) 
-        ? prev.filter(s => s !== section)
-        : [...prev, section]
+  const toggleWeek = (weekId: string) => {
+    setExpandedWeeks(prev => 
+      prev.includes(weekId) 
+        ? prev.filter(w => w !== weekId)
+        : [...prev, weekId]
     )
   }
 
@@ -142,15 +146,14 @@ export default function ChecklistPage() {
     }
   }
 
-  const getItemStatus = (item: any, birthDate: Date) => {
-    const dueDate = calculateDueDate(birthDate, item)
-    const now = new Date()
-    const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    
-    if (daysUntilDue < -30) return 'overdue'
-    if (daysUntilDue < 0) return 'due'
-    if (daysUntilDue <= 7) return 'upcoming'
-    return 'future'
+  const getWeekNumber = (birthDate: Date, targetDate: Date) => {
+    const diffTime = targetDate.getTime() - birthDate.getTime()
+    const diffWeeks = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7))
+    return Math.max(0, diffWeeks)
+  }
+
+  const getCurrentWeek = (birthDate: Date) => {
+    return getWeekNumber(birthDate, new Date())
   }
 
   if (isLoading) {
@@ -190,39 +193,47 @@ export default function ChecklistPage() {
   const checklistItems = selectedChild ? getChecklistForChild(new Date(selectedChild.date_of_birth)) : []
   const birthDate = selectedChild ? new Date(selectedChild.date_of_birth) : new Date()
 
-  // Group items by status
-  const groupedItems = checklistItems.reduce((acc, item) => {
+  // Group items by week
+  const weeklyItems = checklistItems.reduce((acc, item) => {
+    const dueDate = calculateDueDate(birthDate, item)
+    const weekNumber = getWeekNumber(birthDate, dueDate)
+    const weekKey = `week-${weekNumber}`
+    
+    if (!acc[weekKey]) {
+      acc[weekKey] = {
+        weekNumber,
+        startDate: new Date(birthDate.getTime() + (weekNumber - 1) * 7 * 24 * 60 * 60 * 1000),
+        endDate: new Date(birthDate.getTime() + weekNumber * 7 * 24 * 60 * 60 * 1000),
+        items: []
+      }
+    }
+    
     const isCompleted = completedItems.some(
       ci => ci.child_id === selectedChild?.id && ci.checklist_item_id === item.id
     )
     
-    if (isCompleted) {
-      acc.completed.push(item)
-    } else {
-      const status = getItemStatus(item, birthDate)
-      if (status === 'overdue' || status === 'due') {
-        acc.due.push(item)
-      } else if (status === 'upcoming') {
-        acc.upcoming.push(item)
-      } else {
-        acc.future.push(item)
-      }
-    }
+    acc[weekKey].items.push({ ...item, isCompleted, dueDate })
     
     return acc
-  }, { due: [], upcoming: [], future: [], completed: [] } as any)
+  }, {} as any)
+
+  // Convert to sorted array
+  const sortedWeeks = Object.values(weeklyItems)
+    .sort((a: any, b: any) => a.weekNumber - b.weekNumber)
+    .slice(0, 52) // First year only
 
   // Calculate stats
   const totalItems = checklistItems.length
-  const completedCount = groupedItems.completed.length
+  const completedCount = completedItems.filter(ci => ci.child_id === selectedChild?.id).length
   const completionRate = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0
+  const currentWeek = getCurrentWeek(birthDate)
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-md mx-auto px-4 py-4">
-          <h1 className="text-xl font-semibold text-gray-900">Australian Checklist</h1>
+          <h1 className="text-xl font-semibold text-gray-900">Timeline</h1>
           
           {/* Child Selector */}
           {children.length > 1 && (
@@ -260,223 +271,167 @@ export default function ChecklistPage() {
       </div>
 
       <div className="max-w-md mx-auto px-4 py-6 pb-24 space-y-4">
-        {/* Due/Overdue Items */}
-        {groupedItems.due.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <button
-              onClick={() => toggleSection('due')}
-              className="w-full px-4 py-3 flex items-center justify-between bg-red-50 text-left"
-            >
-              <div className="flex items-center gap-2">
-                <ExclamationTriangleIcon className="w-5 h-5 text-red-600" />
-                <h2 className="font-semibold text-gray-900">Action Required</h2>
-                <span className="px-2 py-0.5 bg-red-600 text-white text-xs rounded-full">
-                  {groupedItems.due.length}
-                </span>
-              </div>
-              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
-                expandedSections.includes('due') ? 'rotate-180' : ''
-              }`} />
-            </button>
-            
-            {expandedSections.includes('due') && (
-              <div className="p-4 space-y-3">
-                {groupedItems.due.map((item: any) => {
-                  const dueDate = calculateDueDate(birthDate, item)
-                  const Icon = getCategoryIcon(item.category)
-                  
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleItemCompletion(item.id)}
-                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all"
-                    >
-                      <div className={`p-2 rounded-xl border ${getCategoryColor(item.category)}`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                        <p className="text-xs text-red-600 font-medium mt-2">
-                          Due: {dueDate.toLocaleDateString('en-AU', { 
-                            day: 'numeric', 
-                            month: 'short', 
-                            year: 'numeric' 
-                          })}
-                        </p>
-                      </div>
-                      <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex-shrink-0 mt-1"></div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Current Week Highlight */}
+        <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-2xl p-4 border border-pink-200 mb-6">
+          <h3 className="font-semibold text-gray-900 mb-2">📅 Week {currentWeek}</h3>
+          <p className="text-sm text-gray-700">
+            {selectedChild?.name} is {currentWeek} week{currentWeek !== 1 ? 's' : ''} old
+          </p>
+        </div>
 
-        {/* Upcoming Items */}
-        {groupedItems.upcoming.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <button
-              onClick={() => toggleSection('upcoming')}
-              className="w-full px-4 py-3 flex items-center justify-between text-left"
+        {/* Weekly Timeline */}
+        {sortedWeeks.map((week: any) => {
+          const weekKey = `week-${week.weekNumber}`
+          const isCurrentWeek = week.weekNumber === currentWeek
+          const isPastWeek = week.weekNumber < currentWeek
+          const completedInWeek = week.items.filter((item: any) => item.isCompleted).length
+          const totalInWeek = week.items.length
+          
+          if (totalInWeek === 0) return null
+          
+          return (
+            <div 
+              key={weekKey} 
+              className={`bg-white rounded-2xl shadow-sm overflow-hidden border-2 transition-all ${
+                isCurrentWeek 
+                  ? 'border-pink-300 shadow-md' 
+                  : isPastWeek
+                    ? 'border-green-200'
+                    : 'border-gray-100'
+              }`}
             >
-              <div className="flex items-center gap-2">
-                <ClockIcon className="w-5 h-5 text-orange-600" />
-                <h2 className="font-semibold text-gray-900">Coming Soon</h2>
-                <span className="px-2 py-0.5 bg-orange-100 text-orange-600 text-xs rounded-full">
-                  {groupedItems.upcoming.length}
-                </span>
-              </div>
-              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
-                expandedSections.includes('upcoming') ? 'rotate-180' : ''
-              }`} />
-            </button>
-            
-            {expandedSections.includes('upcoming') && (
-              <div className="p-4 space-y-3">
-                {groupedItems.upcoming.map((item: any) => {
-                  const dueDate = calculateDueDate(birthDate, item)
-                  const Icon = getCategoryIcon(item.category)
-                  
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleItemCompletion(item.id)}
-                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all"
-                    >
-                      <div className={`p-2 rounded-xl border ${getCategoryColor(item.category)}`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Due: {dueDate.toLocaleDateString('en-AU', { 
-                            day: 'numeric', 
-                            month: 'short', 
-                            year: 'numeric' 
-                          })}
-                        </p>
-                      </div>
-                      <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex-shrink-0 mt-1"></div>
+              <button
+                onClick={() => toggleWeek(weekKey)}
+                className={`w-full px-4 py-4 flex items-center justify-between text-left transition-all ${
+                  isCurrentWeek 
+                    ? 'bg-gradient-to-r from-pink-50 to-orange-50' 
+                    : isPastWeek && completedInWeek === totalInWeek
+                      ? 'bg-green-50'
+                      : 'bg-white hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                    isCurrentWeek 
+                      ? 'bg-pink-600 text-white' 
+                      : isPastWeek && completedInWeek === totalInWeek
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-200 text-gray-600'
+                  }`}>
+                    {week.weekNumber}
+                  </div>
+                  <div>
+                    <h2 className="font-semibold text-gray-900">
+                      Week {week.weekNumber}
+                      {isCurrentWeek && <span className="ml-2 text-pink-600">• Current</span>}
+                    </h2>
+                    <p className="text-xs text-gray-500">
+                      {week.startDate.toLocaleDateString('en-AU', { 
+                        day: 'numeric', 
+                        month: 'short' 
+                      })} - {week.endDate.toLocaleDateString('en-AU', { 
+                        day: 'numeric', 
+                        month: 'short' 
+                      })}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <div className="text-sm font-medium text-gray-900">
+                      {completedInWeek}/{totalInWeek}
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Future Items */}
-        {groupedItems.future.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <button
-              onClick={() => toggleSection('future')}
-              className="w-full px-4 py-3 flex items-center justify-between text-left"
-            >
-              <div className="flex items-center gap-2">
-                <CalendarDaysIcon className="w-5 h-5 text-gray-600" />
-                <h2 className="font-semibold text-gray-900">Upcoming</h2>
-                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                  {groupedItems.future.length}
-                </span>
-              </div>
-              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
-                expandedSections.includes('future') ? 'rotate-180' : ''
-              }`} />
-            </button>
-            
-            {expandedSections.includes('future') && (
-              <div className="p-4 space-y-3">
-                {groupedItems.future.map((item: any) => {
-                  const dueDate = calculateDueDate(birthDate, item)
-                  const Icon = getCategoryIcon(item.category)
-                  
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleItemCompletion(item.id)}
-                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all opacity-75"
-                    >
-                      <div className={`p-2 rounded-xl border ${getCategoryColor(item.category)}`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                        <p className="text-xs text-gray-500 mt-2">
-                          Due: {dueDate.toLocaleDateString('en-AU', { 
-                            day: 'numeric', 
-                            month: 'short', 
-                            year: 'numeric' 
-                          })}
-                        </p>
-                      </div>
-                      <div className="w-6 h-6 border-2 border-gray-300 rounded-full flex-shrink-0 mt-1"></div>
+                    <div className={`w-16 h-1.5 rounded-full ${
+                      isPastWeek && completedInWeek === totalInWeek 
+                        ? 'bg-green-600' 
+                        : 'bg-gray-200'
+                    }`}>
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          isCurrentWeek ? 'bg-pink-600' : 'bg-green-600'
+                        }`}
+                        style={{ width: `${totalInWeek > 0 ? (completedInWeek / totalInWeek) * 100 : 0}%` }}
+                      />
                     </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Completed Items */}
-        {groupedItems.completed.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-            <button
-              onClick={() => toggleSection('completed')}
-              className="w-full px-4 py-3 flex items-center justify-between text-left"
-            >
-              <div className="flex items-center gap-2">
-                <CheckCircleIcon className="w-5 h-5 text-green-600" />
-                <h2 className="font-semibold text-gray-900">Completed</h2>
-                <span className="px-2 py-0.5 bg-green-100 text-green-600 text-xs rounded-full">
-                  {groupedItems.completed.length}
-                </span>
-              </div>
-              <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
-                expandedSections.includes('completed') ? 'rotate-180' : ''
-              }`} />
-            </button>
-            
-            {expandedSections.includes('completed') && (
-              <div className="p-4 space-y-3">
-                {groupedItems.completed.map((item: any) => {
-                  const Icon = getCategoryIcon(item.category)
-                  const completion = completedItems.find(
-                    ci => ci.child_id === selectedChild?.id && ci.checklist_item_id === item.id
-                  )
-                  
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleItemCompletion(item.id)}
-                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 cursor-pointer transition-all opacity-60"
-                    >
-                      <div className={`p-2 rounded-xl border opacity-50 ${getCategoryColor(item.category)}`}>
-                        <Icon className="w-5 h-5" />
+                  </div>
+                  <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform ${
+                    expandedWeeks.includes(weekKey) ? 'rotate-180' : ''
+                  }`} />
+                </div>
+              </button>
+              
+              {expandedWeeks.includes(weekKey) && (
+                <div className="p-4 space-y-3 bg-gray-50">
+                  {week.items.map((item: any) => {
+                    const Icon = getCategoryIcon(item.category)
+                    const now = new Date()
+                    const daysPastDue = Math.floor((now.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24))
+                    const isOverdue = daysPastDue > 0 && !item.isCompleted
+                    
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => toggleItemCompletion(item.id)}
+                        className={`flex items-start gap-3 p-3 rounded-xl cursor-pointer transition-all border ${
+                          item.isCompleted 
+                            ? 'bg-white border-green-200 opacity-75' 
+                            : isOverdue
+                              ? 'bg-red-50 border-red-200 hover:bg-red-100'
+                              : 'bg-white border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className={`p-2 rounded-xl border ${getCategoryColor(item.category)} ${
+                          item.isCompleted ? 'opacity-50' : ''
+                        }`}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`font-semibold text-gray-900 ${
+                            item.isCompleted ? 'line-through' : ''
+                          }`}>
+                            {item.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <p className={`text-xs font-medium ${
+                              isOverdue 
+                                ? 'text-red-600' 
+                                : item.isCompleted
+                                  ? 'text-green-600'
+                                  : 'text-gray-500'
+                            }`}>
+                              {item.isCompleted ? 'Completed' : 
+                               isOverdue ? `${daysPastDue} day${daysPastDue > 1 ? 's' : ''} overdue` :
+                               `Due: ${item.dueDate.toLocaleDateString('en-AU', { 
+                                 day: 'numeric', 
+                                 month: 'short' 
+                               })}`}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0 mt-1">
+                          {item.isCompleted ? (
+                            <CheckCircleSolid className="w-6 h-6 text-green-600" />
+                          ) : (
+                            <div className={`w-6 h-6 border-2 rounded-full ${
+                              isOverdue ? 'border-red-400' : 'border-gray-300'
+                            }`}></div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 line-through">{item.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{item.description}</p>
-                        {completion && (
-                          <p className="text-xs text-gray-500 mt-2">
-                            Completed: {new Date(completion.completed_at).toLocaleDateString('en-AU', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric'
-                            })}
-                          </p>
-                        )}
-                      </div>
-                      <CheckCircleSolid className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )
+        })}
+        
+        {sortedWeeks.length === 0 && (
+          <div className="text-center py-8">
+            <CalendarDaysIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600">No timeline items found for {selectedChild?.name}</p>
           </div>
         )}
       </div>
