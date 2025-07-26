@@ -52,25 +52,29 @@ export default function SignupPage() {
     }
 
     try {
+      console.log('Starting signup with:', { email, stateTerritory })
+      
+      // Simplified signup - just email and password first
       const { data, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            state_territory: stateTerritory,
-          }
-        }
+        email: email.trim(),
+        password: password
       })
 
+      console.log('Signup response:', { data, authError })
+
       if (authError) {
+        console.error('Auth error:', authError)
         setError(authError.message)
       } else if (data.user) {
+        console.log('Signup successful, redirecting...')
         // Success - redirect to today page
         router.push('/dashboard/today')
+      } else {
+        setError('Signup failed - no user returned')
       }
     } catch (err) {
-      console.error('Signup error:', err)
-      setError('An unexpected error occurred. Please try again.')
+      console.error('Signup catch error:', err)
+      setError(`Signup failed: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setIsLoading(false)
     }
