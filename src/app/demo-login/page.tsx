@@ -13,9 +13,9 @@ export default function DemoLoginPage() {
     e.preventDefault()
     setIsLoading(true)
     
-    // Simple demo login - just redirect to today page
+    // Simple demo login - redirect to demo dashboard (bypasses middleware)
     setTimeout(() => {
-      router.push('/dashboard/today')
+      router.push('/demo-dashboard')
     }, 1000)
   }
 

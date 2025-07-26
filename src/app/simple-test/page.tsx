@@ -22,17 +22,12 @@ export default function SimpleTestPage() {
       
       setResult(`✅ Environment variables found\nURL: ${url}\nKEY: ${key.substring(0, 20)}...`)
       
-      // Test 2: Simple fetch to Supabase
-      const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
+      // Test 2: Simple fetch to Supabase (just check if server responds)
+      const response = await fetch(`${url}/rest/v1/`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           'apikey': key
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          password: 'test123456'
-        })
+        }
       })
       
       const data = await response.text()
