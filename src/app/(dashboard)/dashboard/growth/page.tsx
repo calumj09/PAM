@@ -31,7 +31,6 @@ interface Child {
   id: string
   name: string
   date_of_birth: string
-  sex?: 'male' | 'female'
 }
 
 export default function GrowthPage() {
@@ -66,11 +65,11 @@ export default function GrowthPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // Load children with family sharing
+      // Load children - simplified query without family sharing
       const { data: childrenData, error: childrenError } = await supabase
         .from('children')
-        .select('id, name, date_of_birth, sex')
-        .or(`user_id.eq.${user.id},family_id.in.(select family_id from family_members where user_id = ${user.id})`)
+        .select('id, name, date_of_birth')
+        .eq('user_id', user.id)
         .order('date_of_birth', { ascending: false })
 
       if (childrenError) throw childrenError
@@ -439,7 +438,7 @@ export default function GrowthPage() {
             <GrowthChart
               childId={selectedChild.id}
               measurementType={selectedMeasurementType}
-              childSex={selectedChild.sex || 'male'}
+              childSex={'male'} // Default to male for now, can be updated later
             />
           )}
 
