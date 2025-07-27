@@ -1,8 +1,8 @@
 CREATE TABLE simple_activities (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   child_id UUID REFERENCES children(id) ON DELETE CASCADE,
-  activity_type TEXT NOT NULL,
-  activity_subtype TEXT,
+  activity_type TEXT NOT NULL, -- 'feeding', 'sleep', 'nappy', 'diaper', 'tummy_time', 'growth', 'note'
+  activity_subtype TEXT, -- 'breast', 'bottle', 'solid' for feeding; 'wet', 'dirty' for nappy; 'play' for tummy_time
   started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   ended_at TIMESTAMPTZ,
   duration_minutes INTEGER,

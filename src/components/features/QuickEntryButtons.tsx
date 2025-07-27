@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TrackerService } from '@/lib/services/tracker-service'
-import { QuickFeedingEntry, QuickSleepEntry, QuickDiaperEntry } from '@/types/tracker'
+import { QuickFeedingEntry, QuickSleepEntry, QuickDiaperEntry, Activity } from '@/types/tracker'
+import { Button } from '@/components/ui/Button'
 
 interface QuickEntryButtonsProps {
   childId: string
@@ -10,9 +11,37 @@ interface QuickEntryButtonsProps {
   onActivityAdded: () => void
 }
 
+interface ManualEntry {
+  type: 'feeding' | 'sleep' | 'tummy_time'
+  show: boolean
+}
+
 export function QuickEntryButtons({ childId, childName, onActivityAdded }: QuickEntryButtonsProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [activeSleep, setActiveSleep] = useState<Activity | null>(null)
+  const [manualEntry, setManualEntry] = useState<ManualEntry>({ type: 'feeding', show: false })
+  
+  // Manual entry form states
+  const [feedingType, setFeedingType] = useState<'breast' | 'bottle' | 'solid'>('bottle')
+  const [feedingAmount, setFeedingAmount] = useState(120)
+  const [feedingDuration, setFeedingDuration] = useState(15)
+  const [sleepStartTime, setSleepStartTime] = useState('')
+  const [sleepEndTime, setSleepEndTime] = useState('')
+  const [tummyTimeDuration, setTummyTimeDuration] = useState(10)
+
+  useEffect(() => {
+    loadActiveSleep()
+  }, [childId])
+
+  const loadActiveSleep = async () => {
+    try {
+      const activeSessions = await TrackerService.getActiveSleepSessions(childId)
+      setActiveSleep(activeSessions[0] || null)
+    } catch (error) {
+      console.error('Error loading active sleep sessions:', error)
+    }
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleQuickEntry = async (type: string, entry: any) => {
@@ -26,7 +55,7 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             child_id: childId,
             feeding_type: 'breast',
             started_at: new Date(),
-            duration_minutes: 15, // Default 15 minutes
+            duration_minutes: 15,
             ...entry
           } as QuickFeedingEntry)
           break
@@ -36,13 +65,12 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             child_id: childId,
             feeding_type: 'bottle',
             started_at: new Date(),
-            amount_ml: 120, // Default 120ml
+            amount_ml: 120,
             ...entry
           } as QuickFeedingEntry)
           break
 
         case 'nappy-wet':
-        case 'diaper-wet':
           await TrackerService.recordNappyChange({
             child_id: childId,
             diaper_type: 'wet',
@@ -52,7 +80,6 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
           break
 
         case 'nappy-dirty':
-        case 'diaper-dirty':
           await TrackerService.recordNappyChange({
             child_id: childId,
             diaper_type: 'dirty',
@@ -67,6 +94,16 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             started_at: new Date(),
             ...entry
           } as QuickSleepEntry)
+          await loadActiveSleep() // Refresh active sleep
+          break
+
+        case 'tummy-time':
+          await TrackerService.recordTummyTime({
+            child_id: childId,
+            duration_minutes: 10,
+            started_at: new Date(),
+            ...entry
+          })
           break
 
         default:
@@ -77,6 +114,88 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
     } catch (error) {
       console.error('Error recording activity:', error)
       setError('Failed to record activity')
+    } finally {
+      setIsLoading(null)
+    }
+  }
+
+  const handleStopSleep = async () => {
+    if (!activeSleep) return
+    
+    setIsLoading('stop-sleep')
+    try {
+      await TrackerService.endSleepSession(activeSleep.id)
+      setActiveSleep(null)
+      onActivityAdded()
+    } catch (error) {
+      console.error('Error stopping sleep:', error)
+      setError('Failed to stop sleep session')
+    } finally {
+      setIsLoading(null)
+    }
+  }
+
+  const handleManualFeeding = async () => {
+    setIsLoading('manual-feeding')
+    try {
+      const entry: QuickFeedingEntry = {
+        child_id: childId,
+        feeding_type: feedingType,
+        started_at: new Date(),
+        ...(feedingType === 'bottle' && { amount_ml: feedingAmount }),
+        ...(feedingType !== 'solid' && { duration_minutes: feedingDuration })
+      }
+      
+      await TrackerService.recordFeeding(entry)
+      setManualEntry({ type: 'feeding', show: false })
+      onActivityAdded()
+    } catch (error) {
+      console.error('Error recording manual feeding:', error)
+      setError('Failed to record feeding')
+    } finally {
+      setIsLoading(null)
+    }
+  }
+
+  const handleManualSleep = async () => {
+    setIsLoading('manual-sleep')
+    try {
+      const startTime = sleepStartTime ? new Date(`${new Date().toDateString()} ${sleepStartTime}`) : new Date()
+      const endTime = sleepEndTime ? new Date(`${new Date().toDateString()} ${sleepEndTime}`) : undefined
+
+      const entry: QuickSleepEntry = {
+        child_id: childId,
+        started_at: startTime,
+        ended_at: endTime
+      }
+      
+      await TrackerService.recordSleep(entry)
+      setManualEntry({ type: 'sleep', show: false })
+      setSleepStartTime('')
+      setSleepEndTime('')
+      onActivityAdded()
+    } catch (error) {
+      console.error('Error recording manual sleep:', error)
+      setError('Failed to record sleep')
+    } finally {
+      setIsLoading(null)
+    }
+  }
+
+  const handleManualTummyTime = async () => {
+    setIsLoading('manual-tummy-time')
+    try {
+      await TrackerService.recordTummyTime({
+        child_id: childId,
+        duration_minutes: tummyTimeDuration,
+        started_at: new Date()
+      })
+      
+      setManualEntry({ type: 'tummy_time', show: false })
+      onActivityAdded()
+    } catch (error) {
+      console.error('Error recording tummy time:', error)
+      setError('Failed to record tummy time')
     } finally {
       setIsLoading(null)
     }
@@ -121,11 +240,159 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
     {
       id: 'tummy-time',
       label: 'Tummy Time',
-      emoji: '🤸',
+      emoji: '🤸‍♀️',
       color: 'bg-pink-100 hover:bg-pink-200 text-pink-800',
       description: '10 min activity'
     }
   ]
+
+  const getCurrentTime = () => {
+    return new Date().toTimeString().slice(0, 5)
+  }
+
+  if (manualEntry.show) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-gray-900">
+            {manualEntry.type === 'feeding' && 'Record Feeding'}
+            {manualEntry.type === 'sleep' && 'Record Sleep'}
+            {manualEntry.type === 'tummy_time' && 'Record Tummy Time'}
+          </h3>
+          <button 
+            onClick={() => setManualEntry({ ...manualEntry, show: false })}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        {manualEntry.type === 'feeding' && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['bottle', 'breast', 'solid'] as const).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setFeedingType(type)}
+                    className={`p-2 rounded-lg text-sm font-medium transition-colors ${
+                      feedingType === type
+                        ? 'bg-pam-red text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {type === 'bottle' && '🍼 Bottle'}
+                    {type === 'breast' && '🤱 Breast'}
+                    {type === 'solid' && '🥄 Solid'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {feedingType === 'bottle' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Amount (ml)</label>
+                <input
+                  type="number"
+                  value={feedingAmount}
+                  onChange={(e) => setFeedingAmount(Number(e.target.value))}
+                  min="1"
+                  max="500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pam-red focus:border-transparent"
+                />
+              </div>
+            )}
+
+            {feedingType !== 'solid' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+                <input
+                  type="number"
+                  value={feedingDuration}
+                  onChange={(e) => setFeedingDuration(Number(e.target.value))}
+                  min="1"
+                  max="120"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pam-red focus:border-transparent"
+                />
+              </div>
+            )}
+
+            <Button
+              onClick={handleManualFeeding}
+              disabled={isLoading === 'manual-feeding'}
+              className="w-full bg-pam-red hover:bg-pam-red/90 text-white"
+            >
+              {isLoading === 'manual-feeding' ? 'Saving...' : 'Save Feeding'}
+            </Button>
+          </div>
+        )}
+
+        {manualEntry.type === 'sleep' && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Start Time</label>
+              <input
+                type="time"
+                value={sleepStartTime || getCurrentTime()}
+                onChange={(e) => setSleepStartTime(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pam-red focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">End Time (optional)</label>
+              <input
+                type="time"
+                value={sleepEndTime}
+                onChange={(e) => setSleepEndTime(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pam-red focus:border-transparent"
+              />
+              <p className="text-xs text-gray-500 mt-1">Leave empty if sleep is ongoing</p>
+            </div>
+
+            <Button
+              onClick={handleManualSleep}
+              disabled={isLoading === 'manual-sleep'}
+              className="w-full bg-pam-red hover:bg-pam-red/90 text-white"
+            >
+              {isLoading === 'manual-sleep' ? 'Saving...' : 'Save Sleep'}
+            </Button>
+          </div>
+        )}
+
+        {manualEntry.type === 'tummy_time' && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+              <input
+                type="number"
+                value={tummyTimeDuration}
+                onChange={(e) => setTummyTimeDuration(Number(e.target.value))}
+                min="1"
+                max="60"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pam-red focus:border-transparent"
+              />
+            </div>
+
+            <Button
+              onClick={handleManualTummyTime}
+              disabled={isLoading === 'manual-tummy-time'}
+              className="w-full bg-pam-red hover:bg-pam-red/90 text-white"
+            >
+              {isLoading === 'manual-tummy-time' ? 'Saving...' : 'Save Tummy Time'}
+            </Button>
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-4">
@@ -140,15 +407,34 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
         </div>
       )}
 
+      {/* Active Sleep Warning */}
+      {activeSleep && (
+        <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-purple-800">😴 Sleep in progress</p>
+              <p className="text-xs text-purple-600">Started {new Date(activeSleep.started_at).toLocaleTimeString()}</p>
+            </div>
+            <Button
+              onClick={handleStopSleep}
+              disabled={isLoading === 'stop-sleep'}
+              className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-3 py-1"
+            >
+              {isLoading === 'stop-sleep' ? 'Stopping...' : 'Stop Sleep'}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3">
         {quickButtons.map((button) => (
           <button
             key={button.id}
             onClick={() => handleQuickEntry(button.id, {})}
-            disabled={isLoading === button.id}
+            disabled={isLoading === button.id || (button.id === 'sleep-start' && activeSleep)}
             className={`p-4 rounded-xl border transition-all text-left ${button.color} ${
               isLoading === button.id ? 'opacity-50 cursor-wait' : ''
-            }`}
+            } ${(button.id === 'sleep-start' && activeSleep) ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <div className="flex items-center gap-3">
               <span className="text-2xl">{button.emoji}</span>
@@ -167,9 +453,34 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
         ))}
       </div>
 
+      {/* Manual Entry Options */}
       <div className="mt-4 pt-4 border-t border-gray-200">
+        <p className="text-sm font-medium text-gray-700 mb-3">Need custom times or amounts?</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setManualEntry({ type: 'feeding', show: true })}
+            className="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+          >
+            🍼 Custom Feed
+          </button>
+          <button
+            onClick={() => setManualEntry({ type: 'sleep', show: true })}
+            className="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+          >
+            😴 Custom Sleep
+          </button>
+          <button
+            onClick={() => setManualEntry({ type: 'tummy_time', show: true })}
+            className="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+          >
+            🤸‍♀️ Custom Tummy
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-3">
         <p className="text-xs text-gray-500 text-center">
-          Tap any button for quick entry with default values.
+          Tap any button for quick entry with default values, or use custom options for specific times/amounts.
         </p>
       </div>
     </div>

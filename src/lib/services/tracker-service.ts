@@ -382,6 +382,8 @@ export class TrackerService {
       case 'nappy':
       case 'diaper':
         return subtype === 'wet' ? 'Wet Nappy' : 'Dirty Nappy'
+      case 'tummy_time':
+        return 'Tummy Time'
       case 'growth':
         return 'Growth Record'
       case 'note':
@@ -400,6 +402,7 @@ export class TrackerService {
       case 'sleep': return '😴'
       case 'nappy':
       case 'diaper': return '🧷'
+      case 'tummy_time': return '🤸‍♀️'
       case 'growth': return '📏'
       case 'note': return '📝'
       default: return '👶'
@@ -407,33 +410,100 @@ export class TrackerService {
   }
 
   /**
-   * Get active sleep sessions (not ended yet)
+   * Get active sleep sessions (not ended yet) - using simple schema
    */
   static async getActiveSleepSessions(childId: string): Promise<Activity[]> {
-    const { data, error } = await this.supabase
-      .from('activities')
-      .select(`
-        *,
-        activity_type:activity_types(*)
-      `)
-      .eq('child_id', childId)
-      .is('ended_at', null)
-      .eq('activity_types.category', 'sleep')
+    try {
+      // Try simple activities table first
+      const { data, error } = await this.supabase
+        .from('simple_activities')
+        .select('*')
+        .eq('child_id', childId)
+        .eq('activity_type', 'sleep')
+        .is('ended_at', null)
+        .order('started_at', { ascending: false })
 
-    if (error) {
-      console.error('Error fetching active sleep sessions:', error)
-      throw error
+      if (error) throw error
+      return data || []
+    } catch (error) {
+      console.warn('Simple activities table not available for active sleep sessions')
+      return []
     }
-
-    return data || []
   }
 
   /**
-   * End a sleep session
+   * End a sleep session - using simple schema
    */
   static async endSleepSession(activityId: string): Promise<Activity> {
-    return this.updateActivity(activityId, {
-      ended_at: new Date().toISOString()
-    })
+    const endTime = new Date()
+    
+    try {
+      // Update in simple activities table
+      const { data, error } = await this.supabase
+        .from('simple_activities')
+        .update({
+          ended_at: endTime.toISOString()
+        })
+        .eq('id', activityId)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Calculate duration
+      if (data.started_at) {
+        const startTime = new Date(data.started_at)
+        const durationMinutes = Math.round((endTime.getTime() - startTime.getTime()) / 60000)
+        
+        // Update with calculated duration
+        await this.supabase
+          .from('simple_activities')
+          .update({ duration_minutes: durationMinutes })
+          .eq('id', activityId)
+      }
+
+      console.log('✅ Sleep session ended successfully:', data)
+      return data
+    } catch (error) {
+      console.error('Error ending sleep session:', error)
+      throw new Error('Unable to end sleep session. Please try again.')
+    }
+  }
+
+  /**
+   * Record tummy time activity
+   */
+  static async recordTummyTime(entry: {
+    child_id: string
+    duration_minutes: number
+    started_at?: Date
+    notes?: string
+  }): Promise<Activity> {
+    const startTime = entry.started_at || new Date()
+    const endTime = new Date(startTime.getTime() + entry.duration_minutes * 60000)
+
+    try {
+      const { data: simpleActivity, error: simpleError } = await this.supabase
+        .from('simple_activities')
+        .insert({
+          child_id: entry.child_id,
+          activity_type: 'tummy_time',
+          activity_subtype: 'play',
+          started_at: startTime.toISOString(),
+          ended_at: endTime.toISOString(),
+          duration_minutes: entry.duration_minutes,
+          notes: entry.notes || null
+        })
+        .select()
+        .single()
+
+      if (simpleError) throw simpleError
+      console.log('✅ Tummy time activity saved successfully:', simpleActivity)
+      return simpleActivity
+
+    } catch (error) {
+      console.error('Error saving tummy time activity:', error)
+      throw new Error('Unable to save tummy time activity. Please run the database setup SQL first.')
+    }
   }
 }

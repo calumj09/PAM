@@ -131,6 +131,13 @@ export function VoiceInput({ childId, childName, onActivityAdded }: VoiceInputPr
           break
 
         case 'tummy-time':
+          await TrackerService.recordTummyTime({
+            child_id: childId,
+            duration_minutes: command.duration || 10,
+            started_at: new Date()
+          })
+          break
+
         case 'bath':
           // These would need additional activity types in the database
           setError(`${command.activity_type} tracking coming soon!`)
