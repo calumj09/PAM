@@ -10,7 +10,9 @@ import {
   Calendar,
   Bell,
   Sparkles,
-  Users
+  Users,
+  Heart,
+  FlaskConical as BeakerIcon
 } from 'lucide-react'
 
 interface DashboardStats {
@@ -73,7 +75,7 @@ export default function DashboardPage() {
     {
       title: 'Track Growth',
       subtitle: 'Log measurements',
-      icon: ChartBarIcon,
+      icon: BarChart3,
       href: '/dashboard/growth',
       color: 'bg-blue-500',
       lightColor: 'bg-blue-50'
@@ -89,7 +91,7 @@ export default function DashboardPage() {
     {
       title: 'Checklist',
       subtitle: `${stats.upcomingTasks} pending`,
-      icon: CheckCircleIcon,
+      icon: CheckCircle,
       href: '/dashboard/checklist',
       color: 'bg-orange-500',
       lightColor: 'bg-orange-50'
@@ -97,7 +99,7 @@ export default function DashboardPage() {
     {
       title: 'Family',
       subtitle: 'Manage sharing',
-      icon: UserGroupIcon,
+      icon: Users,
       href: '/dashboard/family',
       color: 'bg-purple-500',
       lightColor: 'bg-purple-50'
