@@ -4,16 +4,16 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { 
-  CrownIcon,
   CheckIcon,
   XMarkIcon,
   SparklesIcon,
   HeartIcon,
   CalendarDaysIcon,
   UsersIcon,
-  LockClosedIcon
+  LockClosedIcon,
+  StarIcon
 } from '@heroicons/react/24/outline'
-import { CrownIcon as CrownSolid } from '@heroicons/react/24/solid'
+import { StarIcon as StarSolid } from '@heroicons/react/24/solid'
 
 interface PremiumFeature {
   id: string
@@ -233,7 +233,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           {/* Plans */}
           <div className="space-y-4 mb-6">
             <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-              <CrownSolid className="w-5 h-5 text-yellow-500" />
+              <StarSolid className="w-5 h-5 text-yellow-500" />
               Choose Your Plan
             </h3>
             
@@ -323,7 +323,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
               onClick={() => onUpgrade(selectedPlan)}
               className="flex-1 bg-pam-red hover:bg-pam-red/90 text-white"
             >
-              <CrownIcon className="w-4 h-4 mr-2" />
+              <StarIcon className="w-4 h-4 mr-2" />
               Upgrade Now
             </Button>
           </div>
@@ -368,7 +368,7 @@ export function PremiumPrompt({
               onClick={onUpgrade}
               className="bg-yellow-500 hover:bg-yellow-600 text-white"
             >
-              <CrownIcon className="w-3 h-3 mr-1" />
+              <StarIcon className="w-3 h-3 mr-1" />
               Learn More
             </Button>
             <Button
@@ -413,7 +413,7 @@ export function FeatureLock({
         onClick={onUpgrade}
         className="bg-pam-red hover:bg-pam-red/90 text-white"
       >
-        <CrownIcon className="w-4 h-4 mr-2" />
+        <StarIcon className="w-4 h-4 mr-2" />
         Upgrade to Premium
       </Button>
     </div>

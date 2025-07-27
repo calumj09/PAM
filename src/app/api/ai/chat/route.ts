@@ -2,12 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import OpenAI from 'openai'
 
-const openai = new OpenAI({
+// Only initialize OpenAI if API key is available
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-})
+}) : null
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if AI service is available
+    if (!openai) {
+      return NextResponse.json({ 
+        error: 'AI service is temporarily unavailable. Please try again later.' 
+      }, { status: 503 })
+    }
+
     const { message, context, history } = await request.json()
 
     if (!message?.trim()) {
