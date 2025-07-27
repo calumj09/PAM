@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
 import { getMilestoneForWeek, getUpcomingMilestones } from '@/lib/data/milestone-bubbles'
 import { ChecklistService } from '@/lib/services/checklist-service'
+import { TimelineCalendar } from '@/components/features/TimelineCalendar'
 import { 
   CheckCircleIcon, 
   ClockIcon, 
@@ -15,7 +16,9 @@ import {
   BeakerIcon,
   UserGroupIcon,
   PlusIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  ListBulletIcon,
+  CalendarIcon
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
@@ -44,6 +47,7 @@ export default function ChecklistPage() {
   const [userState, setUserState] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>([])
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
   const supabase = createClient()
 
   useEffect(() => {
@@ -310,12 +314,45 @@ export default function ChecklistPage() {
             </div>
           )}
 
-          {/* Progress Bar */}
-          <div className="mt-4">
-            <div className="flex justify-between text-sm text-gray-600 mb-1">
-              <span>{completedCount} of {totalItems} completed</span>
-              <span>{completionRate}%</span>
+          {/* View Toggle */}
+          <div className="mt-4 flex items-center justify-between">
+            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <ListBulletIcon className="w-4 h-4" />
+                List
+              </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  viewMode === 'calendar'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <CalendarIcon className="w-4 h-4" />
+                Calendar
+              </button>
             </div>
+            
+            <div className="text-right">
+              <div className="text-sm text-gray-600">
+                {completedCount} of {totalItems} completed
+              </div>
+              <div className="text-lg font-semibold text-green-600">
+                {completionRate}%
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-3">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-green-600 h-2 rounded-full transition-all duration-300" 
@@ -327,13 +364,22 @@ export default function ChecklistPage() {
       </div>
 
       <div className="max-w-md mx-auto px-4 py-6 pb-24 space-y-4">
-        {/* Current Week Highlight */}
-        <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-2xl p-4 border border-pink-200 mb-6">
-          <h3 className="font-semibold text-gray-900 mb-2">📅 Week {currentWeek}</h3>
-          <p className="text-sm text-gray-700">
-            {selectedChild?.name} is {currentWeek} week{currentWeek !== 1 ? 's' : ''} old
-          </p>
-        </div>
+        {viewMode === 'calendar' ? (
+          <TimelineCalendar
+            checklistItems={checklistItems}
+            birthDate={birthDate}
+            onItemClick={toggleItemCompletion}
+            selectedChild={selectedChild}
+          />
+        ) : (
+          <>
+            {/* Current Week Highlight */}
+            <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-2xl p-4 border border-pink-200 mb-6">
+              <h3 className="font-semibold text-gray-900 mb-2">📅 Week {currentWeek}</h3>
+              <p className="text-sm text-gray-700">
+                {selectedChild?.name} is {currentWeek} week{currentWeek !== 1 ? 's' : ''} old
+              </p>
+            </div>
 
         {/* What to Expect - Milestone Bubble */}
         {(() => {
@@ -538,11 +584,13 @@ export default function ChecklistPage() {
           )
         })}
         
-        {sortedWeeks.length === 0 && (
-          <div className="text-center py-8">
-            <CalendarDaysIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">No timeline items found for {selectedChild?.name}</p>
-          </div>
+            {sortedWeeks.length === 0 && (
+              <div className="text-center py-8">
+                <CalendarDaysIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No timeline items found for {selectedChild?.name}</p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
