@@ -67,7 +67,7 @@ Guidelines:
 6. Acknowledge that every baby is different
 7. Include confidence levels in your advice when relevant
 
-When provided with baby tracking data, use it to give personalized advice based on the child's actual patterns and behaviors.
+When provided with baby tracking data, use it to give personalised advice based on the child's actual patterns and behaviours.
 
 Important: You are NOT a replacement for medical advice. Always recommend professional healthcare consultation for concerning symptoms or developmental delays.
   `
@@ -302,7 +302,7 @@ Based on Australian health guidelines and your baby's current patterns, I'd be h
 
 1. **Consider your baby's individual needs** - Every child develops at their own pace
 2. **Trust your instincts** - You know your baby best
-3. **Consult your GP or child health nurse** - They can provide personalized advice for your situation
+3. **Consult your GP or child health nurse** - They can provide personalised advice for your situation
 
 ${dataContext ? `Looking at your recent tracking data: ${dataContext.slice(0, 200)}...` : ''}
 
@@ -775,7 +775,7 @@ Remember: This advice is general in nature. For any health concerns or if someth
     advice += `- Makes life more predictable for parents\n`
     advice += `- Supports healthy development\n\n`
 
-    advice += `Remember: The best routine is one that works for your family. Don't compare yourself to others - every baby and family is different. Australian child health nurses can provide personalized routine guidance if you need extra support.`
+    advice += `Remember: The best routine is one that works for your family. Don't compare yourself to others - every baby and family is different. Australian child health nurses can provide personalised routine guidance if you need extra support.`
 
     return advice
   }

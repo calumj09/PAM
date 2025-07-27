@@ -60,6 +60,7 @@ export class ChecklistService {
       metadata: item.metadata
     }))
 
+    // Insert with metadata for full functionality
     const { error } = await this.supabase
       .from('checklist_items')
       .insert(itemsToInsert)
@@ -68,6 +69,8 @@ export class ChecklistService {
       console.error('Error inserting checklist items:', error)
       throw error
     }
+    
+    console.log('Successfully inserted checklist items with metadata')
   }
 
   /**

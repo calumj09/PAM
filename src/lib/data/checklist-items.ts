@@ -75,51 +75,131 @@ export const australianChecklistItems: ChecklistItem[] = [
     notifyDaysBefore: [1],
   },
 
-  // Immunizations - 2 months
+  // Immunisations - 2 months
   {
-    id: 'imm-2m-dtpa',
-    title: '2 Month Immunizations',
-    description: 'DTPa-hepB-IPV-Hib (6-in-1), Pneumococcal, Rotavirus',
+    id: 'imm-2m-dtpa-hepb-ipv-hib',
+    title: 'DTPa-hepB-IPV-Hib (6-in-1) vaccine',
+    description: 'Protects against diphtheria, tetanus, pertussis (whooping cough), hepatitis B, polio and Haemophilus influenzae type b',
+    category: 'immunization',
+    dueAtMonths: 2,
+    notifyDaysBefore: [14, 7, 1],
+  },
+  {
+    id: 'imm-2m-pneumococcal',
+    title: 'Pneumococcal vaccine',
+    description: 'Protects against pneumococcal disease',
+    category: 'immunization',
+    dueAtMonths: 2,
+    notifyDaysBefore: [14, 7, 1],
+  },
+  {
+    id: 'imm-2m-rotavirus',
+    title: 'Rotavirus vaccine',
+    description: 'Protects against rotavirus (severe gastroenteritis)',
     category: 'immunization',
     dueAtMonths: 2,
     notifyDaysBefore: [14, 7, 1],
   },
 
-  // Immunizations - 4 months
+  // Immunisations - 4 months
   {
-    id: 'imm-4m-dtpa',
-    title: '4 Month Immunizations',
-    description: 'DTPa-hepB-IPV-Hib (6-in-1), Pneumococcal, Rotavirus',
+    id: 'imm-4m-dtpa-hepb-ipv-hib',
+    title: 'DTPa-hepB-IPV-Hib (6-in-1) vaccine',
+    description: 'Second dose - Protects against diphtheria, tetanus, pertussis, hepatitis B, polio and Hib',
+    category: 'immunization',
+    dueAtMonths: 4,
+    notifyDaysBefore: [14, 7, 1],
+  },
+  {
+    id: 'imm-4m-pneumococcal',
+    title: 'Pneumococcal vaccine',
+    description: 'Second dose - Protects against pneumococcal disease',
+    category: 'immunization',
+    dueAtMonths: 4,
+    notifyDaysBefore: [14, 7, 1],
+  },
+  {
+    id: 'imm-4m-rotavirus',
+    title: 'Rotavirus vaccine',
+    description: 'Second dose - Protects against rotavirus',
     category: 'immunization',
     dueAtMonths: 4,
     notifyDaysBefore: [14, 7, 1],
   },
 
-  // Immunizations - 6 months
+  // Immunisations - 6 months
   {
-    id: 'imm-6m-dtpa',
-    title: '6 Month Immunizations',
-    description: 'DTPa-hepB-IPV-Hib (6-in-1), Pneumococcal (Aboriginal and Torres Strait Islander children)',
+    id: 'imm-6m-dtpa-hepb-ipv-hib',
+    title: 'DTPa-hepB-IPV-Hib (6-in-1) vaccine',
+    description: 'Third dose - Protects against diphtheria, tetanus, pertussis, hepatitis B, polio and Hib',
+    category: 'immunization',
+    dueAtMonths: 6,
+    notifyDaysBefore: [14, 7, 1],
+  },
+  {
+    id: 'imm-6m-pneumococcal-atsi',
+    title: 'Pneumococcal vaccine (Aboriginal and Torres Strait Islander children)',
+    description: 'Third dose for Aboriginal and Torres Strait Islander children',
     category: 'immunization',
     dueAtMonths: 6,
     notifyDaysBefore: [14, 7, 1],
   },
 
-  // Immunizations - 12 months
+  // Immunisations - 12 months
   {
     id: 'imm-12m-mmr',
-    title: '12 Month Immunizations',
-    description: 'MMR, Meningococcal ACWY, Pneumococcal',
+    title: 'MMR vaccine',
+    description: 'Protects against measles, mumps and rubella',
+    category: 'immunization',
+    dueAtMonths: 12,
+    notifyDaysBefore: [30, 14, 7, 1],
+  },
+  {
+    id: 'imm-12m-meningococcal-acwy',
+    title: 'Meningococcal ACWY vaccine',
+    description: 'Protects against meningococcal disease (strains A, C, W and Y)',
+    category: 'immunization',
+    dueAtMonths: 12,
+    notifyDaysBefore: [30, 14, 7, 1],
+  },
+  {
+    id: 'imm-12m-pneumococcal',
+    title: 'Pneumococcal vaccine',
+    description: 'Third dose for all children (fourth dose for Aboriginal and Torres Strait Islander children)',
     category: 'immunization',
     dueAtMonths: 12,
     notifyDaysBefore: [30, 14, 7, 1],
   },
 
-  // Immunizations - 18 months
+  // Immunisations - 18 months
   {
     id: 'imm-18m-mmrv',
-    title: '18 Month Immunizations',
-    description: 'MMRV (MMR + Varicella), DTPa, Hib, Hepatitis A (Aboriginal and Torres Strait Islander children)',
+    title: 'MMRV vaccine',
+    description: 'Protects against measles, mumps, rubella and varicella (chickenpox)',
+    category: 'immunization',
+    dueAtMonths: 18,
+    notifyDaysBefore: [30, 14, 7, 1],
+  },
+  {
+    id: 'imm-18m-dtpa',
+    title: 'DTPa vaccine',
+    description: 'Fourth dose - Protects against diphtheria, tetanus and pertussis',
+    category: 'immunization',
+    dueAtMonths: 18,
+    notifyDaysBefore: [30, 14, 7, 1],
+  },
+  {
+    id: 'imm-18m-hib',
+    title: 'Hib vaccine',
+    description: 'Fourth dose - Protects against Haemophilus influenzae type b',
+    category: 'immunization',
+    dueAtMonths: 18,
+    notifyDaysBefore: [30, 14, 7, 1],
+  },
+  {
+    id: 'imm-18m-hepa-atsi',
+    title: 'Hepatitis A vaccine (Aboriginal and Torres Strait Islander children)',
+    description: 'First dose for Aboriginal and Torres Strait Islander children',
     category: 'immunization',
     dueAtMonths: 18,
     notifyDaysBefore: [30, 14, 7, 1],

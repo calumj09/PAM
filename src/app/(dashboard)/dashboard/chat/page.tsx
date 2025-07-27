@@ -103,7 +103,7 @@ export default function ChatPage() {
         id: crypto.randomUUID(),
         role: 'assistant',
         content: selectedChild 
-          ? `Hi! I'm PAM AI, your Australian parenting assistant. I'm here to help with questions about ${selectedChild.first_name}'s development, feeding, sleep, and general baby care. I have access to your tracking data to provide personalized advice.\n\nWhat would you like to discuss today?`
+          ? `Hi! I'm PAM AI, your Australian parenting assistant. I'm here to help with questions about ${selectedChild.first_name}'s development, feeding, sleep, and general baby care. I have access to your tracking data to provide personalised advice.\n\nWhat would you like to discuss today?`
           : `Hi! I'm PAM AI, your Australian parenting assistant. I'm here to help with questions about child development, feeding, sleep, and general parenting. I can provide advice based on Australian health guidelines.\n\nWhat would you like to discuss today?`,
         timestamp: new Date().toISOString()
       }

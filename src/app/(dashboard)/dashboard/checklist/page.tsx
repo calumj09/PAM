@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
+import { getMilestoneForWeek, getUpcomingMilestones } from '@/lib/data/milestone-bubbles'
 import { 
   CheckCircleIcon, 
   ClockIcon, 
@@ -34,6 +35,7 @@ export default function ChecklistPage() {
   const [children, setChildren] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [completedItems, setCompletedItems] = useState<CompletedItem[]>([])
+  const [userState, setUserState] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>([])
   const supabase = createClient()
@@ -47,6 +49,17 @@ export default function ChecklistPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
+      // Load user profile for state information
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('state_territory')
+        .eq('id', user.id)
+        .single()
+      
+      if (profileData?.state_territory) {
+        setUserState(profileData.state_territory)
+      }
+
       // Load children
       const { data: childrenData } = await supabase
         .from('children')
@@ -58,11 +71,12 @@ export default function ChecklistPage() {
         setChildren(childrenData)
         setSelectedChild(childrenData[0])
         
-        // Load completed items
+        // Load completed items from checklist_items table
         const { data: completedData } = await supabase
-          .from('checklist_completions')
+          .from('checklist_items')
           .select('*')
-          .in('child_id', childrenData.map(c => c.id))
+          .eq('child_id', childrenData[0].id)
+          .eq('is_completed', true)
 
         setCompletedItems(completedData || [])
         
@@ -179,7 +193,7 @@ export default function ChecklistPage() {
           <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
             <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-gray-900 mb-2">No Children Added</h2>
-            <p className="text-sm text-gray-600 mb-6">Add your child to see their personalized Australian immunization and milestone checklist</p>
+            <p className="text-sm text-gray-600 mb-6">Add your child to see their personalised Australian immunisation and milestone checklist</p>
             <a href="/dashboard/children" className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors">
               <PlusIcon className="w-5 h-5" />
               Add Your First Child
@@ -254,6 +268,23 @@ export default function ChecklistPage() {
             </div>
           )}
 
+          {/* State Indicator */}
+          {userState && (
+            <div className="mt-3 flex items-center gap-2">
+              <span className="text-xs text-gray-500">Australian timeline for</span>
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                {userState === 'NSW' ? 'New South Wales' :
+                 userState === 'VIC' ? 'Victoria' :
+                 userState === 'QLD' ? 'Queensland' :
+                 userState === 'WA' ? 'Western Australia' :
+                 userState === 'SA' ? 'South Australia' :
+                 userState === 'TAS' ? 'Tasmania' :
+                 userState === 'ACT' ? 'Australian Capital Territory' :
+                 userState === 'NT' ? 'Northern Territory' : userState}
+              </span>
+            </div>
+          )}
+
           {/* Progress Bar */}
           <div className="mt-4">
             <div className="flex justify-between text-sm text-gray-600 mb-1">
@@ -279,6 +310,43 @@ export default function ChecklistPage() {
           </p>
         </div>
 
+        {/* What to Expect - Milestone Bubble */}
+        {(() => {
+          const currentMilestone = getMilestoneForWeek(currentWeek);
+          const upcomingMilestones = getUpcomingMilestones(currentWeek, 3);
+          
+          if (!currentMilestone && upcomingMilestones.length === 0) return null;
+          
+          const milestoneToShow = currentMilestone || upcomingMilestones[0];
+          const isUpcoming = !currentMilestone;
+          
+          return (
+            <div className={`rounded-2xl p-4 border mb-6 ${
+              isUpcoming 
+                ? 'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200' 
+                : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'
+            }`}>
+              <div className="flex items-start gap-3">
+                <div className="text-2xl">{milestoneToShow.emoji}</div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-semibold text-gray-900">
+                      {isUpcoming ? 'Coming Up' : 'What to Expect'}: {milestoneToShow.title}
+                    </h3>
+                    {isUpcoming && (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                        Week {milestoneToShow.weekNumber}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">{milestoneToShow.description}</p>
+                  <p className="text-xs text-gray-600 italic">💝 {milestoneToShow.encouragement}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Weekly Timeline */}
         {sortedWeeks.map((week: any) => {
           const weekKey = `week-${week.weekNumber}`
@@ -286,8 +354,9 @@ export default function ChecklistPage() {
           const isPastWeek = week.weekNumber < currentWeek
           const completedInWeek = week.items.filter((item: any) => item.isCompleted).length
           const totalInWeek = week.items.length
+          const weekMilestone = getMilestoneForWeek(week.weekNumber)
           
-          if (totalInWeek === 0) return null
+          if (totalInWeek === 0 && !weekMilestone) return null
           
           return (
             <div 
@@ -363,6 +432,22 @@ export default function ChecklistPage() {
               
               {expandedWeeks.includes(weekKey) && (
                 <div className="p-4 space-y-3 bg-gray-50">
+                  {/* Milestone Information */}
+                  {weekMilestone && (
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-3 border border-purple-200 mb-4">
+                      <div className="flex items-start gap-3">
+                        <div className="text-lg">{weekMilestone.emoji}</div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-purple-900 mb-1">
+                            Development Milestone: {weekMilestone.title}
+                          </h4>
+                          <p className="text-sm text-purple-700 mb-2">{weekMilestone.description}</p>
+                          <p className="text-xs text-purple-600 italic">💝 {weekMilestone.encouragement}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   {week.items.map((item: any) => {
                     const Icon = getCategoryIcon(item.category)
                     const now = new Date()

@@ -371,7 +371,7 @@ export function PatternInsights({ childId, childName }: PatternInsightsProps) {
               Building Your Insights
             </h3>
             <p className="text-gray-600 mb-4">
-              Keep tracking {childName}&apos;s activities to unlock personalized insights and pattern recognition.
+              Keep tracking {childName}&apos;s activities to unlock personalised insights and pattern recognition.
             </p>
             <p className="text-sm text-gray-500">
               We need at least a week of consistent tracking to identify meaningful patterns.

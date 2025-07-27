@@ -269,9 +269,9 @@ export default function TrackerPage() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm text-center p-4">
-              <div className="text-2xl mb-2">👶</div>
+              <div className="text-2xl mb-2">🧷</div>
               <div className="text-2xl font-bold text-gray-900">{dailyStats.diaper_changes}</div>
-              <div className="text-sm text-gray-600">Diapers</div>
+              <div className="text-sm text-gray-600">Nappies</div>
             </div>
           </div>
         )}

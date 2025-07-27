@@ -41,8 +41,9 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
           } as QuickFeedingEntry)
           break
 
+        case 'nappy-wet':
         case 'diaper-wet':
-          await TrackerService.recordDiaperChange({
+          await TrackerService.recordNappyChange({
             child_id: childId,
             diaper_type: 'wet',
             changed_at: new Date(),
@@ -50,8 +51,9 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
           } as QuickDiaperEntry)
           break
 
+        case 'nappy-dirty':
         case 'diaper-dirty':
-          await TrackerService.recordDiaperChange({
+          await TrackerService.recordNappyChange({
             child_id: childId,
             diaper_type: 'dirty',
             changed_at: new Date(),
@@ -96,15 +98,15 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
       description: '120ml formula'
     },
     {
-      id: 'diaper-wet',
-      label: 'Wet Diaper',
+      id: 'nappy-wet',
+      label: 'Wet Nappy',
       emoji: '💧',
       color: 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800',
       description: 'Quick change'
     },
     {
-      id: 'diaper-dirty',
-      label: 'Dirty Diaper',
+      id: 'nappy-dirty',
+      label: 'Dirty Nappy',
       emoji: '💩',
       color: 'bg-orange-100 hover:bg-orange-200 text-orange-800',
       description: 'Full change'

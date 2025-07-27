@@ -1,15 +1,17 @@
 {
   "name": "PAM - Parenting Assistance Mobile",
   "short_name": "PAM",
-  "description": "Supporting Australian parents with children aged 0-3 years",
-  "start_url": "/dashboard",
+  "description": "Supporting Australian parents with children aged 0-3 years. Track milestones, manage immunizations, and get parenting support.",
+  "start_url": "/dashboard?source=pwa",
   "display": "standalone",
-  "background_color": "#FDFCFA",
+  "background_color": "#FFFBF8",
   "theme_color": "#7D0820",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en-AU",
-  "categories": ["lifestyle", "health", "family"],
+  "categories": ["lifestyle", "health", "family", "parenting"],
+  "dir": "ltr",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -26,42 +28,64 @@
   ],
   "shortcuts": [
     {
-      "name": "Quick Track",
-      "short_name": "Track",
-      "description": "Quickly log baby activities",
-      "url": "/dashboard/tracker",
+      "name": "Timeline",
+      "short_name": "Timeline",
+      "description": "View baby's developmental timeline and milestones",
+      "url": "/dashboard/checklist?source=shortcut",
       "icons": [
         {
           "src": "/icon-192x192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "Checklist",
-      "short_name": "Checklist",
-      "description": "View checklist items",
-      "url": "/dashboard/checklist",
+      "name": "Today",
+      "short_name": "Today",
+      "description": "View today's activities and reminders",
+      "url": "/dashboard/today?source=shortcut",
       "icons": [
         {
           "src": "/icon-192x192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "AI Chat",
-      "short_name": "AI Chat",
-      "description": "Get parenting advice",
-      "url": "/dashboard/chat",
+      "name": "AI Helper",
+      "short_name": "AI Helper",
+      "description": "Get instant parenting advice and support",
+      "url": "/dashboard/ai-helper?source=shortcut",
       "icons": [
         {
           "src": "/icon-192x192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshots/timeline.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Timeline view showing baby's developmental milestones"
+    },
+    {
+      "src": "/screenshots/today.png", 
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Today's dashboard with activities and reminders"
+    }
+  ],
   "related_applications": [],
-  "prefer_related_applications": false
+  "protocol_handlers": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }

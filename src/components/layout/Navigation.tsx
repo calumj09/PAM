@@ -5,16 +5,18 @@ import { usePathname } from 'next/navigation'
 import { 
   HomeIcon, 
   CheckCircleIcon, 
-  CalendarDaysIcon,
+  DocumentTextIcon,
   ChartBarIcon,
-  UserGroupIcon
+  CalendarDaysIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline'
 import {
   HomeIcon as HomeSolid,
   CheckCircleIcon as CheckSolid,
-  CalendarDaysIcon as CalendarSolid,
+  DocumentTextIcon as DocumentSolid,
   ChartBarIcon as ChartSolid,
-  UserGroupIcon as UserSolid
+  CalendarDaysIcon as CalendarSolid,
+  SparklesIcon as SparklesSolid
 } from '@heroicons/react/24/solid'
 
 const navItems = [
@@ -31,22 +33,22 @@ const navItems = [
     activeIcon: CheckSolid
   },
   { 
-    href: '/dashboard/info', 
-    label: 'Admin', 
+    href: '/dashboard/calendar', 
+    label: 'Calendar', 
     icon: CalendarDaysIcon,
     activeIcon: CalendarSolid
   },
   { 
-    href: '/dashboard/tracker', 
-    label: 'Log', 
-    icon: ChartBarIcon,
-    activeIcon: ChartSolid
+    href: '/dashboard/admin', 
+    label: 'Admin', 
+    icon: DocumentTextIcon,
+    activeIcon: DocumentSolid
   },
   { 
-    href: '/dashboard/growth', 
-    label: 'Growth', 
-    icon: UserGroupIcon,
-    activeIcon: UserSolid
+    href: '/dashboard/ai-helper', 
+    label: 'AI Helper', 
+    icon: SparklesIcon,
+    activeIcon: SparklesSolid
   },
 ]
 

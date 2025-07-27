@@ -35,6 +35,14 @@ export function VoiceInput({ childId, childName, onActivityAdded }: VoiceInputPr
     setError('')
     setSuggestions([])
 
+    // First, request microphone permission
+    const hasPermission = await VoiceService.requestMicrophonePermission()
+    if (!hasPermission) {
+      setError('Microphone permission required. Please allow microphone access and try again.')
+      setIsListening(false)
+      return
+    }
+
     try {
       const result = await VoiceService.startListening()
       
@@ -95,16 +103,18 @@ export function VoiceInput({ childId, childName, onActivityAdded }: VoiceInputPr
           } as QuickFeedingEntry)
           break
 
+        case 'nappy-wet':
         case 'diaper-wet':
-          await TrackerService.recordDiaperChange({
+          await TrackerService.recordNappyChange({
             child_id: childId,
             diaper_type: 'wet',
             changed_at: new Date()
           } as QuickDiaperEntry)
           break
 
+        case 'nappy-dirty':
         case 'diaper-dirty':
-          await TrackerService.recordDiaperChange({
+          await TrackerService.recordNappyChange({
             child_id: childId,
             diaper_type: 'dirty',
             changed_at: new Date(),
@@ -214,7 +224,7 @@ export function VoiceInput({ childId, childName, onActivityAdded }: VoiceInputPr
           ) : (
             <div>
               <p>Tap to record activity for {childName}</p>
-              <p className="text-xs mt-1">Say things like: &quot;Breastfeed 15 minutes&quot; or &quot;Wet diaper&quot;</p>
+              <p className="text-xs mt-1">Say things like: &quot;Breastfeed 15 minutes&quot; or &quot;Wet nappy&quot;</p>
             </div>
           )}
         </div>
@@ -240,7 +250,7 @@ export function VoiceInput({ childId, childName, onActivityAdded }: VoiceInputPr
               </div>
               <div>
                 <div className="font-medium mb-1">Care:</div>
-                <div>&quot;Wet diaper&quot;</div>
+                <div>&quot;Wet nappy&quot;</div>
                 <div>&quot;Start sleep&quot;</div>
               </div>
             </div>

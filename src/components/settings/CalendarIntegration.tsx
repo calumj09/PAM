@@ -267,7 +267,7 @@ export function CalendarIntegration({ userId, isPremium }: CalendarIntegrationPr
     <PremiumGate
       feature="calendarIntegration"
       title="Google Calendar Integration"
-      description="Sync your PAM checklist items with Google Calendar to stay organized across all your devices. Never miss an important appointment or reminder again."
+      description="Sync your PAM checklist items with Google Calendar to stay organised across all your devices. Never miss an important appointment or reminder again."
     >
       <Card>
       <CardHeader>

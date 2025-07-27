@@ -4,15 +4,14 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { 
-  PlusIcon,
-  CheckCircleIcon,
-  ChartBarIcon,
-  BeakerIcon,
-  UserGroupIcon,
-  CalendarDaysIcon,
-  BellIcon,
-  SparklesIcon
-} from '@heroicons/react/24/outline'
+  Plus,
+  CheckCircle,
+  BarChart3,
+  Calendar,
+  Bell,
+  Sparkles,
+  Users
+} from 'lucide-react'
 
 interface DashboardStats {
   childrenCount: number
@@ -137,7 +136,7 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="relative">
-              <BellIcon className="w-6 h-6 text-gray-400" />
+              <Bell className="w-6 h-6 text-gray-400" />
               {stats.upcomingTasks > 0 && (
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
                   <span className="text-xs text-white font-medium">{stats.upcomingTasks}</span>
@@ -173,7 +172,7 @@ export default function DashboardPage() {
             <Link href="/dashboard/children">
               <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-dashed border-gray-200 text-center">
                 <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <PlusIcon className="w-6 h-6 text-red-600" />
+                  <Plus className="w-6 h-6 text-red-600" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Add Your First Child</h3>
                 <p className="text-sm text-gray-600">Start tracking your little one's development</p>
@@ -203,7 +202,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <CalendarDaysIcon className="w-4 h-4 text-blue-600" />
+                  <Calendar className="w-4 h-4 text-blue-600" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">18-month checkup</p>
@@ -214,7 +213,7 @@ export default function DashboardPage() {
               
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <BeakerIcon className="w-4 h-4 text-green-600" />
+                  <Sparkles className="w-4 h-4 text-green-600" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">Panadol dose</p>
@@ -225,7 +224,7 @@ export default function DashboardPage() {
               
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                  <SparklesIcon className="w-4 h-4 text-purple-600" />
+                  <Heart className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">Milestone tracking</p>
@@ -244,7 +243,7 @@ export default function DashboardPage() {
             {stats.recentActivity > 0 ? (
               <div className="text-center py-6">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <ChartBarIcon className="w-6 h-6 text-gray-400" />
+                  <BarChart3 className="w-6 h-6 text-gray-400" />
                 </div>
                 <p className="text-sm text-gray-600">Your activity will appear here</p>
                 <p className="text-xs text-gray-500 mt-1">Start tracking to see your history</p>
@@ -252,7 +251,7 @@ export default function DashboardPage() {
             ) : (
               <div className="text-center py-6">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <SparklesIcon className="w-6 h-6 text-gray-400" />
+                  <Sparkles className="w-6 h-6 text-gray-400" />
                 </div>
                 <p className="text-sm text-gray-600">No recent activity</p>
                 <p className="text-xs text-gray-500 mt-1">Start using PAM to track your progress</p>

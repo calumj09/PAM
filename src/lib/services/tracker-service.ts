@@ -44,27 +44,58 @@ export class TrackerService {
     const endOfDay = new Date(date)
     endOfDay.setHours(23, 59, 59, 999)
 
-    const { data, error } = await this.supabase
-      .from('activities')
-      .select(`
-        *,
-        activity_type:activity_types(*),
-        feeding_details(*),
-        sleep_details(*),
-        diaper_details(*),
-        health_details(*)
-      `)
-      .eq('child_id', childId)
-      .gte('started_at', startOfDay.toISOString())
-      .lte('started_at', endOfDay.toISOString())
-      .order('started_at', { ascending: false })
+    // Try simple activities table first (our new schema)
+    try {
+      const { data, error } = await this.supabase
+        .from('simple_activities')
+        .select('*')
+        .eq('child_id', childId)
+        .gte('started_at', startOfDay.toISOString())
+        .lte('started_at', endOfDay.toISOString())
+        .order('started_at', { ascending: false })
 
-    if (error) {
-      console.error('Error fetching activities:', error)
-      throw error
+      if (error) throw error
+
+      // Transform simple activities to match the expected format
+      return data?.map(activity => ({
+        ...activity,
+        activity_type: {
+          id: activity.activity_type,
+          name: this.getActivityTypeName(activity.activity_type, activity.activity_subtype),
+          category: activity.activity_type,
+          icon: this.getActivityIcon(activity.activity_type)
+        },
+        duration_minutes: activity.duration_minutes || 
+          (activity.ended_at ? Math.round((new Date(activity.ended_at).getTime() - new Date(activity.started_at).getTime()) / 60000) : null)
+      })) || []
+
+    } catch (error) {
+      console.warn('Simple activities table not available, trying complex schema')
+      
+      // Fallback to complex schema
+      try {
+        const { data, error: complexError } = await this.supabase
+          .from('activities')
+          .select(`
+            *,
+            activity_type:activity_types(*),
+            feeding_details(*),
+            sleep_details(*),
+            diaper_details(*),
+            health_details(*)
+          `)
+          .eq('child_id', childId)
+          .gte('started_at', startOfDay.toISOString())
+          .lte('started_at', endOfDay.toISOString())
+          .order('started_at', { ascending: false })
+
+        if (complexError) throw complexError
+        return data || []
+      } catch (complexError) {
+        console.error('Error fetching activities from both schemas:', complexError)
+        return []
+      }
     }
-
-    return data || []
   }
 
   /**
@@ -102,49 +133,36 @@ export class TrackerService {
       ? new Date(startTime.getTime() + entry.duration_minutes * 60000)
       : null
 
-    // Get feeding activity type
-    const { data: activityTypes } = await this.supabase
-      .from('activity_types')
-      .select('id')
-      .eq('name', this.getFeedingActivityName(entry.feeding_type))
-      .single()
+    // Skip activity_types lookup - use simple schema directly
+    console.log('Recording feeding activity using simple schema:', entry)
 
-    if (!activityTypes) {
-      throw new Error('Feeding activity type not found')
-    }
+    // Use simple schema first (more reliable)
+    let activity = null
+    try {
+      const { data: simpleActivity, error: simpleError } = await this.supabase
+        .from('simple_activities')
+        .insert({
+          child_id: entry.child_id,
+          activity_type: 'feeding',
+          activity_subtype: entry.feeding_type,
+          started_at: startTime.toISOString(),
+          ended_at: endTime?.toISOString() || null,
+          duration_minutes: entry.duration_minutes || null,
+          amount_ml: entry.amount_ml || null,
+          breast_side: entry.breast_side || null,
+          food_items: entry.food_items || null,
+          notes: entry.notes || null
+        })
+        .select()
+        .single()
 
-    // Insert main activity
-    const { data: activity, error: activityError } = await this.supabase
-      .from('activities')
-      .insert({
-        child_id: entry.child_id,
-        activity_type_id: activityTypes.id,
-        started_at: startTime.toISOString(),
-        ended_at: endTime?.toISOString() || null,
-        notes: entry.notes || null
-      })
-      .select()
-      .single()
+      if (simpleError) throw simpleError
+      activity = simpleActivity
+      console.log('✅ Feeding activity saved successfully:', activity)
 
-    if (activityError) {
-      console.error('Error inserting feeding activity:', activityError)
-      throw activityError
-    }
-
-    // Insert feeding details
-    const { error: detailsError } = await this.supabase
-      .from('feeding_details')
-      .insert({
-        activity_id: activity.id,
-        feeding_type: entry.feeding_type,
-        amount_ml: entry.amount_ml || null,
-        breast_side: entry.breast_side || null,
-        food_items: entry.food_items || null
-      })
-
-    if (detailsError) {
-      console.error('Error inserting feeding details:', detailsError)
-      // Don't throw - activity was created successfully
+    } catch (error) {
+      console.error('Simple activities schema not available:', error)
+      throw new Error('Unable to save feeding activity. Please run the database setup SQL first.')
     }
 
     return activity
@@ -155,106 +173,83 @@ export class TrackerService {
    */
   static async recordSleep(entry: QuickSleepEntry): Promise<Activity> {
     const startTime = entry.started_at || new Date()
+    const duration = entry.ended_at ? 
+      Math.round((entry.ended_at.getTime() - startTime.getTime()) / 60000) : null
 
-    // Get sleep activity type
-    const { data: activityTypes } = await this.supabase
-      .from('activity_types')
-      .select('id')
-      .eq('name', entry.ended_at ? 'Night Sleep' : 'Nap')
-      .single()
-
-    if (!activityTypes) {
-      throw new Error('Sleep activity type not found')
-    }
-
-    // Insert main activity
-    const { data: activity, error: activityError } = await this.supabase
-      .from('activities')
-      .insert({
-        child_id: entry.child_id,
-        activity_type_id: activityTypes.id,
-        started_at: startTime.toISOString(),
-        ended_at: entry.ended_at?.toISOString() || null,
-        notes: entry.notes || null
-      })
-      .select()
-      .single()
-
-    if (activityError) {
-      console.error('Error inserting sleep activity:', activityError)
-      throw activityError
-    }
-
-    // Insert sleep details if provided
-    if (entry.sleep_quality || entry.wake_up_mood || entry.sleep_location) {
-      const { error: detailsError } = await this.supabase
-        .from('sleep_details')
+    // Use simple schema first (more reliable)
+    let activity = null
+    try {
+      const { data: simpleActivity, error: simpleError } = await this.supabase
+        .from('simple_activities')
         .insert({
-          activity_id: activity.id,
+          child_id: entry.child_id,
+          activity_type: 'sleep',
+          activity_subtype: entry.ended_at ? 'night_sleep' : 'nap',
+          started_at: startTime.toISOString(),
+          ended_at: entry.ended_at?.toISOString() || null,
+          duration_minutes: duration,
           sleep_quality: entry.sleep_quality || null,
           wake_up_mood: entry.wake_up_mood || null,
-          sleep_location: entry.sleep_location || null
+          sleep_location: entry.sleep_location || null,
+          notes: entry.notes || null
         })
+        .select()
+        .single()
 
-      if (detailsError) {
-        console.error('Error inserting sleep details:', detailsError)
-      }
+      if (simpleError) throw simpleError
+      activity = simpleActivity
+      console.log('✅ Sleep activity saved successfully:', activity)
+
+    } catch (error) {
+      console.error('Simple activities schema not available:', error)
+      throw new Error('Unable to save sleep activity. Please run the database setup SQL first.')
     }
 
     return activity
   }
 
   /**
-   * Record a quick diaper change
+   * Record a quick nappy change
    */
-  static async recordDiaperChange(entry: QuickDiaperEntry): Promise<Activity> {
+  static async recordNappyChange(entry: QuickDiaperEntry): Promise<Activity> {
     const changeTime = entry.changed_at || new Date()
 
-    // Get diaper activity type
-    const { data: activityTypes } = await this.supabase
-      .from('activity_types')
-      .select('id')
-      .eq('name', `${entry.diaper_type.charAt(0).toUpperCase() + entry.diaper_type.slice(1)} Diaper`)
-      .single()
+    // Use simple schema first (more reliable)
+    let activity = null
+    try {
+      const { data: simpleActivity, error: simpleError } = await this.supabase
+        .from('simple_activities')
+        .insert({
+          child_id: entry.child_id,
+          activity_type: 'nappy',
+          activity_subtype: entry.diaper_type,
+          started_at: changeTime.toISOString(),
+          ended_at: changeTime.toISOString(), // Nappy changes are instantaneous
+          diaper_consistency: entry.consistency || null,
+          diaper_color: entry.color || null,
+          rash_present: entry.rash_present || false,
+          notes: entry.notes || null
+        })
+        .select()
+        .single()
 
-    if (!activityTypes) {
-      throw new Error('Diaper activity type not found')
-    }
+      if (simpleError) throw simpleError
+      activity = simpleActivity
+      console.log('✅ Nappy change saved successfully:', activity)
 
-    // Insert main activity
-    const { data: activity, error: activityError } = await this.supabase
-      .from('activities')
-      .insert({
-        child_id: entry.child_id,
-        activity_type_id: activityTypes.id,
-        started_at: changeTime.toISOString(),
-        ended_at: changeTime.toISOString(), // Diaper changes are instantaneous
-        notes: entry.notes || null
-      })
-      .select()
-      .single()
-
-    if (activityError) {
-      console.error('Error inserting diaper activity:', activityError)
-      throw activityError
-    }
-
-    // Insert diaper details
-    const { error: detailsError } = await this.supabase
-      .from('diaper_details')
-      .insert({
-        activity_id: activity.id,
-        diaper_type: entry.diaper_type,
-        consistency: entry.consistency || null,
-        color: entry.color || null,
-        rash_present: entry.rash_present || false
-      })
-
-    if (detailsError) {
-      console.error('Error inserting diaper details:', detailsError)
+    } catch (error) {
+      console.error('Simple activities schema not available:', error)
+      throw new Error('Unable to save nappy change. Please run the database setup SQL first.')
     }
 
     return activity
+  }
+
+  /**
+   * Record a quick diaper change (backwards compatibility)
+   */
+  static async recordDiaperChange(entry: QuickDiaperEntry): Promise<Activity> {
+    return this.recordNappyChange(entry)
   }
 
   /**
@@ -301,15 +296,16 @@ export class TrackerService {
     const activities = await this.getActivitiesForDate(childId, date)
     
     const feedingActivities = activities.filter(a => 
-      a.activity_type?.category === 'feeding'
+      a.activity_type?.category === 'feeding' || a.activity_type === 'feeding'
     )
     
     const sleepActivities = activities.filter(a => 
-      a.activity_type?.category === 'sleep' && a.duration_minutes
+      (a.activity_type?.category === 'sleep' || a.activity_type === 'sleep') && a.duration_minutes
     )
     
-    const diaperActivities = activities.filter(a => 
-      a.activity_type?.category === 'diaper'
+    const nappyActivities = activities.filter(a => 
+      a.activity_type?.category === 'diaper' || a.activity_type === 'diaper' ||
+      a.activity_type?.category === 'nappy' || a.activity_type === 'nappy'
     )
 
     const totalSleepMinutes = sleepActivities.reduce((sum, activity) => 
@@ -321,7 +317,7 @@ export class TrackerService {
       child_id: childId,
       feeding_count: feedingActivities.length,
       sleep_duration_minutes: totalSleepMinutes,
-      diaper_changes: diaperActivities.length,
+      diaper_changes: nappyActivities.length,
       activities
     }
   }
@@ -371,6 +367,42 @@ export class TrackerService {
       case 'bottle': return 'Bottle Feeding'
       case 'solid': return 'Solid Food'
       default: return 'Bottle Feeding'
+    }
+  }
+
+  /**
+   * Helper method to get activity type name from simple schema
+   */
+  private static getActivityTypeName(type: string, subtype?: string): string {
+    switch (type) {
+      case 'feeding':
+        return this.getFeedingActivityName(subtype || 'bottle')
+      case 'sleep':
+        return 'Sleep'
+      case 'nappy':
+      case 'diaper':
+        return subtype === 'wet' ? 'Wet Nappy' : 'Dirty Nappy'
+      case 'growth':
+        return 'Growth Record'
+      case 'note':
+        return 'Note'
+      default:
+        return 'Activity'
+    }
+  }
+
+  /**
+   * Helper method to get activity icon
+   */
+  private static getActivityIcon(type: string): string {
+    switch (type) {
+      case 'feeding': return '🍼'
+      case 'sleep': return '😴'
+      case 'nappy':
+      case 'diaper': return '🧷'
+      case 'growth': return '📏'
+      case 'note': return '📝'
+      default: return '👶'
     }
   }
 

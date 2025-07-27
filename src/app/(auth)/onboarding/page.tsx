@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { ChevronLeftIcon, ChevronRightIcon, HeartIcon } from '@heroicons/react/24/outline'
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react'
 
 const australianStates = [
   { value: 'NSW', label: 'New South Wales' },
@@ -72,22 +72,94 @@ export default function OnboardingPage() {
     setError('')
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
+      console.log('🚀 Starting onboarding completion...')
+      console.log('📋 Form data collected:', {
+        babyName,
+        babyType,
+        dateOfBirth,
+        isDueDate,
+        gender,
+        height,
+        weight,
+        headCircumference,
+        feedingMethod,
+        birthType,
+        stateTerritory
+      })
+      
+      // Step 1: Test basic connection
+      console.log('🔗 Testing Supabase connection...')
+      const connectionTest = await supabase.from('profiles').select('count').limit(1)
+      console.log('🔗 Connection test result:', connectionTest)
+      
+      console.log('🔑 Checking authentication...')
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError) {
+        console.error('❌ Auth check failed:', authError)
+        throw new Error(`Authentication check failed: ${authError.message}`)
+      }
+      
+      if (!user) {
+        console.error('❌ No user found')
+        throw new Error('Not authenticated - no user found')
+      }
+      
+      console.log('✅ User authenticated:', user.id, user.email)
 
-      // Update user profile with state
-      const { error: profileError } = await supabase
+      // Step 2: Test profile table structure
+      console.log('🏗️ Testing profile table structure...')
+      const profileStructureTest = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .limit(1)
+      console.log('🏗️ Profile structure test:', profileStructureTest)
+
+      // Step 3: Update user profile with state
+      console.log('👤 Updating user profile...')
+      console.log('📍 Profile data to insert:', {
+        id: user.id,
+        state_territory: stateTerritory
+      })
+      
+      // Use basic profile data to avoid column errors
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .upsert({
           id: user.id,
-          state_territory: stateTerritory,
-          updated_at: new Date().toISOString()
+          state_territory: stateTerritory
         })
+        .select()
 
-      if (profileError) throw profileError
+      console.log('👤 Profile upsert result:', { data: profileData, error: profileError })
 
-      // Create baby profile
-      const babyData = {
+      if (profileError) {
+        console.error('❌ Profile update failed:', profileError)
+        console.error('❌ Profile error details:', {
+          message: profileError.message,
+          code: profileError.code,
+          details: profileError.details,
+          hint: profileError.hint
+        })
+        throw new Error(`PROFILE ERROR: ${profileError.message} (Code: ${profileError.code})`)
+      }
+      
+      console.log('✅ Profile updated successfully:', profileData)
+
+      // Step 4: Test children table structure
+      console.log('🏗️ Testing children table structure...')
+      const childrenStructureTest = await supabase
+        .from('children')
+        .select('*')
+        .limit(1)
+      console.log('🏗️ Children structure test:', childrenStructureTest)
+
+      // Step 5: Create baby profile with all data
+      console.log('👶 Creating baby profile...')
+      
+      // Include all the collected data
+      let babyData = {
         user_id: user.id,
         name: babyName,
         date_of_birth: dateOfBirth,
@@ -102,32 +174,141 @@ export default function OnboardingPage() {
         is_premium_feature: false
       }
 
-      const { data: baby, error: babyError } = await supabase
+      console.log('📝 Baby data to insert (full):', babyData)
+      let { data: baby, error: babyError } = await supabase
         .from('children')
         .insert(babyData)
         .select()
         .single()
 
-      if (babyError) throw babyError
+      console.log('👶 Baby creation result:', { data: baby, error: babyError })
 
-      // Generate checklist for the baby
+      if (babyError) {
+        console.error('❌ Baby creation error:', babyError)
+        console.error('❌ Baby error details:', {
+          message: babyError.message,
+          code: babyError.code,
+          details: babyError.details,
+          hint: babyError.hint
+        })
+        
+        // Try with basic data if extended columns fail
+        console.log('🔄 Trying with basic baby data only...')
+        const basicBabyData = {
+          user_id: user.id,
+          name: babyName,
+          date_of_birth: dateOfBirth,
+          is_premium_feature: false
+        }
+        
+        console.log('📝 Basic baby data:', basicBabyData)
+        const { data: basicBaby, error: basicError } = await supabase
+          .from('children')
+          .insert(basicBabyData)
+          .select()
+          .single()
+          
+        console.log('👶 Basic baby creation result:', { data: basicBaby, error: basicError })
+        
+        if (basicError) {
+          console.error('❌ Basic baby creation also failed:', basicError)
+          throw new Error(`BABY ERROR: ${basicError.message} (Code: ${basicError.code})`)
+        }
+        
+        baby = basicBaby
+        console.log('✅ Baby profile created with basic data:', baby.id)
+      } else {
+        console.log('✅ Baby profile created with full data:', baby.id)
+      }
+      
+      console.log('🎉 Baby profile successfully created:', baby)
+
+      // Step 6: Generate checklist for the baby (optional - don't fail if this breaks)
       try {
-        const { ChecklistService } = await import('@/lib/services/checklist-service')
-        await ChecklistService.generateChecklistForChild(
-          baby.id,
-          baby.date_of_birth,
-          stateTerritory
-        )
-      } catch (checklistError) {
-        console.error('Error generating checklist:', checklistError)
-        // Don't throw - baby creation succeeded
+        console.log('📋 Testing checklist table structure...')
+        const checklistStructureTest = await supabase
+          .from('checklist_items')
+          .select('*')
+          .limit(1)
+        console.log('📋 Checklist structure test:', checklistStructureTest)
+        
+        console.log('📋 Generating checklist...')
+        const checklistModule = await import('@/lib/services/checklist-service')
+        console.log('📦 Checklist module loaded:', !!checklistModule)
+        console.log('🔧 ChecklistService available:', !!checklistModule?.ChecklistService)
+        
+        if (checklistModule && checklistModule.ChecklistService) {
+          console.log('📋 Calling generateChecklistForChild with:', {
+            babyId: baby.id,
+            dateOfBirth: baby.date_of_birth,
+            state: stateTerritory
+          })
+          
+          await checklistModule.ChecklistService.generateChecklistForChild(
+            baby.id,
+            baby.date_of_birth,
+            stateTerritory
+          )
+          console.log('✅ Checklist generated successfully')
+        } else {
+          console.warn('⚠️ ChecklistService not available, skipping checklist generation')
+        }
+      } catch (checklistError: any) {
+        console.error('❌ Error generating checklist:', checklistError)
+        console.error('🔍 Checklist error details:', {
+          name: checklistError.name,
+          message: checklistError.message,
+          stack: checklistError.stack,
+          code: checklistError.code,
+          details: checklistError.details,
+          hint: checklistError.hint
+        })
+        
+        // Check if it's a schema error
+        if (checklistError.message?.includes('metadata') || checklistError.code === '42703') {
+          console.warn('⚠️ Database schema missing metadata column - checklist generation skipped')
+        }
+        
+        // IMPORTANT: Don't throw here - baby creation succeeded, continue to dashboard
+        console.log('⏭️ Continuing to dashboard despite checklist error')
       }
 
+      console.log('🚀 Redirecting to dashboard...')
       // Redirect to Today page
       router.push('/dashboard/today')
-    } catch (err) {
-      console.error('Onboarding error:', err)
-      setError(err instanceof Error ? err.message : 'An error occurred')
+    } catch (err: any) {
+      console.error('❌ ONBOARDING FAILED:', err)
+      console.error('❌ Full error details:', {
+        name: err.name,
+        message: err.message,
+        stack: err.stack,
+        code: err.code,
+        details: err.details,
+        hint: err.hint
+      })
+      
+      // Provide very detailed error messages
+      let errorMessage = 'An error occurred during setup'
+      
+      if (err instanceof Error) {
+        if (err.message.includes('PROFILE ERROR')) {
+          errorMessage = `Profile creation failed: ${err.message}`
+        } else if (err.message.includes('BABY ERROR')) {
+          errorMessage = `Baby profile creation failed: ${err.message}`
+        } else if (err.message.includes('column') || err.message.includes('42703')) {
+          errorMessage = `Database column missing: ${err.message}. Please run the database migration.`
+        } else if (err.message.includes('authentication') || err.message.includes('auth')) {
+          errorMessage = `Authentication error: ${err.message}`
+        } else if (err.message.includes('Network') || err.message.includes('fetch')) {
+          errorMessage = `Network error: ${err.message}`
+        } else {
+          errorMessage = `Detailed error: ${err.message}`
+        }
+      } else {
+        errorMessage = `Unknown error: ${JSON.stringify(err)}`
+      }
+      
+      setError(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -189,7 +370,7 @@ export default function OnboardingPage() {
               <div className="text-center mb-6">
                 <div className="text-4xl mb-4">👶</div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Tell us about your baby</h2>
-                <p className="text-sm text-gray-600">This helps us personalize your timeline</p>
+                <p className="text-sm text-gray-600">This helps us personalise your timeline</p>
               </div>
               
               <div className="space-y-4">
@@ -221,10 +402,7 @@ export default function OnboardingPage() {
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">{type.emoji}</span>
-                          <span className="font-medium">{type.label}</span>
-                        </div>
+                        <span className="font-medium">{type.label}</span>
                       </button>
                     ))}
                   </div>
@@ -412,10 +590,7 @@ export default function OnboardingPage() {
                             : 'border-gray-200 hover:border-gray-300'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">{type.emoji}</span>
-                          <span className="font-medium">{type.label}</span>
-                        </div>
+                        <span className="font-medium">{type.label}</span>
                       </button>
                     ))}
                   </div>
@@ -431,16 +606,16 @@ export default function OnboardingPage() {
                 <div className="text-4xl mb-4">🎉</div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">You're all set!</h2>
                 <p className="text-sm text-gray-600 mb-4">
-                  Welcome to PAM! We're creating your personalized timeline now.
+                  Welcome to PAM! We're creating your personalised timeline now.
                 </p>
                 
                 <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-xl p-4 border border-pink-200">
                   <div className="flex items-center gap-3 mb-3">
-                    <HeartIcon className="w-5 h-5 text-pink-600" />
+                    <Heart className="w-5 h-5 text-pink-600" />
                     <span className="font-medium text-gray-900">Your PAM journey starts now</span>
                   </div>
                   <p className="text-sm text-gray-700 text-left">
-                    • Get personalized Australian timeline<br/>
+                    • Get personalised Australian timeline<br/>
                     • Track {babyName}'s milestones<br/>
                     • Reduce your mental load<br/>
                     • Take care of yourself too ✨
@@ -449,8 +624,21 @@ export default function OnboardingPage() {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
-                  <p className="text-sm text-red-600">{error}</p>
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="text-red-500 text-lg">⚠️</div>
+                    <div className="w-full">
+                      <h4 className="text-sm font-medium text-red-800 mb-1">Setup Error</h4>
+                      <p className="text-sm text-red-600 mb-2 break-words">{error}</p>
+                      <details className="text-xs text-red-500">
+                        <summary className="cursor-pointer hover:text-red-700">Technical details</summary>
+                        <pre className="mt-2 p-2 bg-red-100 rounded overflow-x-auto text-[10px]">{error}</pre>
+                      </details>
+                      <p className="text-xs text-red-500 mt-2">
+                        Please check the browser console for more details. Press F12 to open developer tools.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -467,7 +655,7 @@ export default function OnboardingPage() {
                   : 'text-gray-600 hover:text-gray-900 hover:bg-white'
               }`}
             >
-              <ChevronLeftIcon className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5" />
               Back
             </button>
 
@@ -482,7 +670,7 @@ export default function OnboardingPage() {
                 }`}
               >
                 Continue
-                <ChevronRightIcon className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5" />
               </button>
             ) : (
               <button
@@ -495,10 +683,15 @@ export default function OnboardingPage() {
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Setting up...
                   </>
+                ) : error ? (
+                  <>
+                    Try Again
+                    <Heart className="w-5 h-5" />
+                  </>
                 ) : (
                   <>
-                    Start using PAM
-                    <HeartIcon className="w-5 h-5" />
+                    Start using PAM 🎉
+                    <Heart className="w-5 h-5" />
                   </>
                 )}
               </button>

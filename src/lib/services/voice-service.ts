@@ -20,7 +20,27 @@ export class VoiceService {
    * Check if speech recognition is supported
    */
   static isSupported(): boolean {
+    if (typeof window === 'undefined') return false
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition)
+  }
+
+  /**
+   * Request microphone permission
+   */
+  static async requestMicrophonePermission(): Promise<boolean> {
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices) {
+      return false
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // Stop the stream immediately - we just needed permission
+      stream.getTracks().forEach(track => track.stop())
+      return true
+    } catch (error) {
+      console.error('Microphone permission denied:', error)
+      return false
+    }
   }
 
   /**
@@ -92,9 +112,18 @@ export class VoiceService {
 
       try {
         this.recognition.start()
-      } catch {
+      } catch (error) {
         this.isListening = false
-        resolve({ success: false, error: 'Failed to start listening' })
+        console.error('Voice recognition start error:', error)
+        resolve({ 
+          success: false, 
+          error: 'Failed to start listening. Please check microphone permissions.',
+          suggestions: [
+            'Make sure your microphone is connected',
+            'Allow microphone access for this website',
+            'Try refreshing the page'
+          ]
+        })
       }
     })
   }
@@ -148,14 +177,14 @@ export class VoiceService {
       return command
     }
 
-    // Diaper commands
-    if (this.matchesPattern(transcript, ['wet diaper', 'wet nappy', 'pee', 'wee'])) {
-      command.activity_type = 'diaper-wet'
+    // Nappy commands (Australian terminology)
+    if (this.matchesPattern(transcript, ['wet nappy', 'wet diaper', 'pee', 'wee'])) {
+      command.activity_type = 'nappy-wet'
       return command
     }
 
-    if (this.matchesPattern(transcript, ['dirty diaper', 'dirty nappy', 'poo', 'poop', 'soil'])) {
-      command.activity_type = 'diaper-dirty'
+    if (this.matchesPattern(transcript, ['dirty nappy', 'dirty diaper', 'poo', 'poop', 'soil'])) {
+      command.activity_type = 'nappy-dirty'
       const consistency = this.extractConsistency(transcript)
       if (consistency) command.details = { consistency }
       return command
@@ -301,7 +330,7 @@ export class VoiceService {
     return [
       'Try saying: "Breastfeed for 15 minutes"',
       'Try saying: "Bottle feed 120ml"',
-      'Try saying: "Wet diaper change"',
+      'Try saying: "Wet nappy change"',
       'Try saying: "Start sleep" or "End sleep"',
       'Try saying: "Tummy time for 10 minutes"',
       'Try saying: "Solid food banana and rice"'
