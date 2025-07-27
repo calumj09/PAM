@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
 import { getMilestoneForWeek, getUpcomingMilestones } from '@/lib/data/milestone-bubbles'
+import { ChecklistService } from '@/lib/services/checklist-service'
 import { 
   CheckCircleIcon, 
   ClockIcon, 
@@ -24,17 +25,22 @@ interface Child {
   date_of_birth: string;
 }
 
-interface CompletedItem {
+interface ChecklistItem {
   id: string;
   child_id: string;
-  checklist_item_id: string;
-  completed_at: string;
+  title: string;
+  description: string;
+  due_date: string;
+  category: 'immunization' | 'registration' | 'milestone' | 'checkup';
+  is_completed: boolean;
+  completed_date: string | null;
+  metadata: any;
 }
 
 export default function ChecklistPage() {
   const [children, setChildren] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
-  const [completedItems, setCompletedItems] = useState<CompletedItem[]>([])
+  const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([])
   const [userState, setUserState] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>([])
@@ -70,55 +76,72 @@ export default function ChecklistPage() {
       if (childrenData && childrenData.length > 0) {
         setChildren(childrenData)
         setSelectedChild(childrenData[0])
-        
-        // Load completed items from checklist_items table
-        const { data: completedData } = await supabase
-          .from('checklist_items')
-          .select('*')
-          .eq('child_id', childrenData[0].id)
-          .eq('is_completed', true)
-
-        setCompletedItems(completedData || [])
-        
-        // Auto-expand current week
-        const currentWeek = getCurrentWeek(new Date(childrenData[0].date_of_birth))
-        setExpandedWeeks([`week-${currentWeek}`])
+        await loadChecklistForChild(childrenData[0].id)
       }
     } finally {
       setIsLoading(false)
     }
   }
 
+  const loadChecklistForChild = async (childId: string) => {
+    try {
+      // First, try to load existing checklist items from database
+      const items = await ChecklistService.getChecklistForChild(childId)
+      
+      if (items.length === 0) {
+        // If no items exist, generate the checklist first
+        const child = children.find(c => c.id === childId)
+        if (child) {
+          await ChecklistService.generateChecklistForChild(
+            childId,
+            child.date_of_birth,
+            userState || undefined
+          )
+          // Load the newly generated items
+          const newItems = await ChecklistService.getChecklistForChild(childId)
+          setChecklistItems(newItems)
+        }
+      } else {
+        setChecklistItems(items)
+      }
+      
+      // Auto-expand current week
+      const child = children.find(c => c.id === childId)
+      if (child) {
+        const currentWeek = getCurrentWeek(new Date(child.date_of_birth))
+        setExpandedWeeks([`week-${currentWeek}`])
+      }
+    } catch (error) {
+      console.error('Error loading checklist:', error)
+    }
+  }
+
   const toggleItemCompletion = async (itemId: string) => {
     if (!selectedChild) return
 
-    const existingCompletion = completedItems.find(
-      ci => ci.child_id === selectedChild.id && ci.checklist_item_id === itemId
-    )
+    const item = checklistItems.find(item => item.id === itemId)
+    if (!item) return
 
-    if (existingCompletion) {
-      // Remove completion
-      await supabase
-        .from('checklist_completions')
-        .delete()
-        .eq('id', existingCompletion.id)
-
-      setCompletedItems(prev => prev.filter(ci => ci.id !== existingCompletion.id))
-    } else {
-      // Add completion
-      const { data } = await supabase
-        .from('checklist_completions')
-        .insert({
-          child_id: selectedChild.id,
-          checklist_item_id: itemId,
-          completed_at: new Date().toISOString()
-        })
-        .select()
-        .single()
-
-      if (data) {
-        setCompletedItems(prev => [...prev, data])
+    try {
+      if (item.is_completed) {
+        // Mark as incomplete
+        await ChecklistService.markItemIncomplete(itemId)
+        setChecklistItems(prev => prev.map(prevItem => 
+          prevItem.id === itemId 
+            ? { ...prevItem, is_completed: false, completed_date: null }
+            : prevItem
+        ))
+      } else {
+        // Mark as completed
+        await ChecklistService.markItemCompleted(itemId)
+        setChecklistItems(prev => prev.map(prevItem => 
+          prevItem.id === itemId 
+            ? { ...prevItem, is_completed: true, completed_date: new Date().toISOString() }
+            : prevItem
+        ))
       }
+    } catch (error) {
+      console.error('Error toggling completion:', error)
     }
   }
 
@@ -204,12 +227,11 @@ export default function ChecklistPage() {
     )
   }
 
-  const checklistItems = selectedChild ? getChecklistForChild(new Date(selectedChild.date_of_birth)) : []
   const birthDate = selectedChild ? new Date(selectedChild.date_of_birth) : new Date()
 
   // Group items by week
   const weeklyItems = checklistItems.reduce((acc, item) => {
-    const dueDate = calculateDueDate(birthDate, item)
+    const dueDate = new Date(item.due_date)
     const weekNumber = getWeekNumber(birthDate, dueDate)
     const weekKey = `week-${weekNumber}`
     
@@ -222,11 +244,11 @@ export default function ChecklistPage() {
       }
     }
     
-    const isCompleted = completedItems.some(
-      ci => ci.child_id === selectedChild?.id && ci.checklist_item_id === item.id
-    )
-    
-    acc[weekKey].items.push({ ...item, isCompleted, dueDate })
+    acc[weekKey].items.push({ 
+      ...item, 
+      isCompleted: item.is_completed, 
+      dueDate: dueDate 
+    })
     
     return acc
   }, {} as any)
@@ -238,7 +260,7 @@ export default function ChecklistPage() {
 
   // Calculate stats
   const totalItems = checklistItems.length
-  const completedCount = completedItems.filter(ci => ci.child_id === selectedChild?.id).length
+  const completedCount = checklistItems.filter(item => item.is_completed).length
   const completionRate = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0
   const currentWeek = getCurrentWeek(birthDate)
 
@@ -255,7 +277,10 @@ export default function ChecklistPage() {
               {children.map(child => (
                 <button
                   key={child.id}
-                  onClick={() => setSelectedChild(child)}
+                  onClick={async () => {
+                    setSelectedChild(child)
+                    await loadChecklistForChild(child.id)
+                  }}
                   className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     selectedChild?.id === child.id
                       ? 'bg-red-600 text-white'
