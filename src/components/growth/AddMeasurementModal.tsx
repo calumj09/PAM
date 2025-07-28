@@ -309,6 +309,7 @@ export function AddMeasurementModal({
                 <option value="hospital">Hospital</option>
                 <option value="childcare">Childcare/Kinder</option>
                 <option value="maternal_child_health">Maternal & Child Health</option>
+                <option value="at_birth">At Birth (Hospital/Birth Centre)</option>
               </select>
             </div>
 

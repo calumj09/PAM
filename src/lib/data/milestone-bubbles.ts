@@ -187,16 +187,146 @@ export const milestoneBubbles: MilestoneBubble[] = [
     type: 'development',
     emoji: '🎂',
     encouragement: 'You\'ve both grown so much this year. Celebrate this amazing milestone!'
+  },
+
+  // Toddler milestones (13-24 months)
+  {
+    id: 'first-words',
+    weekNumber: 56,
+    monthsOld: 13,
+    title: 'First Words',
+    description: 'Meaningful words like "mama", "dada", or favourite objects might emerge',
+    type: 'cognitive',
+    emoji: '🗣️',
+    encouragement: 'Every word is a celebration! They\'re finding their voice.'
+  },
+  {
+    id: 'walking-steps',
+    weekNumber: 60,
+    monthsOld: 14,
+    title: 'First Steps',
+    description: 'Independent walking might start - every child walks when they\'re ready',
+    type: 'physical',
+    emoji: '👣',
+    encouragement: 'Those wobbly first steps are the beginning of a lifetime of adventures!'
+  },
+  {
+    id: 'pointing-communicating',
+    weekNumber: 64,
+    monthsOld: 15,
+    title: 'Pointing & Gesturing',
+    description: 'Pointing to show you things they want or find interesting',
+    type: 'social',
+    emoji: '👉',
+    encouragement: 'They\'re sharing their world with you - what a special connection!'
+  },
+  {
+    id: 'pretend-play',
+    weekNumber: 72,
+    monthsOld: 18,
+    title: 'Pretend Play',
+    description: 'Imaginative play like feeding dolls or talking on toy phones',
+    type: 'cognitive',
+    emoji: '🧸',
+    encouragement: 'Their imagination is blossoming - nurture that creativity!'
+  },
+  {
+    id: 'running-climbing',
+    weekNumber: 80,
+    monthsOld: 20,
+    title: 'Running & Climbing',
+    description: 'More confident movement - running, climbing, exploring',
+    type: 'physical',
+    emoji: '🏃‍♀️',
+    encouragement: 'Your little athlete is discovering what their body can do!'
+  },
+  {
+    id: 'two-word-phrases',
+    weekNumber: 88,
+    monthsOld: 22,
+    title: 'Two-Word Phrases',
+    description: 'Combining words like "more milk" or "daddy go"',
+    type: 'cognitive',
+    emoji: '💭',
+    encouragement: 'They\'re building the foundation for conversations with you!'
+  },
+  {
+    id: 'second-birthday',
+    weekNumber: 104,
+    monthsOld: 24,
+    title: 'Two Years Old!',
+    description: 'Your toddler has grown so much - celebrating two amazing years!',
+    type: 'development',
+    emoji: '🎉',
+    encouragement: 'Two years of love, growth, and precious memories. You\'re doing amazing!'
+  },
+
+  // Older toddler milestones (2-3 years)
+  {
+    id: 'potty-training',
+    weekNumber: 120,
+    monthsOld: 30,
+    title: 'Potty Training Readiness',
+    description: 'Signs of readiness for toilet training might appear',
+    type: 'development',
+    emoji: '🚽',
+    encouragement: 'Every child is ready in their own time. No pressure, just follow their lead!'
+  },
+  {
+    id: 'playing-with-others',
+    weekNumber: 130,
+    monthsOld: 32,
+    title: 'Social Play',
+    description: 'Beginning to play alongside other children and share',
+    type: 'social',
+    emoji: '👫',
+    encouragement: 'Watching them make friends is one of parenting\'s greatest joys!'
+  },
+  {
+    id: 'independence-growing',
+    weekNumber: 140,
+    monthsOld: 34,
+    title: 'Growing Independence',
+    description: 'Wanting to do things "by myself" - a sign of healthy development',
+    type: 'development',
+    emoji: '💪',
+    encouragement: 'Their independence is growing, but they\'ll always need your love and guidance!'
+  },
+  {
+    id: 'third-birthday',
+    weekNumber: 156,
+    monthsOld: 36,
+    title: 'Three Years Old!',
+    description: 'Your little one has become such a unique person with their own personality!',
+    type: 'development',
+    emoji: '🎈',
+    encouragement: 'Three years of watching them grow into who they\'re meant to be. What a privilege!'
   }
 ];
 
 export const getMilestoneForWeek = (weekNumber: number): MilestoneBubble | null => {
-  return milestoneBubbles.find(milestone => milestone.weekNumber === weekNumber) || null;
+  // First try exact match
+  const exactMatch = milestoneBubbles.find(milestone => milestone.weekNumber === weekNumber);
+  if (exactMatch) return exactMatch;
+  
+  // If no exact match, try to find a milestone within ±2 weeks
+  const nearbyMilestone = milestoneBubbles.find(milestone => 
+    Math.abs(milestone.weekNumber - weekNumber) <= 2 && milestone.weekNumber <= weekNumber
+  );
+  
+  return nearbyMilestone || null;
 };
 
 export const getUpcomingMilestones = (currentWeek: number, lookAheadWeeks: number = 4): MilestoneBubble[] => {
   return milestoneBubbles.filter(milestone => 
     milestone.weekNumber > currentWeek && 
     milestone.weekNumber <= currentWeek + lookAheadWeeks
+  );
+};
+
+export const getRecentMilestones = (currentWeek: number, lookBackWeeks: number = 4): MilestoneBubble[] => {
+  return milestoneBubbles.filter(milestone => 
+    milestone.weekNumber < currentWeek && 
+    milestone.weekNumber >= currentWeek - lookBackWeeks
   );
 };

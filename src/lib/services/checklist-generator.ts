@@ -31,26 +31,34 @@ export class ChecklistGenerator {
     dateOfBirth: Date, 
     userState?: string
   ): GeneratedChecklistItem[] {
+    console.log('ChecklistGenerator.generateChecklist called with:', { childId, dateOfBirth, userState })
     const checklist: GeneratedChecklistItem[] = []
 
     // Add immunization schedule
     const immunizations = this.generateImmunizationItems(childId, dateOfBirth)
+    console.log('Generated immunizations:', immunizations.length)
     checklist.push(...immunizations)
 
     // Add government registration tasks
     const registrations = this.generateRegistrationItems(childId, dateOfBirth, userState)
+    console.log('Generated registrations:', registrations.length)
     checklist.push(...registrations)
 
     // Add developmental milestones
     const milestones = this.generateMilestoneItems(childId, dateOfBirth)
+    console.log('Generated milestones:', milestones.length)
     checklist.push(...milestones)
 
     // Add health checkups
     const checkups = this.generateHealthCheckups(childId, dateOfBirth)
+    console.log('Generated checkups:', checkups.length)
     checklist.push(...checkups)
 
     // Sort by due date
-    return checklist.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
+    const sortedChecklist = checklist.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime())
+    console.log('Total checklist items generated:', sortedChecklist.length)
+    
+    return sortedChecklist
   }
 
   /**
@@ -234,7 +242,8 @@ export class ChecklistGenerator {
     childId: string, 
     dateOfBirth: Date
   ): GeneratedChecklistItem[] {
-    return AUSTRALIAN_IMMUNIZATION_SCHEDULE.map(vaccine => ({
+    console.log('Immunization schedule items:', AUSTRALIAN_IMMUNIZATION_SCHEDULE.length)
+    const items = AUSTRALIAN_IMMUNIZATION_SCHEDULE.map(vaccine => ({
       id: `${childId}-immunization-${vaccine.id}`,
       title: vaccine.title,
       description: vaccine.description,
@@ -247,6 +256,8 @@ export class ChecklistGenerator {
         isOptional: !vaccine.isRequired
       }
     }))
+    console.log('Generated immunization items:', items.length)
+    return items
   }
 
   /**

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
 import { getMilestoneForWeek, getUpcomingMilestones } from '@/lib/data/milestone-bubbles'
-import { ChecklistService } from '@/lib/services/checklist-service'
 import { TimelineCalendar } from '@/components/features/TimelineCalendar'
 import { 
   CheckCircleIcon, 
@@ -50,6 +49,14 @@ export default function ChecklistPage() {
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
   const supabase = createClient()
 
+  // Debug: Test checklist data import
+  console.log('Checklist data import test:', {
+    australianChecklistItemsLength: australianChecklistItems.length,
+    sampleItems: australianChecklistItems.slice(0, 3).map(i => ({ id: i.id, title: i.title })),
+    getChecklistForChildFunction: typeof getChecklistForChild,
+    calculateDueDateFunction: typeof calculateDueDate
+  })
+
   useEffect(() => {
     loadData()
   }, [])
@@ -89,32 +96,66 @@ export default function ChecklistPage() {
 
   const loadChecklistForChild = async (childId: string) => {
     try {
-      // First, try to load existing checklist items from database
-      const items = await ChecklistService.getChecklistForChild(childId)
+      console.log('Loading checklist for child:', childId)
+      console.log('Children array:', children.length, children.map(c => ({ id: c.id, name: c.name })))
       
-      if (items.length === 0) {
-        // If no items exist, generate the checklist first
-        const child = children.find(c => c.id === childId)
-        if (child) {
-          await ChecklistService.generateChecklistForChild(
-            childId,
-            child.date_of_birth,
-            userState || undefined
-          )
-          // Load the newly generated items
-          const newItems = await ChecklistService.getChecklistForChild(childId)
-          setChecklistItems(newItems)
+      // Get child data - if not in state, fetch from database
+      let child = children.find(c => c.id === childId)
+      
+      if (!child) {
+        console.log('Child not found in state, fetching from database...')
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data: childData } = await supabase
+          .from('children')
+          .select('*')
+          .eq('id', childId)
+          .eq('user_id', user.id)
+          .single()
+        
+        if (!childData) {
+          console.error('Child not found in database:', childId)
+          return
         }
-      } else {
-        setChecklistItems(items)
+        
+        child = childData
       }
+      
+      console.log('Found child:', child.name, 'DOB:', child.date_of_birth)
+      
+      // Generate checklist items using the working method
+      const birthDate = new Date(child.date_of_birth)
+      const checklistData = getChecklistForChild(birthDate)
+      
+      console.log('Raw checklist data items:', checklistData.length)
+      console.log('Sample items:', checklistData.slice(0, 3).map(i => ({ id: i.id, title: i.title, dueAtMonths: i.dueAtMonths })))
+      
+      // Transform to the format expected by the UI
+      const transformedItems = checklistData.map(item => {
+        const dueDate = calculateDueDate(birthDate, item)
+        return {
+          id: `${childId}-${item.id}`,
+          child_id: childId,
+          title: item.title,
+          description: item.description,
+          due_date: dueDate.toISOString().split('T')[0],
+          category: item.category,
+          is_completed: false,
+          completed_date: null,
+          metadata: {}
+        }
+      })
+      
+      console.log('Transformed checklist items:', transformedItems.length)
+      console.log('Sample transformed items:', transformedItems.slice(0, 3).map(i => ({ id: i.id, title: i.title, due_date: i.due_date })))
+      
+      setChecklistItems(transformedItems)
       
       // Auto-expand current week
-      const child = children.find(c => c.id === childId)
-      if (child) {
-        const currentWeek = getCurrentWeek(new Date(child.date_of_birth))
-        setExpandedWeeks([`week-${currentWeek}`])
-      }
+      const currentWeek = getCurrentWeek(birthDate)
+      setExpandedWeeks([`week-${currentWeek}`])
+      
     } catch (error) {
       console.error('Error loading checklist:', error)
     }
@@ -126,27 +167,17 @@ export default function ChecklistPage() {
     const item = checklistItems.find(item => item.id === itemId)
     if (!item) return
 
-    try {
-      if (item.is_completed) {
-        // Mark as incomplete
-        await ChecklistService.markItemIncomplete(itemId)
-        setChecklistItems(prev => prev.map(prevItem => 
-          prevItem.id === itemId 
-            ? { ...prevItem, is_completed: false, completed_date: null }
-            : prevItem
-        ))
-      } else {
-        // Mark as completed
-        await ChecklistService.markItemCompleted(itemId)
-        setChecklistItems(prev => prev.map(prevItem => 
-          prevItem.id === itemId 
-            ? { ...prevItem, is_completed: true, completed_date: new Date().toISOString() }
-            : prevItem
-        ))
-      }
-    } catch (error) {
-      console.error('Error toggling completion:', error)
-    }
+    // For now, just toggle in local state
+    // Later we can add database persistence
+    setChecklistItems(prev => prev.map(prevItem => 
+      prevItem.id === itemId 
+        ? { 
+            ...prevItem, 
+            is_completed: !prevItem.is_completed, 
+            completed_date: !prevItem.is_completed ? new Date().toISOString() : null 
+          }
+        : prevItem
+    ))
   }
 
   const toggleWeek = (weekId: string) => {
@@ -267,6 +298,17 @@ export default function ChecklistPage() {
   const completedCount = checklistItems.filter(item => item.is_completed).length
   const completionRate = totalItems > 0 ? Math.round((completedCount / totalItems) * 100) : 0
   const currentWeek = getCurrentWeek(birthDate)
+  
+  // Debug logging
+  console.log('Render stats:', { 
+    totalItems, 
+    completedCount, 
+    completionRate, 
+    currentWeek, 
+    checklistItemsLength: checklistItems.length,
+    selectedChildName: selectedChild?.name,
+    sortedWeeksLength: Object.values(weeklyItems).length
+  })
 
   return (
     <div className="min-h-screen bg-gray-50">

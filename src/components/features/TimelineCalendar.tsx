@@ -8,7 +8,8 @@ import {
   ClockIcon
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
-import { getMilestoneForWeek } from '@/lib/data/milestone-bubbles'
+import { getMilestoneForWeek, MilestoneBubble } from '@/lib/data/milestone-bubbles'
+import { MilestoneModal } from './MilestoneModal'
 
 interface ChecklistItem {
   id: string
@@ -48,6 +49,7 @@ export function TimelineCalendar({
 }: TimelineCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month')
+  const [selectedMilestone, setSelectedMilestone] = useState<MilestoneBubble | null>(null)
 
   const getWeekNumber = (targetDate: Date) => {
     const diffTime = targetDate.getTime() - birthDate.getTime()
@@ -232,17 +234,20 @@ export function TimelineCalendar({
                 {/* Milestone */}
                 {day.milestone && (
                   <div className="mb-2">
-                    <div className="bg-purple-50 border border-purple-200 rounded p-1.5">
+                    <button
+                      onClick={() => setSelectedMilestone(day.milestone!)}
+                      className="w-full bg-purple-50 border border-purple-200 rounded p-1.5 hover:bg-purple-100 transition-colors"
+                    >
                       <div className="flex items-center gap-1">
                         <span className="text-xs">{day.milestone.emoji}</span>
                         <span className="text-xs font-medium text-purple-700 truncate">
                           Week {day.milestone.weekNumber}
                         </span>
                       </div>
-                      <div className="text-xs text-purple-600 truncate mt-1">
+                      <div className="text-xs text-purple-600 truncate mt-1 text-left">
                         {day.milestone.title}
                       </div>
-                    </div>
+                    </button>
                   </div>
                 )}
 
@@ -355,12 +360,15 @@ export function TimelineCalendar({
               {/* Milestone indicator */}
               {day.milestone && day.isCurrentMonth && (
                 <div className="mb-1">
-                  <div className="bg-purple-50 rounded px-1 py-0.5 border border-purple-200">
+                  <button
+                    onClick={() => setSelectedMilestone(day.milestone!)}
+                    className="w-full bg-purple-50 rounded px-1 py-0.5 border border-purple-200 hover:bg-purple-100 transition-colors"
+                  >
                     <div className="text-xs text-purple-700 font-medium flex items-center gap-1">
                       <span>{day.milestone.emoji}</span>
                       <span className="truncate">W{day.milestone.weekNumber}</span>
                     </div>
-                  </div>
+                  </button>
                 </div>
               )}
 
@@ -421,6 +429,14 @@ export function TimelineCalendar({
           </div>
         </div>
       </div>
+
+      {/* Milestone Detail Modal */}
+      {selectedMilestone && (
+        <MilestoneModal
+          milestone={selectedMilestone}
+          onClose={() => setSelectedMilestone(null)}
+        />
+      )}
     </div>
   )
 }

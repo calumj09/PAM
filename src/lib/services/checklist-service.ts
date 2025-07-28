@@ -31,21 +31,38 @@ export class ChecklistService {
     dateOfBirth: string,
     userState?: string
   ): Promise<void> {
+    console.log('Generating checklist for child:', childId, 'DOB:', dateOfBirth, 'State:', userState)
+    
     const dob = new Date(dateOfBirth)
     const generatedItems = ChecklistGenerator.generateChecklist(childId, dob, userState)
+    
+    console.log('Generated items count:', generatedItems.length)
+    console.log('First few items:', generatedItems.slice(0, 3).map(i => ({ id: i.id, title: i.title, dueDate: i.dueDate })))
 
     // Check if items already exist to avoid duplicates
-    const { data: existingItems } = await this.supabase
+    const { data: existingItems, error: existingError } = await this.supabase
       .from('checklist_items')
       .select('id')
       .eq('child_id', childId)
+
+    if (existingError) {
+      console.error('Error checking existing items:', existingError)
+      throw existingError
+    }
+
+    console.log('Existing items in DB:', existingItems?.length || 0)
 
     const existingIds = new Set(existingItems?.map(item => item.id) || [])
 
     // Filter out items that already exist
     const newItems = generatedItems.filter(item => !existingIds.has(item.id))
+    
+    console.log('New items to insert:', newItems.length)
 
-    if (newItems.length === 0) return
+    if (newItems.length === 0) {
+      console.log('No new items to insert')
+      return
+    }
 
     // Convert to database format
     const itemsToInsert = newItems.map(item => ({
@@ -60,6 +77,8 @@ export class ChecklistService {
       metadata: item.metadata
     }))
 
+    console.log('Items to insert (sample):', itemsToInsert.slice(0, 2))
+
     // Insert with metadata for full functionality
     const { error } = await this.supabase
       .from('checklist_items')
@@ -70,7 +89,7 @@ export class ChecklistService {
       throw error
     }
     
-    console.log('Successfully inserted checklist items with metadata')
+    console.log('Successfully inserted', itemsToInsert.length, 'checklist items with metadata')
   }
 
   /**
