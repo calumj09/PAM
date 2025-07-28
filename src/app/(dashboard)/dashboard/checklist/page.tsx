@@ -175,8 +175,22 @@ export default function ChecklistPage() {
           id: i.id, 
           title: i.title, 
           category: i.category,
-          is_completed: i.is_completed 
+          is_completed: i.is_completed,
+          metadata: i.metadata 
         })))
+        
+        // Check for optional tasks specifically
+        const optionalTasks = savedItems.filter(item => 
+          item.metadata?.source === 'optional_admin_checklist'
+        )
+        console.log('🌟 Optional tasks in database:', optionalTasks.length)
+        if (optionalTasks.length > 0) {
+          console.log('🌟 Optional tasks found:', optionalTasks.map(t => ({ 
+            title: t.title, 
+            category: t.category,
+            metadata: t.metadata 
+          })))
+        }
       }
 
       // Get child data - if not in state, fetch from database
@@ -231,8 +245,44 @@ export default function ChecklistPage() {
         }
       })
       
-      console.log('Generated checklist items with saved state:', transformedItems.length)
-      setChecklistItems(transformedItems)
+      // IMPORTANT: Add any saved items that aren't in the default checklist (like optional tasks)
+      const additionalSavedItems = savedItems?.filter(saved => {
+        // Find items that don't match any default checklist item
+        return !checklistData.some(defaultItem => 
+          defaultItem.title === saved.title && defaultItem.category === saved.category
+        )
+      }) || []
+      
+      console.log('📋 Additional saved items (optional tasks, etc.):', additionalSavedItems.length)
+      if (additionalSavedItems.length > 0) {
+        console.log('📋 Additional items:', additionalSavedItems.map(i => ({ 
+          title: i.title, 
+          category: i.category,
+          source: i.metadata?.source 
+        })))
+      }
+      
+      // Add additional saved items to the list
+      const additionalItems = additionalSavedItems.map(saved => ({
+        id: `saved-${saved.id}`, // Different ID format for saved items
+        child_id: saved.child_id,
+        title: saved.title,
+        description: saved.description,
+        due_date: saved.due_date,
+        category: saved.category,
+        is_completed: saved.is_completed,
+        completed_date: saved.completed_date,
+        metadata: saved.metadata || {}
+      }))
+      
+      // Combine default checklist items with additional saved items
+      const allItems = [...transformedItems, ...additionalItems]
+      
+      console.log('📋 Total checklist items (default + additional):', allItems.length)
+      console.log('📋 Default items:', transformedItems.length)
+      console.log('📋 Additional items:', additionalItems.length)
+      
+      setChecklistItems(allItems)
       
       // Auto-expand current week
       const currentWeek = getCurrentWeek(birthDate)
