@@ -107,7 +107,7 @@ export default function ChecklistPage() {
 
   const loadChecklistForChild = async (childId: string) => {
     try {
-      console.log('Loading checklist for child:', childId)
+      console.log('🔄 Loading checklist for child:', childId)
       
       // First, try to load existing saved items from database
       const { data: savedItems, error: savedError } = await supabase
@@ -117,10 +117,24 @@ export default function ChecklistPage() {
         .order('due_date', { ascending: true })
 
       if (savedError) {
-        console.error('Error loading saved checklist items:', savedError)
+        console.error('❌ Error loading saved checklist items:', savedError)
+        console.log('❌ Database error details:', {
+          message: savedError.message,
+          details: savedError.details,
+          hint: savedError.hint,
+          code: savedError.code
+        })
       }
 
-      console.log('Found saved items:', savedItems?.length || 0)
+      console.log('💾 Found saved items in database:', savedItems?.length || 0)
+      if (savedItems && savedItems.length > 0) {
+        console.log('💾 Sample saved items:', savedItems.slice(0, 3).map(i => ({ 
+          id: i.id, 
+          title: i.title, 
+          category: i.category,
+          is_completed: i.is_completed 
+        })))
+      }
 
       // Get child data - if not in state, fetch from database
       let child = children.find(c => c.id === childId)
@@ -187,17 +201,35 @@ export default function ChecklistPage() {
   }
 
   const toggleItemCompletion = async (itemId: string) => {
-    if (!selectedChild) return
+    console.log('🔄 toggleItemCompletion called with itemId:', itemId)
+    
+    if (!selectedChild) {
+      console.error('❌ No selected child')
+      return
+    }
 
     const item = checklistItems.find(item => item.id === itemId)
-    if (!item) return
+    if (!item) {
+      console.error('❌ Item not found in checklistItems:', itemId)
+      console.log('Available items:', checklistItems.map(i => ({ id: i.id, title: i.title })))
+      return
+    }
+
+    console.log('📝 Item found:', { 
+      id: item.id, 
+      title: item.title, 
+      currentState: item.is_completed,
+      child_id: item.child_id 
+    })
 
     try {
       const newCompletedState = !item.is_completed
       const now = new Date().toISOString()
       
+      console.log('🔍 Checking if item exists in database...')
+      
       // Check if this item already exists in database
-      const { data: existingItem } = await supabase
+      const { data: existingItem, error: selectError } = await supabase
         .from('checklist_items')
         .select('id')
         .eq('child_id', item.child_id)
@@ -205,8 +237,16 @@ export default function ChecklistPage() {
         .eq('category', item.category)
         .single()
 
+      if (selectError && selectError.code !== 'PGRST116') {
+        console.error('❌ Error checking existing item:', selectError)
+        throw selectError
+      }
+
+      console.log('🔍 Existing item check result:', { existingItem, selectError })
+
       let error
       if (existingItem) {
+        console.log('✏️ Updating existing item:', existingItem.id)
         // Update existing item
         const updateResult = await supabase
           .from('checklist_items')
@@ -215,28 +255,40 @@ export default function ChecklistPage() {
             completed_date: newCompletedState ? now : null
           })
           .eq('id', existingItem.id)
+          
         error = updateResult.error
+        console.log('✏️ Update result:', { error, newCompletedState })
       } else {
+        console.log('➕ Inserting new item')
         // Insert new item (let database generate UUID)
+        const insertData = {
+          child_id: item.child_id,
+          title: item.title,
+          description: item.description,
+          due_date: item.due_date,
+          category: item.category,
+          is_completed: newCompletedState,
+          completed_date: newCompletedState ? now : null,
+          metadata: item.metadata || {}
+        }
+        
+        console.log('➕ Insert data:', insertData)
+        
         const insertResult = await supabase
           .from('checklist_items')
-          .insert({
-            child_id: item.child_id,
-            title: item.title,
-            description: item.description,
-            due_date: item.due_date,
-            category: item.category,
-            is_completed: newCompletedState,
-            completed_date: newCompletedState ? now : null,
-            metadata: item.metadata || {}
-          })
+          .insert(insertData)
+          
         error = insertResult.error
+        console.log('➕ Insert result:', { error, insertedData: insertResult.data })
       }
 
       if (error) {
-        console.error('Error saving checklist item:', error)
+        console.error('❌ Database operation failed:', error)
+        alert(`Failed to save item: ${error.message}`)
         return
       }
+
+      console.log('✅ Database operation successful, updating UI')
 
       // Update local state
       setChecklistItems(prev => prev.map(prevItem => 
@@ -249,8 +301,11 @@ export default function ChecklistPage() {
           : prevItem
       ))
 
+      console.log('✅ UI updated successfully')
+
     } catch (error) {
-      console.error('Error toggling item completion:', error)
+      console.error('❌ Unexpected error in toggleItemCompletion:', error)
+      alert(`Unexpected error: ${error.message}`)
     }
   }
 
@@ -271,16 +326,31 @@ export default function ChecklistPage() {
   }
 
   const addSelectedOptionalTasks = async () => {
-    if (!selectedChild || selectedOptionalTasks.length === 0) return
+    console.log('🌟 addSelectedOptionalTasks called')
+    console.log('Selected child:', selectedChild?.id, selectedChild?.name)
+    console.log('Selected tasks:', selectedOptionalTasks)
+    
+    if (!selectedChild || selectedOptionalTasks.length === 0) {
+      console.error('❌ No selected child or no tasks selected')
+      return
+    }
     
     try {
       const birthDate = new Date(selectedChild.date_of_birth)
       const currentDate = new Date()
       
+      console.log('📅 Birth date:', birthDate)
+      console.log('📅 Current date:', currentDate)
+      
       // Prepare checklist items from selected optional tasks
       const checklistItemsToAdd = selectedOptionalTasks.map(taskId => {
         const task = optionalAdminChecklist.find(t => t.id === taskId)
-        if (!task) return null
+        if (!task) {
+          console.error('❌ Task not found:', taskId)
+          return null
+        }
+        
+        console.log('📝 Processing task:', task.title)
         
         // Calculate due date based on suggested timing
         let dueDate = new Date(currentDate)
@@ -289,20 +359,24 @@ export default function ChecklistPage() {
         if (task.suggestedTiming.includes('week')) {
           const weeks = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
           dueDate = new Date(birthDate.getTime() + weeks * 7 * 24 * 60 * 60 * 1000)
+          console.log(`📅 Calculated due date (${weeks} weeks):`, dueDate)
         } else if (task.suggestedTiming.includes('month')) {
           const months = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
           dueDate = new Date(birthDate.getFullYear(), birthDate.getMonth() + months, birthDate.getDate())
+          console.log(`📅 Calculated due date (${months} months):`, dueDate)
         } else if (task.suggestedTiming.includes('day')) {
           const days = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
           dueDate = new Date(birthDate.getTime() + days * 24 * 60 * 60 * 1000)
+          console.log(`📅 Calculated due date (${days} days):`, dueDate)
         }
         
         // If due date is in the past, set it to current date
         if (dueDate < currentDate) {
+          console.log('⚠️ Due date in past, setting to current date')
           dueDate = currentDate
         }
         
-        return {
+        const itemToAdd = {
           child_id: selectedChild.id,
           title: task.title,
           description: task.notes || `${task.type} - ${task.suggestedTiming}`,
@@ -319,23 +393,40 @@ export default function ChecklistPage() {
             optional_task_id: task.id // Store original task ID for reference
           }
         }
+        
+        console.log('📝 Item to add:', itemToAdd)
+        return itemToAdd
       }).filter(Boolean)
       
-      if (checklistItemsToAdd.length === 0) return
+      if (checklistItemsToAdd.length === 0) {
+        console.error('❌ No valid items to add')
+        return
+      }
+      
+      console.log(`➕ Inserting ${checklistItemsToAdd.length} items into database...`)
       
       // Insert into database
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('checklist_items')
         .insert(checklistItemsToAdd)
+        .select()
       
       if (error) {
-        console.error('Error adding optional tasks to checklist:', error)
+        console.error('❌ Database insert error:', error)
+        console.log('❌ Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
         throw error
       }
       
+      console.log('✅ Insert successful:', data)
       console.log(`✅ Added ${checklistItemsToAdd.length} optional tasks to timeline`)
       
       // Reload checklist to show new items
+      console.log('🔄 Reloading checklist...')
       await loadChecklistForChild(selectedChild.id)
       
       // Reset state
@@ -344,11 +435,12 @@ export default function ChecklistPage() {
       setSelectedOptionalCategory(null)
       
       // Show success message
-      alert(`Added ${checklistItemsToAdd.length} optional tasks to your timeline!`)
+      alert(`✅ Successfully added ${checklistItemsToAdd.length} optional tasks to your timeline!`)
       
     } catch (error) {
-      console.error('Error adding optional tasks:', error)
-      alert('Failed to add tasks to timeline. Please try again.')
+      console.error('❌ Unexpected error adding optional tasks:', error)
+      console.log('❌ Full error object:', error)
+      alert(`Failed to add tasks: ${error.message || 'Unknown error'}`)
     }
   }
 
