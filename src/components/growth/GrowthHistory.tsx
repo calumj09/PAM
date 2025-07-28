@@ -7,6 +7,7 @@ import {
 } from '@/lib/services/growth-tracking-service'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { AddMeasurementModal } from './AddMeasurementModal'
 import { 
   ClockIcon,
   ScaleIcon,
@@ -25,6 +26,37 @@ interface GrowthHistoryProps {
 
 export function GrowthHistory({ measurements, onUpdate }: GrowthHistoryProps) {
   const [expandedMeasurement, setExpandedMeasurement] = useState<string | null>(null)
+  const [editingMeasurement, setEditingMeasurement] = useState<GrowthMeasurement | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [deletingMeasurement, setDeletingMeasurement] = useState<string | null>(null)
+
+  const handleEditMeasurement = (measurement: GrowthMeasurement) => {
+    setEditingMeasurement(measurement)
+    setShowEditModal(true)
+  }
+
+  const handleEditComplete = () => {
+    setShowEditModal(false)
+    setEditingMeasurement(null)
+    onUpdate() // Refresh the measurements list
+  }
+
+  const handleDeleteMeasurement = async (measurement: GrowthMeasurement) => {
+    if (!confirm(`Are you sure you want to delete the measurement from ${format(parseISO(measurement.measurement_date), 'dd/MM/yyyy')}? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      setDeletingMeasurement(measurement.id)
+      await GrowthTrackingService.deleteMeasurement(measurement.id)
+      onUpdate() // Refresh the measurements list
+    } catch (error) {
+      console.error('Error deleting measurement:', error)
+      alert('Failed to delete measurement. Please try again.')
+    } finally {
+      setDeletingMeasurement(null)
+    }
+  }
 
   const exportToCSV = () => {
     const csvHeaders = [
@@ -307,20 +339,21 @@ export function GrowthHistory({ measurements, onUpdate }: GrowthHistoryProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled
-                      className="text-gray-400"
+                      onClick={() => handleEditMeasurement(measurement)}
+                      className="text-blue-600 hover:text-blue-700"
                     >
                       <PencilIcon className="w-4 h-4 mr-1" />
-                      Edit (Coming Soon)
+                      Edit
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      disabled
-                      className="text-gray-400"
+                      onClick={() => handleDeleteMeasurement(measurement)}
+                      disabled={deletingMeasurement === measurement.id}
+                      className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
                     >
                       <TrashIcon className="w-4 h-4 mr-1" />
-                      Delete (Coming Soon)
+                      {deletingMeasurement === measurement.id ? 'Deleting...' : 'Delete'}
                     </Button>
                   </div>
                 </div>
@@ -343,6 +376,17 @@ export function GrowthHistory({ measurements, onUpdate }: GrowthHistoryProps) {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && editingMeasurement && (
+        <AddMeasurementModal
+          childId={editingMeasurement.child_id}
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          onSuccess={handleEditComplete}
+          editingMeasurement={editingMeasurement}
+        />
       )}
     </div>
   )

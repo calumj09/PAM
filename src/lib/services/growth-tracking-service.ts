@@ -223,6 +223,50 @@ export class GrowthTrackingService {
   }
 
   /**
+   * Update a growth measurement
+   */
+  static async updateMeasurement(
+    measurementId: string, 
+    measurementData: Partial<Omit<GrowthMeasurement, 'id' | 'created_at' | 'updated_at'>>
+  ): Promise<GrowthMeasurement> {
+    const supabase = createClient()
+    
+    const { data, error } = await supabase
+      .from('growth_measurements')
+      .update({
+        ...measurementData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', measurementId)
+      .select('*')
+      .single()
+    
+    if (error) {
+      console.error('Error updating measurement:', error)
+      throw error
+    }
+    
+    return data
+  }
+
+  /**
+   * Delete a growth measurement
+   */
+  static async deleteMeasurement(measurementId: string): Promise<void> {
+    const supabase = createClient()
+    
+    const { error } = await supabase
+      .from('growth_measurements')
+      .delete()
+      .eq('id', measurementId)
+    
+    if (error) {
+      console.error('Error deleting measurement:', error)
+      throw error
+    }
+  }
+
+  /**
    * Get growth measurements for a child
    */
   static async getChildMeasurements(childId: string, limit?: number): Promise<GrowthMeasurement[]> {

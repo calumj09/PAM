@@ -20,25 +20,31 @@ import { differenceInWeeks, parseISO, format } from 'date-fns'
 
 interface AddMeasurementModalProps {
   childId: string
-  childDateOfBirth: string
+  childDateOfBirth?: string
+  isOpen: boolean
   onClose: () => void
-  onAdded: () => void
+  onSuccess: () => void
+  editingMeasurement?: any
 }
 
 export function AddMeasurementModal({ 
   childId, 
   childDateOfBirth, 
+  isOpen,
   onClose, 
-  onAdded 
+  onSuccess,
+  editingMeasurement
 }: AddMeasurementModalProps) {
   const [measurementDate, setMeasurementDate] = useState(
-    new Date().toISOString().split('T')[0] // YYYY-MM-DD format
+    editingMeasurement 
+      ? editingMeasurement.measurement_date.split('T')[0]
+      : new Date().toISOString().split('T')[0]
   )
-  const [height, setHeight] = useState('')
-  const [weight, setWeight] = useState('')
-  const [headCircumference, setHeadCircumference] = useState('')
+  const [height, setHeight] = useState(editingMeasurement?.height_cm?.toString() || '')
+  const [weight, setWeight] = useState(editingMeasurement?.weight_kg?.toString() || '')
+  const [headCircumference, setHeadCircumference] = useState(editingMeasurement?.head_circumference_cm?.toString() || '')
   const [measurementLocation, setMeasurementLocation] = useState('home')
-  const [notes, setNotes] = useState('')
+  const [notes, setNotes] = useState(editingMeasurement?.notes || '')
   const [isEstimated, setIsEstimated] = useState(false)
   const [measurementMethod, setMeasurementMethod] = useState('digital_scale')
   const [isAdding, setIsAdding] = useState(false)
@@ -133,7 +139,7 @@ export function AddMeasurementModal({
     return true
   }
 
-  const handleAddMeasurement = async () => {
+  const handleSaveMeasurement = async () => {
     if (!validateMeasurements()) return
 
     try {
@@ -143,7 +149,9 @@ export function AddMeasurementModal({
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      const ageWeeks = differenceInWeeks(new Date(measurementDate), parseISO(childDateOfBirth))
+      const ageWeeks = childDateOfBirth 
+        ? differenceInWeeks(new Date(measurementDate), parseISO(childDateOfBirth))
+        : editingMeasurement?.age_weeks || 0
 
       const measurementData = {
         child_id: childId,
@@ -159,8 +167,15 @@ export function AddMeasurementModal({
         measurement_method: measurementMethod
       }
 
-      await GrowthTrackingService.addMeasurement(measurementData)
-      onAdded()
+      if (editingMeasurement) {
+        // Update existing measurement
+        await GrowthTrackingService.updateMeasurement(editingMeasurement.id, measurementData)
+      } else {
+        // Add new measurement
+        await GrowthTrackingService.addMeasurement(measurementData)
+      }
+      
+      onSuccess()
       
     } catch (error: any) {
       console.error('Error adding measurement:', error)
@@ -187,6 +202,8 @@ export function AddMeasurementModal({
     )
   }
 
+  if (!isOpen) return null
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -194,7 +211,7 @@ export function AddMeasurementModal({
           <div className="flex items-center justify-between">
             <CardTitle className="text-xl flex items-center gap-2">
               <ScaleIcon className="w-5 h-5 text-pam-red" />
-              Add Growth Measurement
+              {editingMeasurement ? 'Edit Growth Measurement' : 'Add Growth Measurement'}
             </CardTitle>
             <Button
               onClick={onClose}
@@ -367,17 +384,17 @@ export function AddMeasurementModal({
               Cancel
             </Button>
             <Button
-              onClick={handleAddMeasurement}
+              onClick={handleSaveMeasurement}
               disabled={isAdding}
               className="flex-1 bg-pam-red hover:bg-pam-red/90"
             >
               {isAdding ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Adding...
+                  {editingMeasurement ? 'Saving...' : 'Adding...'}
                 </div>
               ) : (
-                'Add Measurement'
+                editingMeasurement ? 'Save Changes' : 'Add Measurement'
               )}
             </Button>
           </div>

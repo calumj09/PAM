@@ -51,11 +51,34 @@ export default function DashboardPage() {
         .select('*', { count: 'exact' })
         .eq('user_id', user.id)
 
+      // Get children data first
+      const { data: childrenData } = await supabase
+        .from('children')
+        .select('id')
+        .eq('user_id', user.id)
+
+      // Get real checklist statistics
+      const { data: checklistItems } = await supabase
+        .from('checklist_items')
+        .select('is_completed, created_at')
+        .in('child_id', childrenData?.map(c => c.id) || [])
+
+      const completed = checklistItems?.filter(item => item.is_completed).length || 0
+      const total = checklistItems?.length || 0
+      const upcoming = total - completed
+
+      // Get recent activity (items created/completed in last 7 days)
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      const recentItems = checklistItems?.filter(item => 
+        new Date(item.created_at) >= sevenDaysAgo
+      ).length || 0
+
       setStats({
         childrenCount: childrenCount || 0,
-        upcomingTasks: 3, // Placeholder
-        completedTasks: 12, // Placeholder
-        recentActivity: 5 // Placeholder
+        upcomingTasks: upcoming,
+        completedTasks: completed,
+        recentActivity: recentItems
       })
     } catch (error) {
       console.error('Error loading dashboard data:', error)
