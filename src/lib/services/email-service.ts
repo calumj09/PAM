@@ -1,6 +1,27 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy load Resend client to avoid build-time initialization
+let resendClient: Resend | null = null
+
+function getResendClient(): Resend {
+  if (!resendClient) {
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey || apiKey === 'your-resend-api-key-here') {
+      console.warn('Resend API key not configured. Email functionality will be disabled.')
+      // Return a mock client for development/build time
+      return {
+        emails: {
+          send: async () => {
+            console.log('Email sending is disabled - no API key configured')
+            return { id: 'mock-email-id' }
+          }
+        }
+      } as any
+    }
+    resendClient = new Resend(apiKey)
+  }
+  return resendClient
+}
 
 export interface EmailTemplate {
   to: string
@@ -306,7 +327,7 @@ Sent by PAM - Parent Admin Manager
     }
 
     try {
-      const { error } = await resend.emails.send({
+      const { error } = await getResendClient().emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'PAM <noreply@pam.app>',
         to,
         subject,
