@@ -70,7 +70,50 @@ export default function ChecklistPage() {
 
   useEffect(() => {
     loadData()
+    // Debug: Check database schema
+    verifyDatabaseSchema()
   }, [])
+
+  const verifyDatabaseSchema = async () => {
+    try {
+      console.log('🔍 Checking database schema...')
+      
+      // Try to describe the checklist_items table
+      const { data, error } = await supabase
+        .from('checklist_items')
+        .select('*')
+        .limit(0) // Just get structure, no data
+      
+      if (error) {
+        console.error('❌ Database schema error:', error)
+        console.log('❌ Error code:', error.code)
+        console.log('❌ Error message:', error.message)
+        
+        if (error.code === 'PGRST106') {
+          console.log('💡 Table does not exist - need to run database migration')
+        } else if (error.code === 'PGRST204') {
+          console.log('💡 Column missing - need to update table schema')
+        }
+      } else {
+        console.log('✅ checklist_items table accessible')
+      }
+      
+      // Also check if children table exists
+      const { data: childrenData, error: childrenError } = await supabase
+        .from('children')
+        .select('id')
+        .limit(1)
+        
+      if (childrenError) {
+        console.error('❌ Children table error:', childrenError)
+      } else {
+        console.log('✅ children table accessible')
+      }
+      
+    } catch (error) {
+      console.error('❌ Schema verification failed:', error)
+    }
+  }
 
   const loadData = async () => {
     try {
