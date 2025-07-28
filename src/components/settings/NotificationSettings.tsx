@@ -282,12 +282,12 @@ export function NotificationSettings({ userId }: NotificationSettingsProps) {
             </div>
 
             {/* Email Notifications */}
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-medium text-gray-900">Email Reminders</h3>
                   <p className="text-sm text-gray-500">
-                    Also send reminders via email (coming soon)
+                    Send reminder emails to ensure you never miss important appointments
                   </p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
@@ -298,11 +298,21 @@ export function NotificationSettings({ userId }: NotificationSettingsProps) {
                     onChange={(e) => handleUpdatePreferences({ 
                       email_enabled: e.target.checked 
                     })}
-                    disabled={true} // Disabled for now
+                    disabled={isSaving}
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pam-pink/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pam-red opacity-50"></div>
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pam-pink/25 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-pam-red"></div>
                 </label>
               </div>
+
+              {preferences.email_enabled && (
+                <div className="pl-4 border-l-2 border-pam-pink/20">
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700">
+                      ✉️ Email reminders will be sent to your account email address when enabled alongside checklist reminders.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}

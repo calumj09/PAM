@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { createClient as createServerClient } from '@/lib/supabase/server'
+import { EmailService } from './email-service'
 import crypto from 'crypto'
 
 export type FamilyRole = 'owner' | 'partner' | 'caregiver' | 'grandparent'
@@ -439,30 +440,47 @@ export class FamilySharingService {
   }
 
   /**
-   * Send invitation email (placeholder - implement with your email service)
+   * Send invitation email
    */
   private static async sendInvitationEmail(invitation: FamilyInvitation, familyId: string): Promise<void> {
-    // Get family details
-    const supabase = createClient()
-    const { data: family } = await supabase
-      .from('family_groups')
-      .select('name')
-      .eq('id', familyId)
-      .single()
-    
-    const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${invitation.token}`
-    
-    // TODO: Implement email sending
-    console.log(`Send invitation email to ${invitation.email}`)
-    console.log(`Family: ${family?.name}`)
-    console.log(`Role: ${invitation.role}`)
-    console.log(`Invite URL: ${inviteUrl}`)
-    
-    // For now, we'll just log. In production, integrate with:
-    // - Resend
-    // - SendGrid
-    // - AWS SES
-    // - Or your preferred email service
+    try {
+      const supabase = createClient()
+      
+      // Get family details and inviter info
+      const [familyResult, inviterResult] = await Promise.all([
+        supabase
+          .from('family_groups')
+          .select('name')
+          .eq('id', familyId)
+          .single(),
+        supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', invitation.invited_by)
+          .single()
+      ])
+
+      const familyName = familyResult.data?.name || 'Your Family'
+      const inviterName = inviterResult.data 
+        ? `${inviterResult.data.first_name || ''} ${inviterResult.data.last_name || ''}`.trim()
+        : 'A family member'
+
+      const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${invitation.token}`
+      
+      await EmailService.sendFamilyInvitation(
+        invitation.email,
+        familyName,
+        inviterName || 'A family member',
+        this.getRoleDisplayName(invitation.role),
+        inviteUrl
+      )
+      
+      console.log(`Family invitation email sent to ${invitation.email}`)
+    } catch (error) {
+      console.error('Error sending invitation email:', error)
+      // Don't throw error to prevent invitation creation failure
+      // Log the error but allow the invitation to be created
+    }
   }
 
   /**

@@ -3,6 +3,7 @@
 import { getToken, onMessage, MessagePayload } from 'firebase/messaging'
 import { initializeMessaging, isFirebaseConfigured } from '@/lib/firebase/config'
 import { createClient } from '@/lib/supabase/client'
+import { EmailService } from './email-service'
 
 export interface NotificationPreferences {
   id: string
@@ -357,6 +358,110 @@ export class NotificationService {
       return tokenRegistered
     } catch (error) {
       console.error('Error initializing notification service:', error)
+      return false
+    }
+  }
+
+  /**
+   * Send email reminder for checklist item
+   */
+  static async sendEmailReminder(
+    userId: string,
+    checklistItemId: string,
+    childName: string,
+    reminderType: string,
+    reminderDetails: string,
+    dueDate: Date
+  ): Promise<boolean> {
+    try {
+      const supabase = createClient()
+
+      // Get user's email from auth
+      const { data: user } = await supabase.auth.getUser()
+      if (!user.user?.email) {
+        console.error('No email found for user')
+        return false
+      }
+
+      // Check if user has email notifications enabled
+      const preferences = await this.getNotificationPreferences(userId)
+      if (!preferences?.email_enabled) {
+        console.log('Email notifications disabled for user')
+        return false
+      }
+
+      // Format due date/time
+      const dueTime = dueDate.toLocaleDateString('en-AU', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+
+      await EmailService.sendReminderEmail(
+        user.user.email,
+        childName,
+        reminderType,
+        reminderDetails,
+        dueTime
+      )
+
+      console.log(`Email reminder sent to ${user.user.email} for ${reminderType}`)
+      return true
+    } catch (error) {
+      console.error('Error sending email reminder:', error)
+      return false
+    }
+  }
+
+  /**
+   * Schedule both push and email notifications for checklist item
+   */
+  static async scheduleReminders(
+    checklistItemId: string,
+    userId: string,
+    childName: string,
+    title: string,
+    body: string,
+    dueDate: Date
+  ): Promise<boolean> {
+    try {
+      const preferences = await this.getNotificationPreferences(userId)
+      if (!preferences) {
+        console.log('No notification preferences found')
+        return false
+      }
+
+      let success = true
+
+      // Schedule push notification if enabled
+      if (preferences.push_enabled && preferences.checklist_reminders_enabled) {
+        const pushSuccess = await this.scheduleChecklistNotification(
+          checklistItemId,
+          userId,
+          title,
+          body,
+          dueDate
+        )
+        success = success && pushSuccess
+      }
+
+      // Send email reminder if enabled
+      if (preferences.email_enabled && preferences.checklist_reminders_enabled) {
+        const emailSuccess = await this.sendEmailReminder(
+          userId,
+          checklistItemId,
+          childName,
+          title,
+          body,
+          dueDate
+        )
+        success = success && emailSuccess
+      }
+
+      return success
+    } catch (error) {
+      console.error('Error scheduling reminders:', error)
       return false
     }
   }
