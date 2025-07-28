@@ -139,9 +139,15 @@ export function VoiceInput({ childId, childName, onActivityAdded }: VoiceInputPr
           break
 
         case 'bath':
-          // These would need additional activity types in the database
-          setError(`${command.activity_type} tracking coming soon!`)
-          return
+          await TrackerService.recordBath({
+            child_id: childId,
+            duration_minutes: command.duration || 10,
+            started_at: new Date(),
+            temperature: command.details?.temperature || 'warm',
+            enjoyed_bath: command.details?.enjoyed_bath ?? true,
+            notes: command.details?.notes
+          })
+          break
 
         default:
           setError('Unknown activity type')

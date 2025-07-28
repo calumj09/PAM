@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { differenceInMonths, format, addHours, startOfDay, endOfDay } from 'date-fns'
+import { GrowthTrackingService } from './growth-tracking-service'
 
 export type MedicationType = 'paracetamol' | 'ibuprofen' | 'antibiotic' | 'prescription' | 'vitamin' | 'other'
 export type MedicationForm = 'liquid' | 'tablet' | 'suppository' | 'drops' | 'spray' | 'cream'
@@ -355,7 +356,7 @@ export class MedicationService {
   ): Promise<DoseCalculation> {
     const supabase = createClient()
     
-    // Get child details for age/weight calculation
+    // Get child details for age calculation
     const { data: child } = await supabase
       .from('children')
       .select('date_of_birth')
@@ -368,12 +369,26 @@ export class MedicationService {
     
     const ageInMonths = differenceInMonths(new Date(), new Date(child.date_of_birth))
     
+    // Get latest weight from growth tracking
+    let childWeightKg: number | null = null
+    try {
+      const measurements = await GrowthTrackingService.getChildMeasurements(childId, 1)
+      if (measurements.length > 0 && measurements[0].weight_kg) {
+        childWeightKg = measurements[0].weight_kg
+        console.log(`Using latest weight for medication dosing: ${childWeightKg}kg`)
+      } else {
+        console.warn('No weight measurements found for child - using age-based dosing only')
+      }
+    } catch (error) {
+      console.warn('Could not retrieve weight from growth tracking:', error)
+    }
+    
     // Call database function for dose calculation
     const { data, error } = await supabase
       .rpc('calculate_recommended_dose', {
         medication_id: medicationId,
         child_age_months: ageInMonths,
-        child_weight_kg: null // TODO: Get from growth tracking when implemented
+        child_weight_kg: childWeightKg
       })
     
     if (error) {
@@ -412,14 +427,39 @@ export class MedicationService {
   }
 
   /**
-   * Log a medication dose
+   * Get current weight for medication dosing
+   */
+  static async getCurrentWeightForDosing(childId: string): Promise<number | null> {
+    try {
+      const measurements = await GrowthTrackingService.getChildMeasurements(childId, 1)
+      if (measurements.length > 0 && measurements[0].weight_kg) {
+        return measurements[0].weight_kg
+      }
+      return null
+    } catch (error) {
+      console.error('Error retrieving weight for dosing:', error)
+      return null
+    }
+  }
+
+  /**
+   * Log a medication dose with current weight
    */
   static async logMedicationDose(dose: Omit<MedicationDose, 'id' | 'created_at'>): Promise<MedicationDose> {
     const supabase = createClient()
     
+    // Get current weight if not provided
+    let enhancedDose = { ...dose }
+    if (!dose.child_weight_kg) {
+      const currentWeight = await this.getCurrentWeightForDosing(dose.child_id)
+      if (currentWeight) {
+        enhancedDose.child_weight_kg = currentWeight
+      }
+    }
+    
     const { data, error } = await supabase
       .from('medication_doses')
-      .insert(dose)
+      .insert(enhancedDose)
       .select('*')
       .single()
     

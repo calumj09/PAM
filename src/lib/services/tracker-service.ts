@@ -536,4 +536,48 @@ export class TrackerService {
       throw new Error('Unable to save tummy time activity. Please run the database setup SQL first.')
     }
   }
+
+  /**
+   * Record bath activity
+   */
+  static async recordBath(entry: {
+    child_id: string
+    duration_minutes?: number
+    started_at?: Date
+    temperature?: 'warm' | 'lukewarm' | 'cool'
+    enjoyed_bath?: boolean
+    notes?: string
+  }): Promise<Activity> {
+    const startTime = entry.started_at || new Date()
+    const durationMinutes = entry.duration_minutes || 10 // Default 10 minute bath
+    const endTime = new Date(startTime.getTime() + durationMinutes * 60000)
+
+    try {
+      const { data: simpleActivity, error: simpleError } = await this.supabase
+        .from('simple_activities')
+        .insert({
+          child_id: entry.child_id,
+          activity_type: 'bath',
+          activity_subtype: 'hygiene',
+          started_at: startTime.toISOString(),
+          ended_at: endTime.toISOString(),
+          duration_minutes: durationMinutes,
+          notes: entry.notes || null,
+          additional_data: {
+            temperature: entry.temperature || 'warm',
+            enjoyed_bath: entry.enjoyed_bath ?? true
+          }
+        })
+        .select()
+        .single()
+
+      if (simpleError) throw simpleError
+      console.log('✅ Bath activity saved successfully:', simpleActivity)
+      return simpleActivity
+
+    } catch (error) {
+      console.error('Error saving bath activity:', error)
+      throw new Error('Unable to save bath activity. Please run the database setup SQL first.')
+    }
+  }
 }
