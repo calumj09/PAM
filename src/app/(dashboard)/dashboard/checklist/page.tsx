@@ -42,7 +42,7 @@ interface ChecklistItem {
   title: string;
   description: string;
   due_date: string;
-  category: 'immunization' | 'registration' | 'milestone' | 'checkup';
+  category: 'immunization' | 'registration' | 'milestone' | 'checkup' | 'appointment';
   is_completed: boolean;
   completed_date: string | null;
   metadata: any;
@@ -822,6 +822,8 @@ export default function ChecklistPage() {
         return SparklesIcon
       case 'checkup':
         return CalendarDaysIcon
+      case 'appointment':
+        return ClockIcon
       default:
         return InformationCircleIcon
     }
@@ -837,6 +839,8 @@ export default function ChecklistPage() {
         return 'bg-purple-50 text-purple-600 border-purple-200'
       case 'checkup':
         return 'bg-orange-50 text-orange-600 border-orange-200'
+      case 'appointment':
+        return 'bg-pink-50 text-pink-600 border-pink-200'
       default:
         return 'bg-gray-50 text-gray-600 border-gray-200'
     }
@@ -1489,9 +1493,10 @@ export default function ChecklistPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="milestone">Milestone</option>
-                  <option value="immunization">Immunization</option>
+                  <option value="immunization">Immunisation</option>
                   <option value="registration">Registration</option>
                   <option value="checkup">Check-up</option>
+                  <option value="appointment">Appointment</option>
                 </select>
               </div>
               

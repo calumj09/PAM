@@ -17,7 +17,7 @@ interface ChecklistItem {
   title: string
   description: string
   due_date: string
-  category: 'immunization' | 'registration' | 'milestone' | 'checkup'
+  category: 'immunization' | 'registration' | 'milestone' | 'checkup' | 'appointment'
   is_completed: boolean
   completed_date: string | null
   metadata?: {
@@ -159,6 +159,7 @@ export function TimelineCalendar({
       case 'registration': return 'bg-blue-100 text-blue-700 border-blue-300'
       case 'milestone': return 'bg-purple-100 text-purple-700 border-purple-300'
       case 'checkup': return 'bg-orange-100 text-orange-700 border-orange-300'
+      case 'appointment': return 'bg-pink-100 text-pink-700 border-pink-300'
       default: return 'bg-gray-100 text-gray-700 border-gray-300'
     }
   }
@@ -469,6 +470,10 @@ export function TimelineCalendar({
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-orange-100 border border-orange-200 rounded"></div>
             <span className="text-gray-600">Checkups</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 bg-pink-100 border border-pink-200 rounded"></div>
+            <span className="text-gray-600">Appointments</span>
           </div>
         </div>
       </div>
