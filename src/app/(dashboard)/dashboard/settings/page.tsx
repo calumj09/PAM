@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { NotificationSettings } from '@/components/settings/NotificationSettings'
-import { CalendarIntegration } from '@/components/settings/CalendarIntegration'
+import { CalendarSyncSettings } from '@/components/settings/CalendarSyncSettings'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { UserIcon, CogIcon } from '@heroicons/react/24/outline'
 
@@ -93,7 +93,7 @@ export default async function SettingsPage() {
         <NotificationSettings userId={user.id} />
 
         {/* Calendar Integration */}
-        <CalendarIntegration userId={user.id} isPremium={isPremium} />
+        <CalendarSyncSettings userId={user.id} isPremium={isPremium} />
 
         {/* App Information */}
         <Card>
