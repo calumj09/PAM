@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
 import { getMilestoneForWeek, getUpcomingMilestones } from '@/lib/data/milestone-bubbles'
+import { 
+  optionalAdminChecklist, 
+  optionalAdminCategories, 
+  getTasksByCategory as getOptionalTasksByCategory,
+  OptionalAdminTask,
+  OptionalAdminCategory 
+} from '@/lib/data/optional-admin-checklist'
 import { TimelineCalendar } from '@/components/features/TimelineCalendar'
 import { 
   CheckCircleIcon, 
@@ -17,7 +24,8 @@ import {
   PlusIcon,
   ChevronDownIcon,
   ListBulletIcon,
-  CalendarIcon
+  CalendarIcon,
+  FolderOpenIcon
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 
@@ -47,6 +55,9 @@ export default function ChecklistPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [expandedWeeks, setExpandedWeeks] = useState<string[]>([])
   const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list')
+  const [showOptionalTasks, setShowOptionalTasks] = useState(false)
+  const [selectedOptionalCategory, setSelectedOptionalCategory] = useState<OptionalAdminCategory | null>(null)
+  const [selectedOptionalTasks, setSelectedOptionalTasks] = useState<string[]>([])
   const supabase = createClient()
 
   // Debug: Test checklist data import
@@ -230,6 +241,96 @@ export default function ChecklistPage() {
         ? prev.filter(w => w !== weekId)
         : [...prev, weekId]
     )
+  }
+
+  const toggleOptionalTaskSelection = (taskId: string) => {
+    setSelectedOptionalTasks(prev => 
+      prev.includes(taskId) 
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    )
+  }
+
+  const addSelectedOptionalTasks = async () => {
+    if (!selectedChild || selectedOptionalTasks.length === 0) return
+    
+    try {
+      const birthDate = new Date(selectedChild.date_of_birth)
+      const currentDate = new Date()
+      
+      // Prepare checklist items from selected optional tasks
+      const checklistItemsToAdd = selectedOptionalTasks.map(taskId => {
+        const task = optionalAdminChecklist.find(t => t.id === taskId)
+        if (!task) return null
+        
+        // Calculate due date based on suggested timing
+        let dueDate = new Date(currentDate)
+        
+        // Parse suggested timing to calculate due date
+        if (task.suggestedTiming.includes('week')) {
+          const weeks = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
+          dueDate = new Date(birthDate.getTime() + weeks * 7 * 24 * 60 * 60 * 1000)
+        } else if (task.suggestedTiming.includes('month')) {
+          const months = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
+          dueDate = new Date(birthDate.getFullYear(), birthDate.getMonth() + months, birthDate.getDate())
+        } else if (task.suggestedTiming.includes('day')) {
+          const days = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
+          dueDate = new Date(birthDate.getTime() + days * 24 * 60 * 60 * 1000)
+        }
+        
+        // If due date is in the past, set it to current date
+        if (dueDate < currentDate) {
+          dueDate = currentDate
+        }
+        
+        return {
+          id: `${selectedChild.id}-optional-${task.id}`,
+          child_id: selectedChild.id,
+          title: task.title,
+          description: task.notes || `${task.type} - ${task.suggestedTiming}`,
+          due_date: dueDate.toISOString().split('T')[0],
+          category: 'milestone' as const, // Use milestone category for optional tasks
+          is_completed: false,
+          completed_date: null,
+          metadata: {
+            source: 'optional_admin_checklist',
+            original_category: task.category,
+            task_type: task.type,
+            suggested_timing: task.suggestedTiming,
+            link: task.link
+          }
+        }
+      }).filter(Boolean)
+      
+      if (checklistItemsToAdd.length === 0) return
+      
+      // Insert into database
+      const { error } = await supabase
+        .from('checklist_items')
+        .insert(checklistItemsToAdd)
+      
+      if (error) {
+        console.error('Error adding optional tasks to checklist:', error)
+        throw error
+      }
+      
+      console.log(`✅ Added ${checklistItemsToAdd.length} optional tasks to timeline`)
+      
+      // Reload checklist to show new items
+      await loadChecklistForChild(selectedChild.id)
+      
+      // Reset state
+      setSelectedOptionalTasks([])
+      setShowOptionalTasks(false)
+      setSelectedOptionalCategory(null)
+      
+      // Show success message
+      alert(`Added ${checklistItemsToAdd.length} optional tasks to your timeline!`)
+      
+    } catch (error) {
+      console.error('Error adding optional tasks:', error)
+      alert('Failed to add tasks to timeline. Please try again.')
+    }
   }
 
   const getCategoryIcon = (category: string) => {
@@ -446,10 +547,101 @@ export default function ChecklistPage() {
               />
             </div>
           </div>
+
+          {/* Add Optional Tasks Button */}
+          <div className="mt-4">
+            <button
+              onClick={() => setShowOptionalTasks(!showOptionalTasks)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-sm"
+            >
+              <SparklesIcon className="w-5 h-5" />
+              {showOptionalTasks ? 'Close Optional Tasks' : 'Add Optional Tasks'}
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="max-w-md mx-auto px-4 py-6 pb-24 space-y-4">
+        {/* Optional Tasks Modal */}
+        {showOptionalTasks && (
+          <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 border border-blue-200 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 rounded-xl bg-blue-50 border border-blue-200">
+                <SparklesIcon className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Optional Tasks for {selectedChild?.name}</h3>
+                <p className="text-sm text-gray-600">Choose extra tasks to add to your timeline</p>
+              </div>
+            </div>
+            
+            {/* Category Selection */}
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              {optionalAdminCategories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedOptionalCategory(
+                    selectedOptionalCategory === category ? null : category
+                  )}
+                  className={`p-3 rounded-xl text-xs font-medium transition-colors text-left ${
+                    selectedOptionalCategory === category
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                  }`}
+                >
+                  <FolderOpenIcon className="w-4 h-4 mb-1" />
+                  {category}
+                </button>
+              ))}
+            </div>
+            
+            {/* Selected Category Tasks */}
+            {selectedOptionalCategory && (
+              <div className="bg-white rounded-xl p-4 border border-gray-200 mb-4">
+                <h4 className="font-semibold text-gray-900 mb-3">{selectedOptionalCategory}</h4>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {getOptionalTasksByCategory(selectedOptionalCategory).map((task) => (
+                    <div key={task.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <input
+                        type="checkbox"
+                        checked={selectedOptionalTasks.includes(task.id)}
+                        onChange={() => toggleOptionalTaskSelection(task.id)}
+                        className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900 text-sm">{task.title}</div>
+                        <div className="text-xs text-gray-600 mt-1">
+                          📅 {task.suggestedTiming} • {task.type}
+                        </div>
+                        {task.notes && (
+                          <div className="text-xs text-gray-500 mt-1">{task.notes}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Add Selected Tasks Button */}
+            {selectedOptionalTasks.length > 0 && (
+              <div className="flex items-center justify-between bg-white rounded-xl p-4 border border-gray-200">
+                <div>
+                  <span className="font-medium text-gray-900">
+                    {selectedOptionalTasks.length} task{selectedOptionalTasks.length !== 1 ? 's' : ''} selected
+                  </span>
+                  <p className="text-sm text-gray-600">Will be added to your timeline</p>
+                </div>
+                <button
+                  onClick={addSelectedOptionalTasks}
+                  className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+                >
+                  Add to Timeline
+                </button>
+              </div>
+            )}
+          </div>
+        )}
         {viewMode === 'calendar' ? (
           <TimelineCalendar
             checklistItems={checklistItems}
