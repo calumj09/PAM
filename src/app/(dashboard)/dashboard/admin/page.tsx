@@ -6,7 +6,7 @@ import { AdminWizard } from '@/components/admin/AdminWizard'
 import { 
   optionalAdminChecklist, 
   optionalAdminCategories, 
-  getTasksByCategory,
+  getTasksByCategory as getOptionalTasksByCategory,
   OptionalAdminTask,
   OptionalAdminCategory 
 } from '@/lib/data/optional-admin-checklist'
@@ -474,18 +474,80 @@ export default function AdminPage() {
   const addSelectedOptionalTasks = async () => {
     if (!selectedChild || selectedOptionalTasks.length === 0) return
     
-    // TODO: Add selected optional tasks to the child's timeline/checklist
-    // For now, we'll just add them to completed tasks to show the concept
-    setCompletedTasks(prev => [...prev, ...selectedOptionalTasks])
-    setSelectedOptionalTasks([])
-    setShowOptionalTasks(false)
-    
-    // Here you would typically save to database:
-    // await supabase.from('checklist_items').insert(selectedTasks.map(taskId => ({
-    //   child_id: selectedChild.id,
-    //   title: optionalAdminChecklist.find(t => t.id === taskId)?.title,
-    //   // ... other fields
-    // })))
+    try {
+      const birthDate = new Date(selectedChild.date_of_birth)
+      const currentDate = new Date()
+      
+      // Prepare checklist items from selected optional tasks
+      const checklistItemsToAdd = selectedOptionalTasks.map(taskId => {
+        const task = optionalAdminChecklist.find(t => t.id === taskId)
+        if (!task) return null
+        
+        // Calculate due date based on suggested timing
+        let dueDate = new Date(currentDate)
+        
+        // Parse suggested timing to calculate due date
+        if (task.suggestedTiming.includes('week')) {
+          const weeks = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
+          dueDate = new Date(birthDate.getTime() + weeks * 7 * 24 * 60 * 60 * 1000)
+        } else if (task.suggestedTiming.includes('month')) {
+          const months = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
+          dueDate = new Date(birthDate.getFullYear(), birthDate.getMonth() + months, birthDate.getDate())
+        } else if (task.suggestedTiming.includes('day')) {
+          const days = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
+          dueDate = new Date(birthDate.getTime() + days * 24 * 60 * 60 * 1000)
+        }
+        
+        // If due date is in the past, set it to current date
+        if (dueDate < currentDate) {
+          dueDate = currentDate
+        }
+        
+        return {
+          id: `${selectedChild.id}-optional-${task.id}`,
+          child_id: selectedChild.id,
+          title: task.title,
+          description: task.notes || `${task.type} - ${task.suggestedTiming}`,
+          due_date: dueDate.toISOString().split('T')[0],
+          category: 'milestone' as const, // Use milestone category for optional tasks
+          is_completed: false,
+          completed_date: null,
+          metadata: {
+            source: 'optional_admin_checklist',
+            original_category: task.category,
+            task_type: task.type,
+            suggested_timing: task.suggestedTiming,
+            link: task.link
+          }
+        }
+      }).filter(Boolean)
+      
+      if (checklistItemsToAdd.length === 0) return
+      
+      // Insert into database
+      const { error } = await supabase
+        .from('checklist_items')
+        .insert(checklistItemsToAdd)
+      
+      if (error) {
+        console.error('Error adding optional tasks to checklist:', error)
+        throw error
+      }
+      
+      console.log(`✅ Added ${checklistItemsToAdd.length} optional tasks to timeline`)
+      
+      // Reset state
+      setSelectedOptionalTasks([])
+      setShowOptionalTasks(false)
+      setSelectedOptionalCategory(null)
+      
+      // Show success message (you could add a toast notification here)
+      alert(`Added ${checklistItemsToAdd.length} optional tasks to your timeline! Check the Timeline tab to see them.`)
+      
+    } catch (error) {
+      console.error('Error adding optional tasks:', error)
+      alert('Failed to add tasks to timeline. Please try again.')
+    }
   }
 
   const getUrgencyColor = (urgency: string) => {
@@ -646,7 +708,7 @@ export default function AdminPage() {
                 <div className="bg-white rounded-xl p-4 border border-gray-200">
                   <h4 className="font-semibold text-gray-900 mb-3">{selectedOptionalCategory}</h4>
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {getTasksByCategory(selectedOptionalCategory).map((task) => (
+                    {getOptionalTasksByCategory(selectedOptionalCategory).map((task) => (
                       <div key={task.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                         <input
                           type="checkbox"
