@@ -483,20 +483,151 @@ export default function AdminPage() {
         const task = optionalAdminChecklist.find(t => t.id === taskId)
         if (!task) return null
         
-        // Calculate due date based on suggested timing
+        // Calculate due date based on suggested timing with improved parsing
         let dueDate = new Date(currentDate)
         
-        // Parse suggested timing to calculate due date
-        if (task.suggestedTiming.includes('week')) {
-          const weeks = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
-          dueDate = new Date(birthDate.getTime() + weeks * 7 * 24 * 60 * 60 * 1000)
-        } else if (task.suggestedTiming.includes('month')) {
-          const months = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
-          dueDate = new Date(birthDate.getFullYear(), birthDate.getMonth() + months, birthDate.getDate())
-        } else if (task.suggestedTiming.includes('day')) {
-          const days = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '0')
-          dueDate = new Date(birthDate.getTime() + days * 24 * 60 * 60 * 1000)
+        const parseTiming = (timing: string, birthDate: Date): Date => {
+          const lowerTiming = timing.toLowerCase()
+          
+          // Handle special cases first
+          if (lowerTiming.includes('as soon as possible') || lowerTiming.includes('from birth')) {
+            return new Date(birthDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 1 week after birth
+          }
+          
+          if (lowerTiming.includes('ongoing') || lowerTiming.includes('when needed') || lowerTiming.includes('if applicable')) {
+            return new Date(birthDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 1 week after birth
+          }
+          
+          if (lowerTiming.includes('before hospital discharge') || lowerTiming.includes('before birth')) {
+            return new Date(birthDate.getTime() + 3 * 24 * 60 * 60 * 1000) // 3 days after birth
+          }
+          
+          if (lowerTiming.includes('during pregnancy') || lowerTiming.includes('early infancy')) {
+            return new Date(birthDate.getTime() + 14 * 24 * 60 * 60 * 1000) // 2 weeks after birth
+          }
+          
+          // Handle "First X" patterns (e.g., "First 6 weeks", "First 3 months")
+          const firstMatch = lowerTiming.match(/first\s+(\d+)\s+(week|month|day|year)/)
+          if (firstMatch) {
+            const value = parseInt(firstMatch[1])
+            const unit = firstMatch[2]
+            
+            if (unit === 'week') {
+              return new Date(birthDate.getTime() + Math.min(value, 4) * 7 * 24 * 60 * 60 * 1000) // Cap at 4 weeks for early tasks
+            } else if (unit === 'month') {
+              return new Date(birthDate.getFullYear(), birthDate.getMonth() + Math.min(value, 2), birthDate.getDate()) // Cap at 2 months for early tasks
+            } else if (unit === 'day') {
+              return new Date(birthDate.getTime() + Math.min(value, 14) * 24 * 60 * 60 * 1000) // Cap at 2 weeks for early tasks
+            } else if (unit === 'year') {
+              return new Date(birthDate.getFullYear(), birthDate.getMonth() + 6, birthDate.getDate()) // Show at 6 months for first year tasks
+            }
+          }
+          
+          // Handle "Within X" patterns (e.g., "Within 30 days", "Within first 2 weeks")
+          const withinMatch = lowerTiming.match(/within\s+(?:first\s+)?(\d+)\s+(week|month|day)/)
+          if (withinMatch) {
+            const value = parseInt(withinMatch[1])
+            const unit = withinMatch[2]
+            
+            if (unit === 'week') {
+              return new Date(birthDate.getTime() + value * 7 * 24 * 60 * 60 * 1000)
+            } else if (unit === 'month') {
+              return new Date(birthDate.getFullYear(), birthDate.getMonth() + value, birthDate.getDate())
+            } else if (unit === 'day') {
+              return new Date(birthDate.getTime() + value * 24 * 60 * 60 * 1000)
+            }
+          }
+          
+          // Handle ranges - take the lower number for better planning
+          if (lowerTiming.includes('-')) {
+            const rangeMatch = lowerTiming.match(/(\d+)\s*-\s*(\d+)/)
+            if (rangeMatch) {
+              const lowerValue = parseInt(rangeMatch[1])
+              const unit = lowerTiming.includes('week') ? 'weeks' :
+                          lowerTiming.includes('month') ? 'months' :
+                          lowerTiming.includes('day') ? 'days' : 'weeks'
+              
+              if (unit === 'weeks') {
+                return new Date(birthDate.getTime() + lowerValue * 7 * 24 * 60 * 60 * 1000)
+              } else if (unit === 'months') {
+                return new Date(birthDate.getFullYear(), birthDate.getMonth() + lowerValue, birthDate.getDate())
+              } else if (unit === 'days') {
+                return new Date(birthDate.getTime() + lowerValue * 24 * 60 * 60 * 1000)
+              }
+            }
+          }
+          
+          // Handle single numbers
+          const numberMatch = lowerTiming.match(/(\d+)/)
+          if (numberMatch) {
+            const value = parseInt(numberMatch[1])
+            
+            if (lowerTiming.includes('week')) {
+              return new Date(birthDate.getTime() + value * 7 * 24 * 60 * 60 * 1000)
+            } else if (lowerTiming.includes('month')) {
+              return new Date(birthDate.getFullYear(), birthDate.getMonth() + value, birthDate.getDate())
+            } else if (lowerTiming.includes('day')) {
+              return new Date(birthDate.getTime() + value * 24 * 60 * 60 * 1000)
+            } else if (lowerTiming.includes('year')) {
+              return new Date(birthDate.getFullYear() + value, birthDate.getMonth(), birthDate.getDate())
+            }
+          }
+          
+          // Handle comma-separated lists (take the first/earliest one)
+          if (lowerTiming.includes(',')) {
+            const firstOption = lowerTiming.split(',')[0].trim()
+            // Recursively parse the first option
+            return parseTiming(firstOption, birthDate)
+          }
+          
+          // Handle special timing phrases
+          if (lowerTiming.includes('first tooth') || lowerTiming.includes('6 months or first tooth')) {
+            return new Date(birthDate.getFullYear(), birthDate.getMonth() + 6, birthDate.getDate())
+          }
+          
+          if (lowerTiming.includes('monthly')) {
+            return new Date(birthDate.getTime() + 30 * 24 * 60 * 60 * 1000) // 1 month
+          }
+          
+          if (lowerTiming.includes('weekly')) {
+            return new Date(birthDate.getTime() + 7 * 24 * 60 * 60 * 1000) // 1 week
+          }
+          
+          // Handle "From X" patterns (e.g., "From 2 weeks", "From 3 months")  
+          const fromMatch = lowerTiming.match(/from\s+(\d+)\s+(week|month|day)/)
+          if (fromMatch) {
+            const value = parseInt(fromMatch[1])
+            const unit = fromMatch[2]
+            
+            if (unit === 'week') {
+              return new Date(birthDate.getTime() + value * 7 * 24 * 60 * 60 * 1000)
+            } else if (unit === 'month') {
+              return new Date(birthDate.getFullYear(), birthDate.getMonth() + value, birthDate.getDate())
+            } else if (unit === 'day') {
+              return new Date(birthDate.getTime() + value * 24 * 60 * 60 * 1000)
+            }
+          }
+          
+          // Handle "Before X" patterns
+          const beforeMatch = lowerTiming.match(/before\s+(\d+)\s+(week|month|day)/)
+          if (beforeMatch) {
+            const value = parseInt(beforeMatch[1])
+            const unit = beforeMatch[2]
+            
+            if (unit === 'week') {
+              return new Date(birthDate.getTime() + Math.max(1, value - 1) * 7 * 24 * 60 * 60 * 1000) // Show 1 week earlier
+            } else if (unit === 'month') {
+              return new Date(birthDate.getFullYear(), birthDate.getMonth() + Math.max(1, value - 1), birthDate.getDate())
+            } else if (unit === 'day') {
+              return new Date(birthDate.getTime() + Math.max(7, value - 7) * 24 * 60 * 60 * 1000) // Show 1 week earlier
+            }
+          }
+          
+          // Default fallback - 1 week after birth
+          return new Date(birthDate.getTime() + 7 * 24 * 60 * 60 * 1000)
         }
+        
+        dueDate = parseTiming(task.suggestedTiming, birthDate)
         
         // If due date is in the past, set it to current date
         if (dueDate < currentDate) {

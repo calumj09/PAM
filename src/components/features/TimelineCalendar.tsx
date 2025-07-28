@@ -5,7 +5,8 @@ import {
   ChevronLeftIcon, 
   ChevronRightIcon,
   CalendarDaysIcon,
-  ClockIcon
+  ClockIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline'
 import { CheckCircleIcon as CheckCircleSolid } from '@heroicons/react/24/solid'
 import { getMilestoneForWeek, MilestoneBubble } from '@/lib/data/milestone-bubbles'
@@ -19,12 +20,17 @@ interface ChecklistItem {
   category: 'immunization' | 'registration' | 'milestone' | 'checkup'
   is_completed: boolean
   completed_date: string | null
+  metadata?: {
+    source?: string
+    [key: string]: any
+  }
 }
 
 interface TimelineCalendarProps {
   checklistItems: ChecklistItem[]
   birthDate: Date
   onItemClick: (itemId: string) => void
+  onItemDelete?: (itemId: string, event: React.MouseEvent) => void
   selectedChild: { id: string; name: string } | null
 }
 
@@ -45,6 +51,7 @@ export function TimelineCalendar({
   checklistItems, 
   birthDate, 
   onItemClick, 
+  onItemDelete,
   selectedChild 
 }: TimelineCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -253,26 +260,44 @@ export function TimelineCalendar({
 
                 {/* Items */}
                 <div className="space-y-1">
-                  {day.items.slice(0, 3).map(item => (
-                    <button
-                      key={item.id}
-                      onClick={() => onItemClick(item.id)}
-                      className={`w-full text-left p-1.5 rounded text-xs border transition-all ${
-                        item.is_completed 
-                          ? 'bg-green-50 border-green-200 opacity-75' 
-                          : getCategoryColor(item.category)
-                      } hover:shadow-sm`}
-                    >
-                      <div className="flex items-center gap-1">
-                        {item.is_completed && (
-                          <CheckCircleSolid className="w-3 h-3 text-green-600 flex-shrink-0" />
-                        )}
-                        <span className={`truncate ${item.is_completed ? 'line-through' : ''}`}>
-                          {item.title}
-                        </span>
+                  {day.items.slice(0, 3).map(item => {
+                    const isDeletable = item.metadata?.source === 'optional_admin_checklist' || 
+                                       item.metadata?.source === 'custom'
+                    
+                    return (
+                      <div
+                        key={item.id}
+                        className={`w-full text-left p-1.5 rounded text-xs border transition-all ${
+                          item.is_completed 
+                            ? 'bg-green-50 border-green-200 opacity-75' 
+                            : getCategoryColor(item.category)
+                        } hover:shadow-sm`}
+                      >
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => onItemClick(item.id)}
+                            className="flex items-center gap-1 flex-1 min-w-0"
+                          >
+                            {item.is_completed && (
+                              <CheckCircleSolid className="w-3 h-3 text-green-600 flex-shrink-0" />
+                            )}
+                            <span className={`truncate ${item.is_completed ? 'line-through' : ''}`}>
+                              {item.title}
+                            </span>
+                          </button>
+                          {isDeletable && onItemDelete && (
+                            <button
+                              onClick={(e) => onItemDelete(item.id, e)}
+                              className="p-0.5 rounded hover:bg-red-100 text-red-600 transition-colors flex-shrink-0"
+                              title="Delete optional task"
+                            >
+                              <TrashIcon className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </button>
-                  ))}
+                    )
+                  })}
                   
                   {day.items.length > 3 && (
                     <div className="text-xs text-gray-500 text-center py-1">
@@ -375,26 +400,44 @@ export function TimelineCalendar({
               {/* Items */}
               {day.isCurrentMonth && (
                 <div className="space-y-0.5">
-                  {day.items.slice(0, 2).map(item => (
-                    <button
-                      key={item.id}
-                      onClick={() => onItemClick(item.id)}
-                      className={`w-full text-left px-1 py-0.5 rounded text-xs border transition-all ${
-                        item.is_completed 
-                          ? 'bg-green-50 border-green-200 opacity-75' 
-                          : getCategoryColor(item.category)
-                      } hover:shadow-sm`}
-                    >
-                      <div className="flex items-center gap-1">
-                        {item.is_completed && (
-                          <CheckCircleSolid className="w-2 h-2 text-green-600 flex-shrink-0" />
-                        )}
-                        <span className={`truncate ${item.is_completed ? 'line-through' : ''}`}>
-                          {item.title}
-                        </span>
+                  {day.items.slice(0, 2).map(item => {
+                    const isDeletable = item.metadata?.source === 'optional_admin_checklist' || 
+                                       item.metadata?.source === 'custom'
+                    
+                    return (
+                      <div
+                        key={item.id}
+                        className={`w-full text-left px-1 py-0.5 rounded text-xs border transition-all ${
+                          item.is_completed 
+                            ? 'bg-green-50 border-green-200 opacity-75' 
+                            : getCategoryColor(item.category)
+                        } hover:shadow-sm`}
+                      >
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => onItemClick(item.id)}
+                            className="flex items-center gap-1 flex-1 min-w-0"
+                          >
+                            {item.is_completed && (
+                              <CheckCircleSolid className="w-2 h-2 text-green-600 flex-shrink-0" />
+                            )}
+                            <span className={`truncate ${item.is_completed ? 'line-through' : ''}`}>
+                              {item.title}
+                            </span>
+                          </button>
+                          {isDeletable && onItemDelete && (
+                            <button
+                              onClick={(e) => onItemDelete(item.id, e)}
+                              className="p-0.5 rounded hover:bg-red-100 text-red-600 transition-colors flex-shrink-0"
+                              title="Delete optional task"
+                            >
+                              <TrashIcon className="w-2 h-2" />
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </button>
-                  ))}
+                    )
+                  })}
                   
                   {day.items.length > 2 && (
                     <div className="text-xs text-gray-500 text-center">
