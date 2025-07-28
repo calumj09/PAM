@@ -424,7 +424,37 @@ export class TrackerService {
         .order('started_at', { ascending: false })
 
       if (error) throw error
-      return data || []
+      
+      // Filter out stale sessions (older than 24 hours)
+      const twentyFourHoursAgo = new Date()
+      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24)
+      
+      const activeSessions = (data || []).filter(session => {
+        const startTime = new Date(session.started_at)
+        return startTime > twentyFourHoursAgo
+      })
+      
+      // Auto-close any stale sessions we found
+      if (data && data.length > activeSessions.length) {
+        const staleSessions = data.filter(session => {
+          const startTime = new Date(session.started_at)
+          return startTime <= twentyFourHoursAgo
+        })
+        
+        console.log('Auto-closing', staleSessions.length, 'stale sleep sessions')
+        
+        // Close stale sessions
+        for (const staleSession of staleSessions) {
+          await this.supabase
+            .from('simple_activities')
+            .update({ 
+              ended_at: new Date(staleSession.started_at).getTime() + (8 * 60 * 60 * 1000) // Assume 8 hour sleep
+            })
+            .eq('id', staleSession.id)
+        }
+      }
+      
+      return activeSessions
     } catch (error) {
       console.warn('Simple activities table not available for active sleep sessions')
       return []

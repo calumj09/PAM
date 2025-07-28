@@ -16,11 +16,16 @@ interface ManualEntry {
   show: boolean
 }
 
+interface QuickFeedingModal {
+  show: boolean
+}
+
 export function QuickEntryButtons({ childId, childName, onActivityAdded }: QuickEntryButtonsProps) {
   const [isLoading, setIsLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [activeSleep, setActiveSleep] = useState<Activity | null>(null)
   const [manualEntry, setManualEntry] = useState<ManualEntry>({ type: 'feeding', show: false })
+  const [quickFeedingModal, setQuickFeedingModal] = useState<QuickFeedingModal>({ show: false })
   
   // Manual entry form states
   const [feedingType, setFeedingType] = useState<'breast' | 'bottle' | 'solid'>('bottle')
@@ -50,25 +55,11 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
 
     try {
       switch (type) {
-        case 'breastfeeding':
-          await TrackerService.recordFeeding({
-            child_id: childId,
-            feeding_type: 'breast',
-            started_at: new Date(),
-            duration_minutes: 15,
-            ...entry
-          } as QuickFeedingEntry)
-          break
-
-        case 'bottle':
-          await TrackerService.recordFeeding({
-            child_id: childId,
-            feeding_type: 'bottle',
-            started_at: new Date(),
-            amount_ml: 120,
-            ...entry
-          } as QuickFeedingEntry)
-          break
+        case 'feeding':
+          // Show quick feeding modal instead of recording immediately
+          setQuickFeedingModal({ show: true })
+          setIsLoading(null) // Clear loading state
+          return
 
         case 'nappy-wet':
           await TrackerService.recordNappyChange({
@@ -201,20 +192,35 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
     }
   }
 
+  const handleQuickFeeding = async (type: 'breast' | 'bottle' | 'solid') => {
+    setIsLoading('quick-feeding')
+    try {
+      const entry: QuickFeedingEntry = {
+        child_id: childId,
+        feeding_type: type,
+        started_at: new Date(),
+        ...(type === 'bottle' && { amount_ml: 120 }),
+        ...(type !== 'solid' && { duration_minutes: type === 'breast' ? 15 : 10 })
+      }
+      
+      await TrackerService.recordFeeding(entry)
+      setQuickFeedingModal({ show: false })
+      onActivityAdded()
+    } catch (error) {
+      console.error('Error recording quick feeding:', error)
+      setError('Failed to record feeding')
+    } finally {
+      setIsLoading(null)
+    }
+  }
+
   const quickButtons = [
     {
-      id: 'breastfeeding',
-      label: 'Breastfeed',
-      emoji: '🤱',
-      color: 'bg-green-100 hover:bg-green-200 text-green-800',
-      description: '15 min feeding'
-    },
-    {
-      id: 'bottle',
-      label: 'Bottle',
+      id: 'feeding',
+      label: 'Feed Baby',
       emoji: '🍼',
-      color: 'bg-blue-100 hover:bg-blue-200 text-blue-800',
-      description: '120ml formula'
+      color: 'bg-green-100 hover:bg-green-200 text-green-800',
+      description: 'Breast/bottle/solid'
     },
     {
       id: 'nappy-wet',
@@ -248,6 +254,84 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
 
   const getCurrentTime = () => {
     return new Date().toTimeString().slice(0, 5)
+  }
+
+  if (quickFeedingModal.show) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold text-gray-900">How did you feed {childName}?</h3>
+          <button 
+            onClick={() => setQuickFeedingModal({ show: false })}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 gap-3">
+          <button
+            onClick={() => handleQuickFeeding('breast')}
+            disabled={isLoading === 'quick-feeding'}
+            className="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl transition-colors text-left"
+          >
+            <span className="text-2xl">🤱</span>
+            <div>
+              <div className="font-medium text-green-800">Breastfeeding</div>
+              <div className="text-sm text-green-600">Default: 15 minutes</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleQuickFeeding('bottle')}
+            disabled={isLoading === 'quick-feeding'}
+            className="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors text-left"
+          >
+            <span className="text-2xl">🍼</span>
+            <div>
+              <div className="font-medium text-blue-800">Bottle Feeding</div>
+              <div className="text-sm text-blue-600">Default: 120ml, 10 minutes</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => handleQuickFeeding('solid')}
+            disabled={isLoading === 'quick-feeding'}
+            className="flex items-center gap-3 p-4 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl transition-colors text-left"
+          >
+            <span className="text-2xl">🥄</span>
+            <div>
+              <div className="font-medium text-orange-800">Solid Food</div>
+              <div className="text-sm text-orange-600">Meal or snack time</div>
+            </div>
+          </button>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <button
+            onClick={() => {
+              setQuickFeedingModal({ show: false })
+              setManualEntry({ type: 'feeding', show: true })
+            }}
+            className="w-full py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
+          >
+            Need custom times/amounts? Use manual entry
+          </button>
+        </div>
+
+        {isLoading === 'quick-feeding' && (
+          <div className="mt-4 flex items-center justify-center">
+            <div className="w-6 h-6 border-2 border-pam-red border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+      </div>
+    )
   }
 
   if (manualEntry.show) {

@@ -97,8 +97,20 @@ export default function ChecklistPage() {
   const loadChecklistForChild = async (childId: string) => {
     try {
       console.log('Loading checklist for child:', childId)
-      console.log('Children array:', children.length, children.map(c => ({ id: c.id, name: c.name })))
       
+      // First, try to load existing saved items from database
+      const { data: savedItems, error: savedError } = await supabase
+        .from('checklist_items')
+        .select('*')
+        .eq('child_id', childId)
+        .order('due_date', { ascending: true })
+
+      if (savedError) {
+        console.error('Error loading saved checklist items:', savedError)
+      }
+
+      console.log('Found saved items:', savedItems?.length || 0)
+
       // Get child data - if not in state, fetch from database
       let child = children.find(c => c.id === childId)
       
@@ -128,28 +140,28 @@ export default function ChecklistPage() {
       const birthDate = new Date(child.date_of_birth)
       const checklistData = getChecklistForChild(birthDate)
       
-      console.log('Raw checklist data items:', checklistData.length)
-      console.log('Sample items:', checklistData.slice(0, 3).map(i => ({ id: i.id, title: i.title, dueAtMonths: i.dueAtMonths })))
-      
-      // Transform to the format expected by the UI
+      // Transform to the format expected by the UI, preserving saved completion state
       const transformedItems = checklistData.map(item => {
         const dueDate = calculateDueDate(birthDate, item)
+        const itemId = `${childId}-${item.id}`
+        
+        // Check if this item was previously saved
+        const savedItem = savedItems?.find(saved => saved.id === itemId)
+        
         return {
-          id: `${childId}-${item.id}`,
+          id: itemId,
           child_id: childId,
           title: item.title,
           description: item.description,
           due_date: dueDate.toISOString().split('T')[0],
           category: item.category,
-          is_completed: false,
-          completed_date: null,
-          metadata: {}
+          is_completed: savedItem?.is_completed || false,
+          completed_date: savedItem?.completed_date || null,
+          metadata: savedItem?.metadata || {}
         }
       })
       
-      console.log('Transformed checklist items:', transformedItems.length)
-      console.log('Sample transformed items:', transformedItems.slice(0, 3).map(i => ({ id: i.id, title: i.title, due_date: i.due_date })))
-      
+      console.log('Generated checklist items with saved state:', transformedItems.length)
       setChecklistItems(transformedItems)
       
       // Auto-expand current week
@@ -167,17 +179,49 @@ export default function ChecklistPage() {
     const item = checklistItems.find(item => item.id === itemId)
     if (!item) return
 
-    // For now, just toggle in local state
-    // Later we can add database persistence
-    setChecklistItems(prev => prev.map(prevItem => 
-      prevItem.id === itemId 
-        ? { 
-            ...prevItem, 
-            is_completed: !prevItem.is_completed, 
-            completed_date: !prevItem.is_completed ? new Date().toISOString() : null 
-          }
-        : prevItem
-    ))
+    try {
+      const newCompletedState = !item.is_completed
+      const now = new Date().toISOString()
+      
+      // Prepare the item data for database
+      const itemData = {
+        id: item.id,
+        child_id: item.child_id,
+        title: item.title,
+        description: item.description,
+        due_date: item.due_date,
+        category: item.category,
+        is_completed: newCompletedState,
+        completed_date: newCompletedState ? now : null,
+        metadata: item.metadata || {}
+      }
+
+      // Upsert to database (insert if new, update if exists)
+      const { error } = await supabase
+        .from('checklist_items')
+        .upsert(itemData, { 
+          onConflict: 'id'
+        })
+
+      if (error) {
+        console.error('Error saving checklist item:', error)
+        return
+      }
+
+      // Update local state
+      setChecklistItems(prev => prev.map(prevItem => 
+        prevItem.id === itemId 
+          ? { 
+              ...prevItem, 
+              is_completed: newCompletedState, 
+              completed_date: newCompletedState ? now : null 
+            }
+          : prevItem
+      ))
+
+    } catch (error) {
+      console.error('Error toggling item completion:', error)
+    }
   }
 
   const toggleWeek = (weekId: string) => {
