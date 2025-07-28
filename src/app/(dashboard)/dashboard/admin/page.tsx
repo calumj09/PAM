@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { AdminWizard } from '@/components/admin/AdminWizard'
 import { 
+  optionalAdminChecklist, 
+  optionalAdminCategories, 
+  getTasksByCategory,
+  OptionalAdminTask,
+  OptionalAdminCategory 
+} from '@/lib/data/optional-admin-checklist'
+import { 
   DocumentTextIcon,
   HeartIcon,
   CurrencyDollarIcon,
@@ -16,7 +23,9 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
-  PlusIcon
+  PlusIcon,
+  SparklesIcon,
+  FolderOpenIcon
 } from '@heroicons/react/24/outline'
 
 interface Child {
@@ -48,6 +57,9 @@ export default function AdminPage() {
   const [completedTasks, setCompletedTasks] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedWizardTask, setSelectedWizardTask] = useState<AdminTask | null>(null)
+  const [showOptionalTasks, setShowOptionalTasks] = useState(false)
+  const [selectedOptionalCategory, setSelectedOptionalCategory] = useState<OptionalAdminCategory | null>(null)
+  const [selectedOptionalTasks, setSelectedOptionalTasks] = useState<string[]>([])
   
   const supabase = createClient()
 
@@ -451,6 +463,31 @@ export default function AdminPage() {
     setSelectedWizardTask(null)
   }
 
+  const toggleOptionalTaskSelection = (taskId: string) => {
+    setSelectedOptionalTasks(prev => 
+      prev.includes(taskId) 
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    )
+  }
+
+  const addSelectedOptionalTasks = async () => {
+    if (!selectedChild || selectedOptionalTasks.length === 0) return
+    
+    // TODO: Add selected optional tasks to the child's timeline/checklist
+    // For now, we'll just add them to completed tasks to show the concept
+    setCompletedTasks(prev => [...prev, ...selectedOptionalTasks])
+    setSelectedOptionalTasks([])
+    setShowOptionalTasks(false)
+    
+    // Here you would typically save to database:
+    // await supabase.from('checklist_items').insert(selectedTasks.map(taskId => ({
+    //   child_id: selectedChild.id,
+    //   title: optionalAdminChecklist.find(t => t.id === taskId)?.title,
+    //   // ... other fields
+    // })))
+  }
+
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
       case 'high': return 'bg-red-100 text-red-700 border-red-200'
@@ -560,6 +597,97 @@ export default function AdminPage() {
           <p className="text-sm text-gray-700">
             We've organised all the government admin you need to do into simple steps. Take it one task at a time - you've got this! ✨
           </p>
+        </div>
+
+        {/* Optional Tasks Section */}
+        <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-4 border border-blue-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                <SparklesIcon className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Optional Tasks</h3>
+                <p className="text-sm text-gray-600">Browse extra tasks you might want to add</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowOptionalTasks(!showOptionalTasks)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              {showOptionalTasks ? 'Close' : 'Browse Tasks'}
+            </button>
+          </div>
+          
+          {showOptionalTasks && (
+            <div className="mt-4 space-y-4">
+              {/* Category Selection */}
+              <div className="grid grid-cols-2 gap-2">
+                {optionalAdminCategories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedOptionalCategory(
+                      selectedOptionalCategory === category ? null : category
+                    )}
+                    className={`p-3 rounded-xl text-sm font-medium transition-colors text-left ${
+                      selectedOptionalCategory === category
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    <FolderOpenIcon className="w-4 h-4 mb-1" />
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Selected Category Tasks */}
+              {selectedOptionalCategory && (
+                <div className="bg-white rounded-xl p-4 border border-gray-200">
+                  <h4 className="font-semibold text-gray-900 mb-3">{selectedOptionalCategory}</h4>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {getTasksByCategory(selectedOptionalCategory).map((task) => (
+                      <div key={task.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <input
+                          type="checkbox"
+                          checked={selectedOptionalTasks.includes(task.id)}
+                          onChange={() => toggleOptionalTaskSelection(task.id)}
+                          className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 text-sm">{task.title}</div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            📅 {task.suggestedTiming} • {task.type}
+                          </div>
+                          {task.notes && (
+                            <div className="text-xs text-gray-500 mt-1">{task.notes}</div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Add Selected Tasks Button */}
+              {selectedOptionalTasks.length > 0 && (
+                <div className="flex items-center justify-between bg-white rounded-xl p-4 border border-gray-200">
+                  <div>
+                    <span className="font-medium text-gray-900">
+                      {selectedOptionalTasks.length} task{selectedOptionalTasks.length !== 1 ? 's' : ''} selected
+                    </span>
+                    <p className="text-sm text-gray-600">These will be added to your timeline</p>
+                  </div>
+                  <button
+                    onClick={addSelectedOptionalTasks}
+                    className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+                  >
+                    Add to Timeline
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Admin Categories */}
