@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { QuickEntryButtons } from '@/components/features/QuickEntryButtons'
 import { ActivityTimeline } from '@/components/features/ActivityTimeline'
 import { VoiceInput } from '@/components/features/VoiceInput'
+import { TrackerAnalytics } from '@/components/features/TrackerAnalytics'
 import { formatDateAustralian } from '@/lib/utils'
 import { 
   CalendarDaysIcon, 
@@ -303,21 +304,13 @@ export default function TrackerPage() {
           />
         )}
 
-        {/* Analytics Preview */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ChartBarIcon className="w-5 h-5 text-gray-600" />
-            <h3 className="font-semibold text-gray-900">Coming Soon: Analytics & Patterns</h3>
-          </div>
-          <div className="text-center py-6 text-gray-500">
-            <ChartBarIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">
-              Track patterns, growth charts, and feeding schedules.
-              <br />
-              Export reports for healthcare visits.
-            </p>
-          </div>
-        </div>
+        {/* Analytics & Patterns */}
+        {selectedChild && (
+          <TrackerAnalytics
+            childId={selectedChild.id}
+            childName={selectedChild.name}
+          />
+        )}
       </div>
     </div>
   )
