@@ -154,10 +154,12 @@ export default function ChecklistPage() {
       // Transform to the format expected by the UI, preserving saved completion state
       const transformedItems = checklistData.map(item => {
         const dueDate = calculateDueDate(birthDate, item)
-        const itemId = `${childId}-${item.id}`
+        const itemId = `${childId}-${item.id}` // Keep for UI consistency
         
-        // Check if this item was previously saved
-        const savedItem = savedItems?.find(saved => saved.id === itemId)
+        // Check if this item was previously saved (match by title and category)
+        const savedItem = savedItems?.find(saved => 
+          saved.title === item.title && saved.category === item.category
+        )
         
         return {
           id: itemId,
@@ -194,25 +196,42 @@ export default function ChecklistPage() {
       const newCompletedState = !item.is_completed
       const now = new Date().toISOString()
       
-      // Prepare the item data for database
-      const itemData = {
-        id: item.id,
-        child_id: item.child_id,
-        title: item.title,
-        description: item.description,
-        due_date: item.due_date,
-        category: item.category,
-        is_completed: newCompletedState,
-        completed_date: newCompletedState ? now : null,
-        metadata: item.metadata || {}
-      }
-
-      // Upsert to database (insert if new, update if exists)
-      const { error } = await supabase
+      // Check if this item already exists in database
+      const { data: existingItem } = await supabase
         .from('checklist_items')
-        .upsert(itemData, { 
-          onConflict: 'id'
-        })
+        .select('id')
+        .eq('child_id', item.child_id)
+        .eq('title', item.title)
+        .eq('category', item.category)
+        .single()
+
+      let error
+      if (existingItem) {
+        // Update existing item
+        const updateResult = await supabase
+          .from('checklist_items')
+          .update({
+            is_completed: newCompletedState,
+            completed_date: newCompletedState ? now : null
+          })
+          .eq('id', existingItem.id)
+        error = updateResult.error
+      } else {
+        // Insert new item (let database generate UUID)
+        const insertResult = await supabase
+          .from('checklist_items')
+          .insert({
+            child_id: item.child_id,
+            title: item.title,
+            description: item.description,
+            due_date: item.due_date,
+            category: item.category,
+            is_completed: newCompletedState,
+            completed_date: newCompletedState ? now : null,
+            metadata: item.metadata || {}
+          })
+        error = insertResult.error
+      }
 
       if (error) {
         console.error('Error saving checklist item:', error)
@@ -284,7 +303,6 @@ export default function ChecklistPage() {
         }
         
         return {
-          id: `${selectedChild.id}-optional-${task.id}`,
           child_id: selectedChild.id,
           title: task.title,
           description: task.notes || `${task.type} - ${task.suggestedTiming}`,
@@ -297,7 +315,8 @@ export default function ChecklistPage() {
             original_category: task.category,
             task_type: task.type,
             suggested_timing: task.suggestedTiming,
-            link: task.link
+            link: task.link,
+            optional_task_id: task.id // Store original task ID for reference
           }
         }
       }).filter(Boolean)
