@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { TrackerService } from '@/lib/services/tracker-service'
 import { QuickFeedingEntry, QuickSleepEntry, QuickDiaperEntry, Activity } from '@/types/tracker'
 import { Button } from '@/components/ui/Button'
+import { createClient } from '@/lib/supabase/client'
 
 interface QuickEntryButtonsProps {
   childId: string
@@ -12,7 +13,7 @@ interface QuickEntryButtonsProps {
 }
 
 interface ManualEntry {
-  type: 'feeding' | 'sleep' | 'tummy_time'
+  type: 'feeding' | 'sleep' | 'tummy_time' | 'medicine'
   show: boolean
 }
 
@@ -34,6 +35,9 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
   const [sleepStartTime, setSleepStartTime] = useState('')
   const [sleepEndTime, setSleepEndTime] = useState('')
   const [tummyTimeDuration, setTummyTimeDuration] = useState(10)
+  const [medicineName, setMedicineName] = useState('')
+  const [medicineDosage, setMedicineDosage] = useState('')
+  const [medicineType, setMedicineType] = useState<'medicine' | 'vitamin'>('medicine')
 
   useEffect(() => {
     loadActiveSleep()
@@ -96,6 +100,12 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             ...entry
           })
           break
+
+        case 'medicine':
+          // Show medicine entry modal
+          setManualEntry({ type: 'medicine', show: true })
+          setIsLoading(null)
+          return
 
         default:
           throw new Error('Unknown activity type')
@@ -214,6 +224,41 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
     }
   }
 
+  const handleMedicineEntry = async () => {
+    setIsLoading('manual-medicine')
+    try {
+      const supabase = createClient()
+      
+      // Record as a simple activity with medicine details
+      const { error } = await supabase
+        .from('simple_activities')
+        .insert({
+          child_id: childId,
+          activity_type: medicineType,
+          started_at: new Date().toISOString(),
+          ended_at: new Date().toISOString(), // Instant activity
+          notes: `${medicineName} - ${medicineDosage}`,
+          metadata: {
+            medicine_name: medicineName,
+            dosage: medicineDosage,
+            type: medicineType
+          }
+        })
+
+      if (error) throw error
+
+      setManualEntry({ type: 'medicine', show: false })
+      setMedicineName('')
+      setMedicineDosage('')
+      onActivityAdded()
+    } catch (error) {
+      console.error('Error recording medicine:', error)
+      setError('Failed to record medicine')
+    } finally {
+      setIsLoading(null)
+    }
+  }
+
   const quickButtons = [
     {
       id: 'feeding',
@@ -249,6 +294,13 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
       emoji: '🤸‍♀️',
       color: 'bg-pink-100 hover:bg-pink-200 text-pink-800',
       description: '10 min activity'
+    },
+    {
+      id: 'medicine',
+      label: 'Medicine',
+      emoji: '💊',
+      color: 'bg-red-100 hover:bg-red-200 text-red-800',
+      description: 'Medicine/vitamin'
     }
   ]
 
@@ -342,6 +394,7 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             {manualEntry.type === 'feeding' && 'Record Feeding'}
             {manualEntry.type === 'sleep' && 'Record Sleep'}
             {manualEntry.type === 'tummy_time' && 'Record Tummy Time'}
+            {manualEntry.type === 'medicine' && 'Record Medicine/Vitamin'}
           </h3>
           <button 
             onClick={() => setManualEntry({ ...manualEntry, show: false })}
@@ -471,6 +524,62 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
               className="w-full bg-pam-red hover:bg-pam-red/90 text-white"
             >
               {isLoading === 'manual-tummy-time' ? 'Saving...' : 'Save Tummy Time'}
+            </Button>
+          </div>
+        )}
+
+        {manualEntry.type === 'medicine' && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+              <div className="grid grid-cols-2 gap-2">
+                {(['medicine', 'vitamin'] as const).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setMedicineType(type)}
+                    className={`p-2 rounded-lg text-sm font-medium transition-colors ${
+                      medicineType === type
+                        ? 'bg-pam-red text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    {type === 'medicine' && '💊 Medicine'}
+                    {type === 'vitamin' && '🌟 Vitamin'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {medicineType === 'medicine' ? 'Medicine Name' : 'Vitamin Name'}
+              </label>
+              <input
+                type="text"
+                value={medicineName}
+                onChange={(e) => setMedicineName(e.target.value)}
+                placeholder={medicineType === 'medicine' ? 'e.g. Panadol, Nurofen' : 'e.g. Vitamin D, Iron'}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pam-red focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Dosage</label>
+              <input
+                type="text"
+                value={medicineDosage}
+                onChange={(e) => setMedicineDosage(e.target.value)}
+                placeholder="e.g. 2.5ml, 1 tablet, 5 drops"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pam-red focus:border-transparent"
+              />
+            </div>
+
+            <Button
+              onClick={handleMedicineEntry}
+              disabled={isLoading === 'manual-medicine' || !medicineName.trim() || !medicineDosage.trim()}
+              className="w-full bg-pam-red hover:bg-pam-red/90 text-white"
+            >
+              {isLoading === 'manual-medicine' ? 'Saving...' : `Save ${medicineType === 'medicine' ? 'Medicine' : 'Vitamin'}`}
             </Button>
           </div>
         )}
