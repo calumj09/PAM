@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { getAppUrl } from '@/lib/config/app'
 
 const australianStates = [
   { value: 'NSW', label: 'New South Wales' },
@@ -57,7 +58,10 @@ export default function SignupPage() {
       // Simplified signup - just email and password first
       const { data, error: authError } = await supabase.auth.signUp({
         email: email.trim(),
-        password: password
+        password: password,
+        options: {
+          emailRedirectTo: `${getAppUrl()}/auth/callback`
+        }
       })
 
       console.log('Signup response:', { data, authError })
