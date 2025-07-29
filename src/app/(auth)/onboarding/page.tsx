@@ -274,8 +274,22 @@ export default function OnboardingPage() {
       }
 
       console.log('🚀 Redirecting to dashboard...')
-      // Redirect to Today page
-      router.push('/dashboard/today')
+      
+      // Success! Redirect immediately without setting loading to false first
+      console.log('📍 About to redirect to /dashboard/today')
+      
+      // Try router.push first
+      try {
+        router.push('/dashboard/today')
+        console.log('✅ Router.push called successfully')
+      } catch (routerError) {
+        console.error('❌ Router.push failed:', routerError)
+        // Fallback to window.location
+        window.location.href = '/dashboard/today'
+      }
+      
+      // Return early to prevent setIsLoading(false) in finally block
+      return
     } catch (err: any) {
       console.error('❌ ONBOARDING FAILED:', err)
       console.error('❌ Full error details:', {
