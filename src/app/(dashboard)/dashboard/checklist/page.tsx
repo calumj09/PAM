@@ -954,12 +954,6 @@ export default function ChecklistPage() {
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold text-gray-900">Timeline <span className="text-xs text-gray-500">v3</span></h1>
-            <button
-              onClick={() => setShowAddCustomTask(true)}
-              className="px-3 py-1 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
-            >
-              + Add
-            </button>
           </div>
           
           
