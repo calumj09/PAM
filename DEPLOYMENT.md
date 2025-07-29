@@ -23,8 +23,17 @@ NEXT_PUBLIC_APP_URL=https://your-app-name.onrender.com
 
 #### Optional Variables (for enhanced features)
 ```bash
-# Email Service (Optional - for family invitations)
+# Email Service (Optional - for family invitations & reminders)
 RESEND_API_KEY=re_your_api_key_here
+
+# Push Notifications (Optional - for browser/mobile notifications)
+NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+NEXT_PUBLIC_FIREBASE_VAPID_KEY=your-vapid-key
 
 # AI Chatbot (Optional - for AI assistant)
 OPENAI_API_KEY=sk-your-openai-api-key
@@ -59,8 +68,9 @@ The app will work with these core features:
 
 #### With Optional API Keys
 Additional features become available:
-- 📧 **RESEND_API_KEY**: Email invitations for family sharing
-- 🤖 **OPENAI_API_KEY**: AI chatbot assistant
+- 📧 **RESEND_API_KEY**: Email invitations for family sharing and reminders
+- 🔔 **FIREBASE_***: Push notifications for reminders and updates
+- 🤖 **OPENAI_API_KEY**: AI chatbot assistant with contextual advice
 - 📅 **GOOGLE/MICROSOFT**: Calendar synchronization
 
 ### Deployment Steps
