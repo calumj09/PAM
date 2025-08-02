@@ -11,7 +11,8 @@ import {
   Calendar,
   Sun,
   Moon,
-  ChevronDown
+  ChevronDown,
+  MapPin
 } from 'lucide-react'
 
 interface Child {
@@ -286,8 +287,8 @@ export default function TodayPage() {
             </a>
             
             <a href="/dashboard/info" className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
-              <div className="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center hover:bg-success/20 transition-colors">
-                <CheckCircle className="w-6 h-6 text-success" />
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center hover:bg-blue-200 transition-colors">
+                <MapPin className="w-6 h-6 text-blue-600" />
               </div>
               <span className="text-sm font-medium text-foreground text-center">Local Info</span>
             </a>
