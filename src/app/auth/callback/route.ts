@@ -51,19 +51,33 @@ export async function GET(request: Request) {
       })
       error = result.error
       
-      // If recovery worked, set type for later handling
+      // If recovery worked, redirect with session tokens
       if (!error) {
-        // Set type to recovery so it redirects correctly
-        const modifiedUrl = new URL(request.url)
-        modifiedUrl.searchParams.set('type', 'recovery')
-        return NextResponse.redirect(`${origin}/reset-password`)
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          const resetUrl = new URL(`${origin}/reset-password`)
+          resetUrl.searchParams.set('access_token', session.access_token)
+          resetUrl.searchParams.set('refresh_token', session.refresh_token)
+          return NextResponse.redirect(resetUrl.toString())
+        } else {
+          return NextResponse.redirect(`${origin}/reset-password`)
+        }
       }
     }
     
     if (!error) {
       // Handle password recovery flow
       if (type === 'recovery') {
-        return NextResponse.redirect(`${origin}/reset-password`)
+        // Get the current session to pass tokens to reset password page
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          const resetUrl = new URL(`${origin}/reset-password`)
+          resetUrl.searchParams.set('access_token', session.access_token)
+          resetUrl.searchParams.set('refresh_token', session.refresh_token)
+          return NextResponse.redirect(resetUrl.toString())
+        } else {
+          return NextResponse.redirect(`${origin}/reset-password`)
+        }
       }
       
       // Handle email confirmation flow
