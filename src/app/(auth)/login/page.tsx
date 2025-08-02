@@ -54,44 +54,44 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-primary flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* App Icon and Branding */}
         <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-pam-burgundy rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
-            <span className="text-3xl font-bold text-white">P</span>
+          <div className="w-24 h-24 bg-white rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-xl">
+            <span className="text-4xl font-display font-bold text-primary tracking-wide">P</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">PAM</h1>
-          <p className="text-gray-600 text-base">Parent Admin Manager</p>
-          <p className="text-gray-500 text-sm mt-1">Your one-stop companion for new mums</p>
+          <h1 className="text-4xl font-display font-bold text-white mb-3 tracking-pam-logo">PAM</h1>
+          <p className="text-white/90 text-lg font-medium">Parent Admin Manager</p>
+          <p className="text-white/75 text-base mt-2">Your one-stop companion for new mums</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
+        <div className="bg-white rounded-3xl shadow-2xl p-8">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                className="input-field"
                 placeholder="Enter your email"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                className="input-field"
                 placeholder="Enter your password"
                 required
               />
@@ -106,7 +106,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-pam-burgundy text-white py-3 px-4 rounded-xl font-semibold hover:bg-pam-burgundy/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
+              className="button-primary"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -119,25 +119,25 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center space-y-4">
+          <div className="mt-8 text-center space-y-6">
             <Link 
               href="/forgot-password" 
-              className="text-sm text-pam-burgundy hover:text-pam-burgundy/80 font-medium"
+              className="text-sm text-primary hover:text-primary-dark font-medium transition-colors"
             >
               Forgot Password?
             </Link>
             
             <div className="flex items-center">
-              <div className="flex-1 border-t border-gray-200"></div>
-              <span className="px-3 text-sm text-gray-500">or</span>
-              <div className="flex-1 border-t border-gray-200"></div>
+              <div className="flex-1 border-t border-border"></div>
+              <span className="px-4 text-sm text-muted-foreground">or</span>
+              <div className="flex-1 border-t border-border"></div>
             </div>
             
-            <p className="text-sm text-gray-600">
+            <p className="text-base text-muted-foreground">
               Don&apos;t have an account?{' '}
               <Link 
                 href="/signup" 
-                className="text-pam-burgundy hover:text-pam-burgundy/80 font-semibold"
+                className="text-primary hover:text-primary-dark font-semibold transition-colors"
               >
                 Create Account
               </Link>
@@ -147,7 +147,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-8">
-          <p className="text-xs text-gray-500">
+          <p className="text-sm text-white/75">
             Designed for Australian families with children aged 0-3
           </p>
         </div>

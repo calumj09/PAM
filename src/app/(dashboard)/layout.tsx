@@ -11,7 +11,7 @@ export default function DashboardLayout({
 }) {
   return (
     <PWAProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Header />
         <OfflineIndicator />
         {children}

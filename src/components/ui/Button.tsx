@@ -4,27 +4,29 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-pam-burgundy text-pam-white hover:bg-pam-burgundy/90 shadow-sm",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border-2 border-pam-gray-border bg-pam-white text-pam-burgundy hover:bg-pam-burgundy hover:text-pam-white",
-        secondary: "bg-pam-pink text-pam-burgundy hover:bg-pam-pink/80",
-        ghost: "hover:bg-pam-gray-border/50 hover:text-pam-burgundy",
-        link: "text-pam-burgundy underline-offset-4 hover:underline",
-        success: "bg-pam-success text-pam-white hover:bg-pam-success/90 shadow-sm",
-        // Legacy PAM variants (updated to use burgundy)
-        pam: "bg-pam-burgundy text-pam-white hover:bg-pam-burgundy/90 shadow-sm",
-        'pam-secondary': "bg-pam-pink text-pam-burgundy hover:bg-pam-pink/80",
-        'pam-outline': "border-2 border-pam-burgundy text-pam-burgundy hover:bg-pam-burgundy hover:text-pam-white"
+        default: "button-primary",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-lg shadow-sm",
+        outline: "button-secondary",
+        secondary: "bg-muted text-foreground hover:bg-muted/80 hover:shadow-md",
+        ghost: "hover:bg-muted hover:text-primary text-muted-foreground",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary-dark",
+        success: "bg-success text-white hover:bg-success/90 hover:shadow-lg shadow-sm",
+        // Legacy PAM variants (updated to use new primary)
+        pam: "button-primary",
+        'pam-secondary': "bg-secondary text-primary hover:bg-secondary/80 hover:shadow-md",
+        'pam-outline': "button-secondary"
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-lg px-3",
-        lg: "h-11 rounded-lg px-8",
-        icon: "h-10 w-10",
+        default: "h-12 px-6 py-3 text-base",
+        sm: "h-10 px-4 py-2 text-sm",
+        lg: "h-14 px-8 py-4 text-lg",
+        xl: "h-16 px-10 py-5 text-xl",
+        icon: "h-12 w-12 text-base",
+        'icon-sm': "h-10 w-10 text-sm",
       },
     },
     defaultVariants: {

@@ -56,7 +56,7 @@ export function Navigation() {
   const pathname = usePathname()
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-pam-gray-border safe-area-pb">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border safe-area-pb shadow-lg">
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
@@ -68,19 +68,19 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center gap-1 py-2 px-3 min-w-0 flex-1 transition-all duration-200"
+                className="flex flex-col items-center gap-1 py-3 px-3 min-w-0 flex-1 transition-all duration-200 hover:scale-105 active:scale-95"
               >
-                <div className={`p-1 rounded-lg transition-all duration-200 ${
-                  isActive ? 'bg-pam-burgundy/10' : 'hover:bg-gray-100'
+                <div className={`p-2 rounded-xl transition-all duration-200 ${
+                  isActive ? 'bg-primary/10 shadow-sm' : 'hover:bg-muted'
                 }`}>
-                  <Icon className={`w-5 h-5 ${
-                    isActive ? 'text-pam-burgundy' : 'text-pam-text-gray'
+                  <Icon className={`w-6 h-6 ${
+                    isActive ? 'text-primary' : 'text-muted-foreground'
                   }`} />
                 </div>
-                <span className={`text-xs font-medium ${
+                <span className={`text-xs font-medium mt-1 ${
                   isActive 
-                    ? 'text-pam-burgundy font-semibold' 
-                    : 'text-pam-text-gray'
+                    ? 'text-primary font-semibold' 
+                    : 'text-muted-foreground'
                 }`}>
                   {item.label}
                 </span>

@@ -6,17 +6,91 @@
 /* Global styles */
 @layer base {
   :root {
-    /* PAM Brand Colors - Updated to new burgundy scheme */
-    --pam-burgundy: #7D2030;
+    /* Primary Colors - Design Specification */
+    --color-primary: #B54548;        /* Burgundy Red - Primary brand color */
+    --color-primary-dark: #A03A3D;   /* Darker red for hover states */
+    --color-primary-light: #C85558;  /* Lighter red for active states */
+    
+    /* Neutral Colors */
+    --color-white: #FFFFFF;
+    --color-background: #F8F8F8;     /* Light gray background */
+    --color-surface: #FFFFFF;        /* Card/surface background */
+    --color-border: #E5E5E5;         /* Light borders */
+    --color-text-primary: #333333;   /* Main text */
+    --color-text-secondary: #666666; /* Secondary text */
+    --color-text-muted: #999999;     /* Muted/placeholder text */
+    
+    /* Semantic Colors */
+    --color-success: #4CAF50;        /* Green checkmark */
+    --color-warning: #FFA500;        /* Orange for alerts */
+    --color-error: #F44336;          /* Red for errors */
+    
+    /* UI Element Colors */
+    --color-input-bg: #F5F5F5;       /* Input field background */
+    --color-toggle-inactive: #E0E0E0; /* Inactive toggle background */
+    
+    /* Typography - Font Sizes */
+    --text-xs: 12px;      /* Helper text */
+    --text-sm: 14px;      /* Secondary text */
+    --text-base: 16px;    /* Body text */
+    --text-lg: 18px;      /* Subheadings */
+    --text-xl: 20px;      /* Section headers */
+    --text-2xl: 24px;     /* Page titles */
+    --text-3xl: 32px;     /* Large headers (PAM logo) */
+    
+    /* Font Weights */
+    --font-light: 300;
+    --font-regular: 400;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --font-bold: 700;
+    
+    /* Line Heights */
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+    
+    /* Letter Spacing */
+    --tracking-tight: -0.02em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.02em;
+    --tracking-wider: 0.05em;  /* For PAM logo */
+    
+    /* Spacing System - Base unit: 4px */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    
+    /* Legacy mappings for backward compatibility */
+    --pam-primary: #B54548;
+    --pam-background: #F8F8F8;
     --pam-white: #FFFFFF;
     --pam-success: #4CAF50;
-    --pam-gray-border: #E0E0E0;
-    --pam-text-gray: #666666;
+    --pam-gray-50: #FAFAFA;
+    --pam-gray-100: #F5F5F5;
+    --pam-gray-200: #EEEEEE;
+    --pam-gray-300: #E0E0E0;
+    --pam-gray-400: #BDBDBD;
+    --pam-gray-500: #9E9E9E;
+    --pam-gray-600: #757575;
+    --pam-gray-700: #616161;
+    --pam-gray-800: #424242;
+    --pam-gray-900: #212121;
     
     /* Legacy colors for backwards compatibility */
-    --pam-red: #7D2030; /* Updated to burgundy */
+    --pam-burgundy: #B54548; /* Updated to new primary */
+    --pam-red: #B54548; /* Updated to new primary */
     --pam-pink: #F9B1BC;
     --pam-cream: #FFFBF8;
+    --pam-gray-border: #E0E0E0;
+    --pam-text-gray: #666666;
     
     /* Soft pastels for mums */
     --buttermilk: #FFF8DC;
@@ -26,16 +100,16 @@
     --mint: #F0FFF0;
     
     /* Design.md Semantic Colors */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: 0 0% 97.25%; /* #F8F8F8 in HSL */
+    --foreground: 0 0% 12.94%; /* #212121 in HSL */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 0 0% 12.94%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 347 61% 33%; /* PAM burgundy in HSL */
+    --popover-foreground: 0 0% 12.94%;
+    --primary: 358 39% 50%; /* #B54548 in HSL */
     --primary-foreground: 0 0% 100%; /* White in HSL */
     --secondary: 352 43% 84%; /* PAM pink in HSL */
-    --secondary-foreground: 347 61% 33%; /* PAM burgundy in HSL */
+    --secondary-foreground: 358 39% 50%; /* New primary in HSL */
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
     --accent: 0 0% 96.1%;
@@ -83,8 +157,8 @@
 
 @layer base {
   body {
-    @apply bg-gray-50;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+    background-color: var(--pam-background);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -97,12 +171,15 @@
 
 /* Custom utilities */
 @layer utilities {
-  /* New burgundy scheme utilities */
-  .text-pam-burgundy {
-    color: var(--pam-burgundy);
+  /* New design system utilities */
+  .text-pam-primary {
+    color: var(--pam-primary);
   }
-  .bg-pam-burgundy {
-    background-color: var(--pam-burgundy);
+  .bg-pam-primary {
+    background-color: var(--pam-primary);
+  }
+  .bg-pam-background {
+    background-color: var(--pam-background);
   }
   .text-pam-white {
     color: var(--pam-white);
@@ -118,6 +195,23 @@
   }
   .text-pam-text-gray {
     color: var(--pam-text-gray);
+  }
+  
+  /* Gray scale utilities */
+  .bg-pam-gray-50 { background-color: var(--pam-gray-50); }
+  .bg-pam-gray-100 { background-color: var(--pam-gray-100); }
+  .bg-pam-gray-200 { background-color: var(--pam-gray-200); }
+  .text-pam-gray-600 { color: var(--pam-gray-600); }
+  .text-pam-gray-700 { color: var(--pam-gray-700); }
+  .text-pam-gray-800 { color: var(--pam-gray-800); }
+  .text-pam-gray-900 { color: var(--pam-gray-900); }
+  
+  /* Legacy utilities (updated to new primary) */
+  .text-pam-burgundy {
+    color: var(--pam-primary);
+  }
+  .bg-pam-burgundy {
+    background-color: var(--pam-primary);
   }
   
   /* Legacy utilities (updated to burgundy) */
@@ -138,5 +232,209 @@
   }
   .bg-pam-cream {
     background-color: var(--pam-cream);
+  }
+}
+
+/* Component Styles from Design Specification */
+@layer components {
+  /* New design system color utilities */
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-primary-dark { background-color: var(--color-primary-dark); }
+  .bg-primary-light { background-color: var(--color-primary-light); }
+  .bg-background { background-color: var(--color-background); }
+  .bg-surface { background-color: var(--color-surface); }
+  .bg-border { background-color: var(--color-border); }
+  .bg-muted { background-color: var(--color-input-bg); }
+  
+  .text-primary { color: var(--color-primary); }
+  .text-primary-foreground { color: var(--color-white); }
+  .text-foreground { color: var(--color-text-primary); }
+  .text-muted-foreground { color: var(--color-text-secondary); }
+  
+  .border-primary { border-color: var(--color-primary); }
+  .border-border { border-color: var(--color-border); }
+  .border-error { border-color: var(--color-error); }
+  
+  .text-error { color: var(--color-error); }
+  .text-success { color: var(--color-success); }
+  .text-warning { color: var(--color-warning); }
+  .bg-success { background-color: var(--color-success); }
+  .bg-warning { background-color: var(--color-warning); }
+
+  /* Primary Button Style */
+  .button-primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-radius: 8px;
+    padding: 16px 32px;
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    height: 52px;
+    width: 100%;
+    max-width: 343px;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  
+  .button-primary:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(181, 69, 72, 0.2);
+  }
+  
+  .button-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(181, 69, 72, 0.2);
+  }
+  
+  /* Secondary Button Style */
+  .button-secondary {
+    background: var(--color-white);
+    color: var(--color-primary);
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    padding: 16px 32px;
+    font-size: var(--text-base);
+    font-weight: var(--font-medium);
+    height: 52px;
+    width: 100%;
+    max-width: 343px;
+  }
+  
+  /* Toggle Button */
+  .toggle-button {
+    background: var(--color-white);
+    color: var(--color-text-primary);
+    border: 2px solid var(--color-border);
+    border-radius: 24px;
+    padding: 8px 20px;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    transition: all 0.2s ease;
+  }
+  
+  .toggle-button.selected {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-color: var(--color-primary);
+  }
+  
+  /* Input Field */
+  .input-field {
+    background: var(--color-input-bg);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: var(--text-base);
+    width: 100%;
+    height: 52px;
+    transition: all 0.2s ease;
+  }
+  
+  .input-field:focus {
+    background: var(--color-white);
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(181, 69, 72, 0.1);
+  }
+  
+  .input-field::placeholder {
+    color: var(--color-text-muted);
+  }
+  
+  /* Select Field */
+  .select-field {
+    background: var(--color-input-bg);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 16px;
+    font-size: var(--text-base);
+    width: 100%;
+    height: 52px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 7.5L10 12.5L15 7.5' stroke='%23999999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 20px;
+  }
+  
+  /* Progress Components */
+  .progress-container {
+    width: 100%;
+    margin-bottom: var(--space-8);
+  }
+  
+  .progress-text {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-2);
+  }
+  
+  .progress-bar {
+    height: 4px;
+    background: var(--color-border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+  }
+  
+  /* Screen Container */
+  .screen-container {
+    background: var(--color-white);
+    min-height: 100vh;
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .content-card {
+    background: var(--color-surface);
+    border-radius: 16px;
+    padding: var(--space-8);
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  
+  /* Loading Spinner */
+  .loading-spinner {
+    border: 3px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* Page transitions */
+  .page-enter {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  
+  .page-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 0.3s ease;
   }
 }

@@ -41,10 +41,10 @@ export function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-pam-gray-border/30">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-border/30">
       <div className="pam-container">
         <div className="flex items-center justify-between h-16">
-          <h1 className="text-2xl font-bold text-pam-burgundy">
+          <h1 className="text-2xl font-bold text-primary">
             PAM
           </h1>
           
@@ -91,7 +91,7 @@ export function Header() {
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
-              className="text-pam-text-gray hover:text-pam-burgundy hover:bg-pam-gray-border/50"
+              className="text-muted-foreground hover:text-primary hover:bg-muted"
             >
               Sign Out
             </Button>

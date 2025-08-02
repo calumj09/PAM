@@ -10,17 +10,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        // PAM Brand Colors - Updated to new burgundy scheme
-        'pam-burgundy': '#7D2030',
+        // PAM Brand Colors - New Design System
+        'pam-primary': '#B54548',
+        'pam-background': '#F8F8F8',
         'pam-white': '#FFFFFF',
         'pam-success': '#4CAF50',
-        'pam-gray-border': '#E0E0E0',
-        'pam-text-gray': '#666666',
+        'pam-gray': {
+          50: '#FAFAFA',
+          100: '#F5F5F5',
+          200: '#EEEEEE',
+          300: '#E0E0E0',
+          400: '#BDBDBD',
+          500: '#9E9E9E',
+          600: '#757575',
+          700: '#616161',
+          800: '#424242',
+          900: '#212121',
+        },
         
         // Legacy colors for backwards compatibility
-        'pam-red': '#7D2030', // Updated to burgundy
+        'pam-burgundy': '#B54548', // Updated to new primary
+        'pam-red': '#B54548', // Updated to new primary
         'pam-pink': '#F9B1BC', 
         'pam-cream': '#FFFBF8',
+        'pam-gray-border': '#E0E0E0',
+        'pam-text-gray': '#666666',
         
         // Design.md Semantic Colors
         background: 'hsl(var(--background))',
@@ -30,12 +44,12 @@ export default {
         popover: 'hsl(var(--popover))',
         'popover-foreground': 'hsl(var(--popover-foreground))',
         primary: {
-          DEFAULT: '#7D2030', // PAM burgundy
+          DEFAULT: '#B54548', // New PAM primary
           foreground: '#FFFFFF', // White
         },
         secondary: {
           DEFAULT: '#F9B1BC', // PAM pink
-          foreground: '#7D2030', // PAM burgundy
+          foreground: '#B54548', // New PAM primary
         },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
@@ -61,10 +75,25 @@ export default {
         },
       },
       fontFamily: {
-        // Design.md Typography
-        'sans': ['Inter', 'Montserrat', 'system-ui', 'sans-serif'],
-        'heading': ['The Seasons', 'Brown Sugar', 'serif'],
-        'body': ['Montserrat', 'Canva Sans', 'sans-serif'],
+        // New Design System Typography
+        'sans': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'system-ui', 'sans-serif'],
+        'display': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'system-ui', 'sans-serif'],
+        'body': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'system-ui', 'sans-serif'],
+        // Legacy compatibility
+        'heading': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        // Design System Scale 12px - 32px
+        'xs': ['12px', { lineHeight: '16px', letterSpacing: '0.025em' }],
+        'sm': ['14px', { lineHeight: '20px', letterSpacing: '0.025em' }],
+        'base': ['16px', { lineHeight: '24px', letterSpacing: '0em' }],
+        'lg': ['18px', { lineHeight: '28px', letterSpacing: '0em' }],
+        'xl': ['20px', { lineHeight: '28px', letterSpacing: '0em' }],
+        '2xl': ['24px', { lineHeight: '32px', letterSpacing: '-0.025em' }],
+        '3xl': ['28px', { lineHeight: '36px', letterSpacing: '-0.025em' }],
+        '4xl': ['32px', { lineHeight: '40px', letterSpacing: '-0.025em' }],
+        // PAM Logo specific
+        'pam-logo': ['32px', { lineHeight: '40px', letterSpacing: '0.1em' }],
       },
       // Design.md Spacing Scale
       spacing: {
