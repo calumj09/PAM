@@ -42,6 +42,22 @@ export async function GET(request: Request) {
         type: 'recovery'
       })
       error = result.error
+    } else if (tokenHash && !type) {
+      // Handle password reset without type parameter (legacy Supabase format)
+      // Try recovery first since that's most likely for token_hash without type
+      const result = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: 'recovery'
+      })
+      error = result.error
+      
+      // If recovery worked, set type for later handling
+      if (!error) {
+        // Set type to recovery so it redirects correctly
+        const modifiedUrl = new URL(request.url)
+        modifiedUrl.searchParams.set('type', 'recovery')
+        return NextResponse.redirect(`${origin}/reset-password`)
+      }
     }
     
     if (!error) {
