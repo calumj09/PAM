@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
+import { TrackerAnalyticsService, SleepPattern, FeedingPattern, NappyPattern } from '@/lib/services/tracker-analytics-service'
 import { 
   Heart,
   Clock,
@@ -31,6 +32,11 @@ export default function TodayPage() {
   const [userName, setUserName] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [todayStats, setTodayStats] = useState<{
+    sleep: SleepPattern | null
+    feeding: FeedingPattern | null
+    nappy: NappyPattern | null
+  }>({ sleep: null, feeding: null, nappy: null })
   
   const supabase = createClient()
 
@@ -40,6 +46,12 @@ export default function TodayPage() {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000)
     return () => clearInterval(timer)
   }, [])
+
+  useEffect(() => {
+    if (selectedChild) {
+      loadTodayStats()
+    }
+  }, [selectedChild])
 
   const loadData = async () => {
     try {
@@ -72,6 +84,23 @@ export default function TodayPage() {
       }
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadTodayStats = async () => {
+    if (!selectedChild) return
+    
+    try {
+      const [sleep, feeding, nappy] = await Promise.all([
+        TrackerAnalyticsService.analyzeSleepPatterns(selectedChild.id, 3), // Last 3 days
+        TrackerAnalyticsService.analyzeFeedingPatterns(selectedChild.id, 3),
+        TrackerAnalyticsService.analyzeNappyPatterns(selectedChild.id, 3)
+      ])
+      
+      setTodayStats({ sleep, feeding, nappy })
+    } catch (error) {
+      console.error('Error loading today stats:', error)
+      // Don't set error state, just fail silently for this optional feature
     }
   }
 
@@ -222,6 +251,61 @@ export default function TodayPage() {
           </div>
         </div>
 
+
+        {/* Today's Summary */}
+        {selectedChild && (todayStats.sleep || todayStats.feeding || todayStats.nappy) && (
+          <div className="content-card">
+            <h2 className="font-semibold text-foreground mb-4">Recent Patterns</h2>
+            
+            <div className="grid grid-cols-3 gap-3">
+              {/* Sleep Summary */}
+              {todayStats.sleep && (
+                <div className="bg-blue-50 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-blue-900">
+                    {Math.round(todayStats.sleep.totalSleepPerDay / 60 * 10) / 10}h
+                  </div>
+                  <div className="text-xs text-blue-700">Daily Sleep</div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    {todayStats.sleep.averageNapsPerDay} naps
+                  </div>
+                </div>
+              )}
+              
+              {/* Feeding Summary */}
+              {todayStats.feeding && (
+                <div className="bg-green-50 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-green-900">
+                    {todayStats.feeding.feedingsPerDay}
+                  </div>
+                  <div className="text-xs text-green-700">Feeds/Day</div>
+                  <div className="text-xs text-green-600 mt-1">
+                    {Math.round(todayStats.feeding.averageFeedingInterval / 60 * 10) / 10}h apart
+                  </div>
+                </div>
+              )}
+              
+              {/* Nappy Summary */}
+              {todayStats.nappy && (
+                <div className="bg-orange-50 p-3 rounded-lg text-center">
+                  <div className="text-lg font-bold text-orange-900">
+                    {todayStats.nappy.averageNappiesPerDay}
+                  </div>
+                  <div className="text-xs text-orange-700">Changes/Day</div>
+                  <div className="text-xs text-orange-600 mt-1">
+                    {todayStats.nappy.longestDryStretch}h dry
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <a 
+              href={`/dashboard/tracker${selectedChild ? `?child=${selectedChild.id}` : ''}`}
+              className="block text-center mt-3 py-2 text-sm text-primary hover:text-primary-dark font-medium rounded-lg hover:bg-primary/5 transition-colors"
+            >
+              View Full Analytics →
+            </a>
+          </div>
+        )}
 
         {/* This Week's Focus */}
         <div className="content-card">
