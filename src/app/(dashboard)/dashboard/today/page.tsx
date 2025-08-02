@@ -12,7 +12,11 @@ import {
   Sun,
   Moon,
   ChevronDown,
-  MapPin
+  MapPin,
+  Phone,
+  Scale,
+  Baby,
+  Droplets
 } from 'lucide-react'
 
 interface Child {
@@ -95,8 +99,13 @@ export default function TodayPage() {
     return checklistItems.filter(item => {
       const dueDate = calculateDueDate(new Date(selectedChild.date_of_birth), item)
       const daysDiff = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-      return daysDiff >= -1 && daysDiff <= 7 // Tasks due within a week
-    }).slice(0, 3) // Show max 3 tasks
+      return daysDiff >= -7 && daysDiff <= 7 // Tasks due within a week (past or future)
+    }).sort((a, b) => {
+      // Sort by due date, closest first
+      const aDueDate = calculateDueDate(new Date(selectedChild.date_of_birth), a)
+      const bDueDate = calculateDueDate(new Date(selectedChild.date_of_birth), b)
+      return aDueDate.getTime() - bDueDate.getTime()
+    }).slice(0, 4) // Show max 4 tasks for the week
   }
 
   const getChildAge = (birthDate: string) => {
@@ -213,99 +222,62 @@ export default function TodayPage() {
           </div>
         </div>
 
-        {/* Today's Focus */}
-        {todaysTasks.length > 0 ? (
-          <div className="content-card">
-            <div className="px-4 py-3 bg-muted/50 -m-8 mb-4 rounded-t-2xl border-b border-border">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-primary" />
-                  <h2 className="font-semibold text-foreground">Today's Focus</h2>
-                </div>
-                <span className="text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">
-                  {todaysTasks.length} gentle reminders
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Take these one at a time - no pressure!</p>
-            </div>
-            
-            <div className="space-y-3">
-              {todaysTasks.map((task, index) => {
-                const dueDate = selectedChild ? calculateDueDate(new Date(selectedChild.date_of_birth), task) : new Date()
+
+        {/* This Week's Focus */}
+        <div className="content-card">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-foreground">This Week's Focus</h2>
+            <span className="text-xs text-muted-foreground">
+              {new Date().toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })} - {new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-AU', { month: 'short', day: 'numeric' })}
+            </span>
+          </div>
+          
+          <div className="space-y-3">
+            {/* Upcoming milestones from checklist */}
+            {selectedChild && getTodaysTasks().length > 0 ? (
+              getTodaysTasks().slice(0, 3).map((task, index) => {
+                const dueDate = calculateDueDate(new Date(selectedChild.date_of_birth), task)
                 const isOverdue = dueDate < new Date()
+                const daysUntil = Math.ceil((dueDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
                 
                 return (
-                  <button 
-                    key={task.id} 
-                    className="w-full flex items-start gap-3 p-4 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 text-left touch-manipulation min-h-[80px]"
-                    onClick={() => {
-                      // Add gentle haptic feedback simulation
-                      if (navigator.vibrate) navigator.vibrate(10)
-                    }}
-                  >
-                    <div className="w-7 h-7 border-2 border-border rounded-full flex-shrink-0 mt-1 hover:border-primary transition-colors duration-200"></div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground leading-snug">{task.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{task.description}</p>
-                      <p className={`text-xs font-medium mt-2 inline-flex items-center gap-1 ${
-                        isOverdue ? 'text-error' : 'text-muted-foreground'
+                  <div key={task.id} className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Clock className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-foreground text-sm leading-tight">{task.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{task.description}</p>
+                      <p className={`text-xs font-medium mt-2 ${
+                        isOverdue ? 'text-error' : 
+                        daysUntil <= 1 ? 'text-warning' : 
+                        'text-muted-foreground'
                       }`}>
-                        <Clock className="w-3 h-3" />
-                        {isOverdue ? 'When you can' : `Due ${dueDate.toLocaleDateString('en-AU')}`}
+                        {isOverdue ? 'Overdue' : 
+                         daysUntil === 0 ? 'Due today' : 
+                         daysUntil === 1 ? 'Due tomorrow' : 
+                         `Due in ${daysUntil} days`}
                       </p>
                     </div>
-                  </button>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground transform -rotate-90" />
+                  </div>
                 )
-              })}
-              
-              <a 
-                href={`/dashboard/checklist${selectedChild ? `?child=${selectedChild.id}` : ''}`}
-                className="block text-center py-3 text-primary hover:text-primary-dark font-medium text-sm"
-              >
-                View Full Timeline →
-              </a>
-            </div>
-          </div>
-        ) : (
-          <div className="content-card text-center">
-            <CheckCircle className="w-12 h-12 text-success mx-auto mb-3 fill-current" />
-            <h3 className="font-semibold text-foreground mb-1">You're All Caught Up!</h3>
-            <p className="text-sm text-muted-foreground">No urgent tasks for today. Great job!</p>
-          </div>
-        )}
-
-        {/* Quick Actions */}
-        <div className="content-card">
-          <h2 className="font-semibold text-foreground mb-4">Quick Actions</h2>
-          
-          <div className="grid grid-cols-2 gap-3">
-            <a href={`/dashboard/checklist${selectedChild ? `?child=${selectedChild.id}` : ''}`} className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-colors">
-                <Calendar className="w-6 h-6 text-primary" />
+              })
+            ) : (
+              <div className="text-center py-6">
+                <CheckCircle className="w-12 h-12 text-success mx-auto mb-3" />
+                <h3 className="font-medium text-foreground mb-1">All caught up!</h3>
+                <p className="text-sm text-muted-foreground">No urgent milestones this week. Great job!</p>
               </div>
-              <span className="text-sm font-medium text-foreground text-center">Timeline</span>
-            </a>
+            )}
             
-            <a href="/dashboard/info" className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center hover:bg-blue-200 transition-colors">
-                <MapPin className="w-6 h-6 text-blue-600" />
-              </div>
-              <span className="text-sm font-medium text-foreground text-center">Local Info</span>
-            </a>
-            
-            <a href={`/dashboard/tracker${selectedChild ? `?child=${selectedChild.id}` : ''}`} className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
-              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-colors">
-                <Heart className="w-6 h-6 text-primary" />
-              </div>
-              <span className="text-sm font-medium text-foreground text-center">Tracker</span>
-            </a>
-            
-            <a href={`/dashboard/growth${selectedChild ? `?child=${selectedChild.id}` : ''}`} className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
-              <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center hover:bg-warning/20 transition-colors">
-                <Sparkles className="w-6 h-6 text-warning" />
-              </div>
-              <span className="text-sm font-medium text-foreground text-center">Growth</span>
-            </a>
+            {/* Quick action to view full timeline */}
+            <button 
+              onClick={() => window.location.href = `/dashboard/checklist${selectedChild ? `?child=${selectedChild.id}` : ''}`}
+              className="w-full mt-3 py-2 px-3 text-sm text-primary hover:text-primary-dark font-medium rounded-lg hover:bg-primary/5 transition-colors"
+            >
+              View Full Timeline →
+            </button>
           </div>
         </div>
 
