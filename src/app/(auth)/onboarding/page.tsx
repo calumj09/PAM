@@ -223,8 +223,23 @@ export default function OnboardingPage() {
       
       console.log('COMPLETE Baby profile successfully created:', baby)
 
-      // Step 6: Skip checklist generation for now - it's causing issues
-      console.log('Skipping checklist generation to avoid errors')
+      // Step 6: Generate checklist for the baby
+      try {
+        console.log('Generating checklist...')
+        const checklistModule = await import('@/lib/services/checklist-service')
+        
+        if (checklistModule && checklistModule.ChecklistService) {
+          await checklistModule.ChecklistService.generateChecklistForChild(
+            baby.id,
+            baby.date_of_birth,
+            stateTerritory
+          )
+          console.log('SUCCESS Checklist generated successfully')
+        }
+      } catch (checklistError: unknown) {
+        console.error('ERROR Error generating checklist:', checklistError)
+        // Continue anyway - don't block onboarding
+      }
 
       console.log('Starting Redirecting to dashboard...')
       
