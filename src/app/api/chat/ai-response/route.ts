@@ -26,37 +26,8 @@ export async function POST(request: NextRequest) {
       enhancedSystemContext = MCPContextService.generateSystemPrompt(mcpContext, conversationContext)
     }
 
-    // Use OpenAI API for AI responses (you can replace with any AI service)
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4',
-        messages: [
-          {
-            role: 'system',
-            content: enhancedSystemContext
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ],
-        max_tokens: 800,
-        temperature: 0.7,
-      }),
-    })
-
-    if (!openaiResponse.ok) {
-      console.error('OpenAI API error:', await openaiResponse.text())
-      throw new Error('Failed to get AI response')
-    }
-
-    const aiData = await openaiResponse.json()
-    const aiMessage = aiData.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response. Please try again."
+    // Generate AI response using built-in parenting knowledge
+    const aiMessage = generateParentingResponse(message, context, mcpContext)
 
     // Analyze message for quick actions with MCP context
     const quickActions = analyzeForQuickActions(message, mcpContext)
@@ -176,6 +147,127 @@ function containsHealthContent(message: string): boolean {
   return healthKeywords.some(keyword => 
     message.toLowerCase().includes(keyword)
   )
+}
+
+function generateParentingResponse(message: string, context: any, mcpContext: any): string {
+  const lowerMessage = message.toLowerCase()
+  const childName = context?.childName || 'your baby'
+  
+  // Sleep-related responses
+  if (lowerMessage.includes('sleep') || lowerMessage.includes('nap')) {
+    if (lowerMessage.includes('how much') || lowerMessage.includes('how many hours')) {
+      return `Great question about ${childName}'s sleep! Newborns (0-3 months) typically need 14-17 hours per day, while older babies (4-11 months) need about 12-15 hours including naps. Every baby is different, but establishing consistent bedtime routines can help.
+
+📍 For Australian families: The Raising Children Network has excellent sleep guidance, and your Maternal & Child Health nurse can provide personalized advice.
+
+⚠️ If you have concerns about ${childName}'s sleep patterns, discuss with your healthcare provider.`
+    }
+    return `Sleep can be challenging! Here are some evidence-based tips for ${childName}:
+
+• Establish a consistent bedtime routine
+• Create a calm sleep environment
+• Watch for sleep cues like yawning or fussiness
+• Consider age-appropriate wake windows
+
+💡 The Australian 24-Hour Movement Guidelines recommend prioritizing sleep for healthy development.`
+  }
+  
+  // Feeding-related responses
+  if (lowerMessage.includes('feed') || lowerMessage.includes('milk') || lowerMessage.includes('bottle') || lowerMessage.includes('breast')) {
+    if (lowerMessage.includes('how often') || lowerMessage.includes('how much')) {
+      return `Feeding frequency varies by age and baby! Here's what's typically expected:
+
+🍼 Newborns (0-3 months): 8-12 times per day (every 1.5-3 hours)
+🍼 Older babies (4-6 months): 6-8 times per day
+🍼 Babies 6+ months: 4-6 milk feeds plus solid foods
+
+📍 Australian guidelines: Follow your baby's hunger cues rather than strict schedules. Your Maternal & Child Health nurse can help assess if ${childName} is getting enough.
+
+⚠️ If you're concerned about feeding, contact your healthcare provider.`
+    }
+    return `Feeding ${childName} can feel overwhelming, but you're doing great! Remember:
+
+• Follow ${childName}'s hunger and fullness cues
+• Both breastfeeding and formula feeding can be nutritious
+• Growth patterns matter more than individual feeds
+• Trust your instincts as ${childName}'s parent
+
+💡 The Australian Breastfeeding Association and your local Maternal & Child Health service offer excellent support.`
+  }
+  
+  // Solid food introduction
+  if (lowerMessage.includes('solid') || lowerMessage.includes('food') || lowerMessage.includes('eating')) {
+    return `Introducing solids is an exciting milestone! Australian guidelines recommend:
+
+🥄 Start around 6 months when ${childName} shows readiness signs
+🥄 Begin with iron-rich foods like iron-fortified cereals or pureed meat
+🥄 Introduce one new food at a time
+🥄 Let ${childName} explore and self-feed when ready
+
+📍 The Australian Guide to Healthy Eating provides excellent first foods guidance. Your Maternal & Child Health nurse can help with timing and food choices.
+
+⚠️ Watch for allergic reactions and discuss family allergy history with your doctor.`
+  }
+  
+  // Development and milestones
+  if (lowerMessage.includes('milestone') || lowerMessage.includes('development') || lowerMessage.includes('crawl') || lowerMessage.includes('walk') || lowerMessage.includes('talk')) {
+    return `Every baby develops at their own pace! Here's what to generally expect:
+
+📈 0-3 months: Smiling, head control, following objects
+📈 4-6 months: Rolling, sitting with support, babbling
+📈 7-12 months: Crawling, pulling to stand, first words
+📈 12+ months: Walking, more words, following simple instructions
+
+📍 Your Australian Maternal & Child Health visits include developmental checks. The Ages & Stages Questionnaire helps track ${childName}'s progress.
+
+⚠️ If you have concerns about ${childName}'s development, discuss with your healthcare provider early.`
+  }
+  
+  // Crying and fussiness
+  if (lowerMessage.includes('cry') || lowerMessage.includes('fussy') || lowerMessage.includes('colic')) {
+    return `Crying is ${childName}'s main way to communicate! Common reasons include:
+
+👶 Hunger, tiredness, or needing a nappy change
+👶 Overstimulation or understimulation
+👶 Discomfort or wind
+👶 Just needing comfort and connection
+
+💡 Try the 5 S's: Swaddling, Side position, Shushing, Swinging, Sucking
+
+📍 If crying seems excessive (more than 3 hours daily for 3+ days), discuss with your Maternal & Child Health nurse about possible colic.
+
+⚠️ If you're feeling overwhelmed, reach out for support. Karitane and Tresillian offer excellent resources for Australian families.`
+  }
+  
+  // General parenting support
+  if (lowerMessage.includes('overwhelm') || lowerMessage.includes('tired') || lowerMessage.includes('help') || lowerMessage.includes('support')) {
+    return `Parenting is one of the hardest jobs in the world - you're not alone! 💙
+
+🤗 It's completely normal to feel overwhelmed sometimes
+🤗 Self-care isn't selfish - you need to care for yourself to care for ${childName}
+🤗 Accept help when offered and ask for it when needed
+🤗 Connect with other parents through local groups or online communities
+
+📍 Australian support services:
+• Maternal & Child Health line: 13 22 29
+• Karitane: 1300 227 464
+• PANDA (perinatal anxiety & depression): 1300 726 306
+
+⚠️ If you're experiencing persistent sadness, anxiety, or thoughts of harm, please reach out to your GP or call Lifeline: 13 11 14`
+  }
+  
+  // Default helpful response
+  return `That's a great question about caring for ${childName}! While I can provide general information based on Australian guidelines and evidence-based practices, every baby is unique.
+
+💡 Key resources for Australian families:
+• Raising Children Network (raisingchildren.net.au)
+• Your local Maternal & Child Health service
+• Australian Breastfeeding Association
+• Karitane and Tresillian family centres
+
+📍 Your Maternal & Child Health nurse is an excellent first point of contact for specific concerns about ${childName}.
+
+⚠️ For medical concerns, always consult your healthcare provider. Trust your parental instincts - you know ${childName} best!`
 }
 
 function generateSuggestions(message: string, context: any, mcpContext: any): string[] {
