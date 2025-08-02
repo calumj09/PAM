@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { 
   nationalResources, 
   stateResources, 
@@ -26,28 +27,57 @@ export default function InfoPage() {
   const [selectedState, setSelectedState] = useState<string>('NSW')
   const [expandedSections, setExpandedSections] = useState<string[]>(['emergency', 'registration'])
   const [isLoading, setIsLoading] = useState(true)
+  const supabase = createClient()
   
   useEffect(() => {
-    // Try to detect user's location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const state = getStateFromCoordinates(
-            position.coords.latitude,
-            position.coords.longitude
-          )
-          setSelectedState(state)
-          setIsLoading(false)
-        },
-        () => {
-          // Location failed, use default
-          setIsLoading(false)
-        }
-      )
-    } else {
+    loadUserState()
+  }, [])
+
+  const loadUserState = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setIsLoading(false)
+        return
+      }
+
+      // Load user's preferred state from profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('state_territory')
+        .eq('id', user.id)
+        .single()
+      
+      if (profileData?.state_territory) {
+        setSelectedState(profileData.state_territory)
+        setIsLoading(false)
+        return
+      }
+
+      // Fallback to geolocation if no state in profile
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const state = getStateFromCoordinates(
+              position.coords.latitude,
+              position.coords.longitude
+            )
+            setSelectedState(state)
+            setIsLoading(false)
+          },
+          () => {
+            // Location failed, use default NSW
+            setIsLoading(false)
+          }
+        )
+      } else {
+        setIsLoading(false)
+      }
+    } catch (error) {
+      console.error('Error loading user state:', error)
       setIsLoading(false)
     }
-  }, [])
+  }
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => 
