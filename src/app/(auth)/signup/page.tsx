@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { getAppUrl } from '@/lib/config/app'
-import { SuccessMessage } from './SuccessMessage'
+import { EmailConfirmationHelp } from './EmailConfirmationHelp'
 
 const australianStates = [
   { value: 'NSW', label: 'New South Wales' },
@@ -87,7 +87,7 @@ export default function SignupPage() {
   }
 
   if (showSuccess) {
-    return <SuccessMessage email={email} />
+    return <EmailConfirmationHelp email={email} />
   }
 
   return (
