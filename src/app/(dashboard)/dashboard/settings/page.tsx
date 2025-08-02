@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { NotificationSettings } from '@/components/settings/NotificationSettings'
 import { CalendarSyncSettings } from '@/components/settings/CalendarSyncSettings'
+import { ChildrenManagement } from '@/components/settings/ChildrenManagement'
+import { AccountManagement } from '@/components/settings/AccountManagement'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { UserIcon, CogIcon } from '@heroicons/react/24/outline'
 
@@ -88,6 +90,9 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Children Management */}
+        <ChildrenManagement userId={user.id} />
 
         {/* Notification Settings */}
         <NotificationSettings userId={user.id} />
@@ -180,6 +185,9 @@ export default async function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Account Management */}
+        <AccountManagement userId={user.id} userEmail={user.email || ''} />
       </div>
     </div>
   )
