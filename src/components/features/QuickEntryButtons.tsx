@@ -263,42 +263,42 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
     {
       id: 'feeding',
       label: 'Feed Baby',
-      emoji: '🍼',
+      emoji: '',
       color: 'bg-green-100 hover:bg-green-200 text-green-800',
       description: 'Breast/bottle/solid'
     },
     {
       id: 'nappy-wet',
       label: 'Wet Nappy',
-      emoji: '💧',
+      emoji: '',
       color: 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800',
       description: 'Quick change'
     },
     {
       id: 'nappy-dirty',
       label: 'Dirty Nappy',
-      emoji: '💩',
+      emoji: '',
       color: 'bg-orange-100 hover:bg-orange-200 text-orange-800',
       description: 'Full change'
     },
     {
       id: 'sleep-start',
       label: 'Start Sleep',
-      emoji: '😴',
+      emoji: '',
       color: 'bg-purple-100 hover:bg-purple-200 text-purple-800',
       description: 'Begin nap/bedtime'
     },
     {
       id: 'tummy-time',
       label: 'Tummy Time',
-      emoji: '🤸‍♀️',
+      emoji: '',
       color: 'bg-pink-100 hover:bg-pink-200 text-pink-800',
       description: '10 min activity'
     },
     {
       id: 'medicine',
       label: 'Medicine',
-      emoji: '💊',
+      emoji: '',
       color: 'bg-red-100 hover:bg-red-200 text-red-800',
       description: 'Medicine/vitamin'
     }
@@ -333,7 +333,7 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             disabled={isLoading === 'quick-feeding'}
             className="flex items-center gap-3 p-4 bg-green-50 hover:bg-green-100 border border-green-200 rounded-xl transition-colors text-left"
           >
-            <span className="text-2xl">🤱</span>
+            <span className="text-2xl"></span>
             <div>
               <div className="font-medium text-green-800">Breastfeeding</div>
               <div className="text-sm text-green-600">Default: 15 minutes</div>
@@ -345,7 +345,7 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             disabled={isLoading === 'quick-feeding'}
             className="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl transition-colors text-left"
           >
-            <span className="text-2xl">🍼</span>
+            <span className="text-2xl"></span>
             <div>
               <div className="font-medium text-blue-800">Bottle Feeding</div>
               <div className="text-sm text-blue-600">Default: 120ml, 10 minutes</div>
@@ -357,7 +357,7 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             disabled={isLoading === 'quick-feeding'}
             className="flex items-center gap-3 p-4 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-xl transition-colors text-left"
           >
-            <span className="text-2xl">🥄</span>
+            <span className="text-2xl"></span>
             <div>
               <div className="font-medium text-orange-800">Solid Food</div>
               <div className="text-sm text-orange-600">Meal or snack time</div>
@@ -425,9 +425,9 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {type === 'bottle' && '🍼 Bottle'}
-                    {type === 'breast' && '🤱 Breast'}
-                    {type === 'solid' && '🥄 Solid'}
+                    {type === 'bottle' && ' Bottle'}
+                    {type === 'breast' && ' Breast'}
+                    {type === 'solid' && ' Solid'}
                   </button>
                 ))}
               </div>
@@ -543,8 +543,8 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {type === 'medicine' && '💊 Medicine'}
-                    {type === 'vitamin' && '🌟 Vitamin'}
+                    {type === 'medicine' && ' Medicine'}
+                    {type === 'vitamin' && ' Vitamin'}
                   </button>
                 ))}
               </div>
@@ -605,7 +605,7 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
         <div className="mb-4 p-3 bg-purple-50 border border-purple-200 rounded-xl">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-purple-800">😴 Sleep in progress</p>
+              <p className="text-sm font-medium text-purple-800"> Sleep in progress</p>
               <p className="text-xs text-purple-600">Started {new Date(activeSleep.started_at).toLocaleTimeString()}</p>
             </div>
             <Button
@@ -654,19 +654,19 @@ export function QuickEntryButtons({ childId, childName, onActivityAdded }: Quick
             onClick={() => setManualEntry({ type: 'feeding', show: true })}
             className="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
           >
-            🍼 Custom Feed
+             Custom Feed
           </button>
           <button
             onClick={() => setManualEntry({ type: 'sleep', show: true })}
             className="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
           >
-            😴 Custom Sleep
+             Custom Sleep
           </button>
           <button
             onClick={() => setManualEntry({ type: 'tummy_time', show: true })}
             className="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
           >
-            🤸‍♀️ Custom Tummy
+            Custom Tummy
           </button>
         </div>
       </div>

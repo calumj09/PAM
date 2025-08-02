@@ -39,16 +39,16 @@ const navItems = [
     activeIcon: CalendarSolid
   },
   { 
-    href: '/dashboard/admin', 
-    label: 'Admin', 
+    href: '/dashboard/info', 
+    label: 'Local Info', 
     icon: DocumentTextIcon,
     activeIcon: DocumentSolid
   },
   { 
-    href: '/dashboard/ai-helper', 
-    label: 'AI Helper', 
-    icon: SparklesIcon,
-    activeIcon: SparklesSolid
+    href: '/dashboard/tracker', 
+    label: 'Tracker', 
+    icon: ChartBarIcon,
+    activeIcon: ChartSolid
   },
 ]
 
@@ -56,7 +56,7 @@ export function Navigation() {
   const pathname = usePathname()
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-pb">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-pam-gray-border safe-area-pb">
       <div className="max-w-md mx-auto">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
@@ -71,16 +71,16 @@ export function Navigation() {
                 className="flex flex-col items-center gap-1 py-2 px-3 min-w-0 flex-1 transition-all duration-200"
               >
                 <div className={`p-1 rounded-lg transition-all duration-200 ${
-                  isActive ? 'bg-red-100' : 'hover:bg-gray-100'
+                  isActive ? 'bg-pam-burgundy/10' : 'hover:bg-gray-100'
                 }`}>
                   <Icon className={`w-5 h-5 ${
-                    isActive ? 'text-red-600' : 'text-gray-500'
+                    isActive ? 'text-pam-burgundy' : 'text-pam-text-gray'
                   }`} />
                 </div>
                 <span className={`text-xs font-medium ${
                   isActive 
-                    ? 'text-red-600 font-semibold' 
-                    : 'text-gray-500'
+                    ? 'text-pam-burgundy font-semibold' 
+                    : 'text-pam-text-gray'
                 }`}>
                   {item.label}
                 </span>

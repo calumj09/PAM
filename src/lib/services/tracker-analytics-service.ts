@@ -431,7 +431,7 @@ export class TrackerAnalyticsService {
         week: weekNumber,
         insight: `Great sleep this week! ${Math.round(sleepPattern.totalSleepPerDay / 60)} hours average per day`,
         category: 'sleep',
-        emoji: '😴',
+        emoji: '',
         isPositive: true
       })
     } else if (sleepPattern.totalSleepPerDay < 10 * 60) {
@@ -439,7 +439,7 @@ export class TrackerAnalyticsService {
         week: weekNumber,
         insight: `Less sleep than usual - only ${Math.round(sleepPattern.totalSleepPerDay / 60)} hours per day`,
         category: 'sleep',
-        emoji: '😫',
+        emoji: '',
         isPositive: false
       })
     }
@@ -450,7 +450,7 @@ export class TrackerAnalyticsService {
         week: weekNumber,
         insight: `Frequent feeder! Averaging ${feedingPattern.feedingsPerDay} feeds per day`,
         category: 'feeding',
-        emoji: '🍼',
+        emoji: '',
         isPositive: true
       })
     }
@@ -460,7 +460,7 @@ export class TrackerAnalyticsService {
         week: weekNumber,
         insight: `Cluster feeding detected - feeds every ${Math.round(feedingPattern.averageFeedingInterval / 60)} hours`,
         category: 'feeding',
-        emoji: '🤱',
+        emoji: '',
         isPositive: true
       })
     }
@@ -471,7 +471,7 @@ export class TrackerAnalyticsService {
         week: weekNumber,
         insight: `Healthy nappy output! ${nappyPattern.averageNappiesPerDay} changes per day`,
         category: 'nappy',
-        emoji: '🧷',
+        emoji: '',
         isPositive: true
       })
     }

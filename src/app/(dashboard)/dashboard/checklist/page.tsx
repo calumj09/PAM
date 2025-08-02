@@ -42,10 +42,10 @@ interface ChecklistItem {
   title: string;
   description: string;
   due_date: string;
-  category: 'immunization' | 'registration' | 'milestone' | 'checkup' | 'appointment';
+  category: 'immunisation' | 'registration' | 'milestone' | 'checkup' | 'appointment';
   is_completed: boolean;
   completed_date: string | null;
-  metadata: any;
+  metadata: Record<string, unknown>;
 }
 
 export default function ChecklistPage() {
@@ -85,7 +85,7 @@ export default function ChecklistPage() {
 
   const verifyDatabaseSchema = async () => {
     try {
-      console.log('🔍 Checking database schema...')
+      console.log(' Checking database schema...')
       
       // Try to describe the checklist_items table
       const { data, error } = await supabase
@@ -99,9 +99,9 @@ export default function ChecklistPage() {
         console.log('❌ Error message:', error.message)
         
         if (error.code === 'PGRST106') {
-          console.log('💡 Table does not exist - need to run database migration')
+          console.log(' Table does not exist - need to run database migration')
         } else if (error.code === 'PGRST204') {
-          console.log('💡 Column missing - need to update table schema')
+          console.log(' Column missing - need to update table schema')
         }
       } else {
         console.log('✅ checklist_items table accessible')
@@ -175,7 +175,7 @@ export default function ChecklistPage() {
 
   const loadChecklistForChild = async (childId: string) => {
     try {
-      console.log('🔄 Loading checklist for child:', childId)
+      console.log(' Loading checklist for child:', childId)
       
       // First, try to load existing saved items from database
       const { data: savedItems, error: savedError } = await supabase
@@ -194,9 +194,9 @@ export default function ChecklistPage() {
         })
       }
 
-      console.log('💾 Found saved items in database:', savedItems?.length || 0)
+      console.log(' Found saved items in database:', savedItems?.length || 0)
       if (savedItems && savedItems.length > 0) {
-        console.log('💾 Sample saved items:', savedItems.slice(0, 3).map(i => ({ 
+        console.log(' Sample saved items:', savedItems.slice(0, 3).map(i => ({ 
           id: i.id, 
           title: i.title, 
           category: i.category,
@@ -208,9 +208,9 @@ export default function ChecklistPage() {
         const optionalTasks = savedItems.filter(item => 
           item.metadata?.source === 'optional_admin_checklist'
         )
-        console.log('🌟 Optional tasks in database:', optionalTasks.length)
+        console.log(' Optional tasks in database:', optionalTasks.length)
         if (optionalTasks.length > 0) {
-          console.log('🌟 Optional tasks found:', optionalTasks.map(t => ({ 
+          console.log(' Optional tasks found:', optionalTasks.map(t => ({ 
             title: t.title, 
             category: t.category,
             metadata: t.metadata 
@@ -278,9 +278,9 @@ export default function ChecklistPage() {
         )
       }) || []
       
-      console.log('📋 Additional saved items (optional tasks, etc.):', additionalSavedItems.length)
+      console.log(' Additional saved items (optional tasks, etc.):', additionalSavedItems.length)
       if (additionalSavedItems.length > 0) {
-        console.log('📋 Additional items:', additionalSavedItems.map(i => ({ 
+        console.log(' Additional items:', additionalSavedItems.map(i => ({ 
           title: i.title, 
           category: i.category,
           source: i.metadata?.source 
@@ -312,9 +312,9 @@ export default function ChecklistPage() {
       // Combine default checklist items with additional saved items
       const allItems = [...transformedItems, ...additionalItems]
       
-      console.log('📋 Total checklist items (default + additional):', allItems.length)
-      console.log('📋 Default items:', transformedItems.length)
-      console.log('📋 Additional items:', additionalItems.length)
+      console.log(' Total checklist items (default + additional):', allItems.length)
+      console.log(' Default items:', transformedItems.length)
+      console.log(' Additional items:', additionalItems.length)
       
       // Check for duplicates
       const titleCounts = new Map<string, number>()
@@ -340,7 +340,7 @@ export default function ChecklistPage() {
   }
 
   const toggleItemCompletion = async (itemId: string) => {
-    console.log('🔄 toggleItemCompletion called with itemId:', itemId)
+    console.log(' toggleItemCompletion called with itemId:', itemId)
     
     if (!selectedChild) {
       console.error('❌ No selected child')
@@ -354,7 +354,7 @@ export default function ChecklistPage() {
       return
     }
 
-    console.log('📝 Item found:', { 
+    console.log(' Item found:', { 
       id: item.id, 
       title: item.title, 
       currentState: item.is_completed,
@@ -365,7 +365,7 @@ export default function ChecklistPage() {
       const newCompletedState = !item.is_completed
       const now = new Date().toISOString()
       
-      console.log('🔍 Checking if item exists in database...')
+      console.log(' Checking if item exists in database...')
       
       // Check if this item already exists in database
       const { data: existingItem, error: selectError } = await supabase
@@ -381,7 +381,7 @@ export default function ChecklistPage() {
         throw selectError
       }
 
-      console.log('🔍 Existing item check result:', { existingItem, selectError })
+      console.log(' Existing item check result:', { existingItem, selectError })
 
       let error
       if (existingItem) {
@@ -451,10 +451,10 @@ export default function ChecklistPage() {
   const deleteItem = async (itemId: string, event: React.MouseEvent) => {
     event.stopPropagation() // Prevent toggling completion
     
-    console.log('🚀 DELETE ITEM CALLED - Starting debug trace')
-    console.log('🔍 Item ID:', itemId)
-    console.log('🔍 Selected Child:', selectedChild?.id, selectedChild?.name)
-    console.log('🔍 All checklist items:', checklistItems.map(i => ({ 
+    console.log(' DELETE ITEM CALLED - Starting debug trace')
+    console.log(' Item ID:', itemId)
+    console.log(' Selected Child:', selectedChild?.id, selectedChild?.name)
+    console.log(' All checklist items:', checklistItems.map(i => ({ 
       id: i.id, 
       title: i.title, 
       source: i.metadata?.source 
@@ -474,7 +474,7 @@ export default function ChecklistPage() {
       return
     }
     
-    console.log('📋 Found item:', {
+    console.log(' Found item:', {
       id: item.id,
       title: item.title,
       metadata: item.metadata
@@ -485,7 +485,7 @@ export default function ChecklistPage() {
                        item.metadata?.source === 'custom' ||
                        isOptionalTaskTitle(item.title)
     
-    console.log('🔍 Is deletable?', isDeletable, 'Source:', item.metadata?.source)
+    console.log(' Is deletable?', isDeletable, 'Source:', item.metadata?.source)
     
     if (!isDeletable) {
       console.log('❌ Item not deletable - showing alert')
@@ -502,11 +502,11 @@ export default function ChecklistPage() {
     console.log('✅ User confirmed deletion, proceeding...')
     
     try {
-      console.log('🗑️ Deleting item:', item.id, item.title)
+      console.log('️ Deleting item:', item.id, item.title)
       
       // Use the item's ID directly (no prefix conversion needed anymore)
       const databaseId = item.id
-      console.log('📋 Using database ID:', databaseId)
+      console.log(' Using database ID:', databaseId)
       
       // Delete by the exact ID
       let { error } = await supabase
@@ -517,7 +517,7 @@ export default function ChecklistPage() {
       
       // If that fails and we couldn't find by ID, try to find by title and category
       if (error && error.code === 'PGRST116') {
-        console.log('🔍 Item not found by ID, trying to find by title and category...')
+        console.log(' Item not found by ID, trying to find by title and category...')
         
         const { error: deleteError } = await supabase
           .from('checklist_items')
@@ -563,7 +563,7 @@ export default function ChecklistPage() {
   }
 
   const addSelectedOptionalTasks = async () => {
-    console.log('🌟 addSelectedOptionalTasks called')
+    console.log(' addSelectedOptionalTasks called')
     console.log('Selected child:', selectedChild?.id, selectedChild?.name)
     console.log('Selected tasks:', selectedOptionalTasks)
     
@@ -576,8 +576,8 @@ export default function ChecklistPage() {
       const birthDate = new Date(selectedChild.date_of_birth)
       const currentDate = new Date()
       
-      console.log('📅 Birth date:', birthDate)
-      console.log('📅 Current date:', currentDate)
+      console.log(' Birth date:', birthDate)
+      console.log(' Current date:', currentDate)
       
       // Prepare checklist items from selected optional tasks
       const checklistItemsToAdd = selectedOptionalTasks.map(taskId => {
@@ -587,20 +587,20 @@ export default function ChecklistPage() {
           return null
         }
         
-        console.log('📝 Processing task:', task.title)
+        console.log(' Processing task:', task.title)
         
         // Calculate due date based on suggested timing
         let dueDate = new Date(currentDate)
         
         // Parse suggested timing to calculate due date based on baby's age
         const timingLower = task.suggestedTiming.toLowerCase()
-        console.log(`🔍 Parsing timing: "${task.suggestedTiming}"`)
+        console.log(` Parsing timing: "${task.suggestedTiming}"`)
         
         if (timingLower.includes('day')) {
           // "Within 30 days of birth", "7 days", etc.
           const days = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '30')
           dueDate = new Date(birthDate.getTime() + days * 24 * 60 * 60 * 1000)
-          console.log(`📅 Calculated due date (${days} days from birth):`, dueDate)
+          console.log(` Calculated due date (${days} days from birth):`, dueDate)
         } else if (timingLower.includes('week')) {
           // "6-8 weeks", "2-6 weeks", "12 weeks", etc.
           const weekMatches = task.suggestedTiming.match(/(\d+)(?:-(\d+))?\s*week/i)
@@ -615,7 +615,7 @@ export default function ChecklistPage() {
             }
           }
           dueDate = new Date(birthDate.getTime() + weeks * 7 * 24 * 60 * 60 * 1000)
-          console.log(`📅 Calculated due date (${weeks} weeks from birth):`, dueDate)
+          console.log(` Calculated due date (${weeks} weeks from birth):`, dueDate)
         } else if (timingLower.includes('month')) {
           // "6 months", "3-6 months", "6 months or first tooth", etc.
           const monthMatches = task.suggestedTiming.match(/(\d+)(?:-(\d+))?\s*month/i)
@@ -630,36 +630,36 @@ export default function ChecklistPage() {
             }
           }
           dueDate = new Date(birthDate.getFullYear(), birthDate.getMonth() + months, birthDate.getDate())
-          console.log(`📅 Calculated due date (${months} months from birth):`, dueDate)
+          console.log(` Calculated due date (${months} months from birth):`, dueDate)
         } else if (timingLower.includes('year')) {
           // "1 year", "first year", etc.
           const years = parseInt(task.suggestedTiming.match(/(\d+)/)?.[0] || '1')
           dueDate = new Date(birthDate.getFullYear() + years, birthDate.getMonth(), birthDate.getDate())
-          console.log(`📅 Calculated due date (${years} years from birth):`, dueDate)
+          console.log(` Calculated due date (${years} years from birth):`, dueDate)
         } else {
           // Handle special cases
           if (timingLower.includes('birth') || timingLower.includes('soon') || timingLower.includes('immediately')) {
             // Set to first week
             dueDate = new Date(birthDate.getTime() + 1 * 7 * 24 * 60 * 60 * 1000)
-            console.log(`📅 Calculated due date (immediately/at birth):`, dueDate)
+            console.log(` Calculated due date (immediately/at birth):`, dueDate)
           } else if (timingLower.includes('first') || timingLower.includes('early')) {
             // Set to first month
             dueDate = new Date(birthDate.getTime() + 4 * 7 * 24 * 60 * 60 * 1000)
-            console.log(`📅 Calculated due date (first/early):`, dueDate)
+            console.log(` Calculated due date (first/early):`, dueDate)
           } else {
             // Default to 8 weeks for unknown timings
             dueDate = new Date(birthDate.getTime() + 8 * 7 * 24 * 60 * 60 * 1000)
-            console.log(`📅 Default due date (8 weeks):`, dueDate)
+            console.log(` Default due date (8 weeks):`, dueDate)
           }
         }
         
         // For new parents: Don't move past due dates to current date, keep them in their original week
         // This preserves the timeline structure for new parents browsing tasks
-        console.log(`📅 Final due date for "${task.title}":`, dueDate)
+        console.log(` Final due date for "${task.title}":`, dueDate)
         
         // Calculate week number for proper timeline placement
         const weekNumber = Math.max(1, Math.ceil((dueDate.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 7)))
-        console.log(`📅 Will appear in week ${weekNumber}`)
+        console.log(` Will appear in week ${weekNumber}`)
         
         const itemToAdd = {
           child_id: selectedChild.id,
@@ -680,7 +680,7 @@ export default function ChecklistPage() {
           }
         }
         
-        console.log('📝 Item to add:', itemToAdd)
+        console.log(' Item to add:', itemToAdd)
         return itemToAdd
       }).filter(Boolean)
       
@@ -712,7 +712,7 @@ export default function ChecklistPage() {
       console.log(`✅ Added ${checklistItemsToAdd.length} optional tasks to timeline`)
       
       // Reload checklist to show new items
-      console.log('🔄 Reloading checklist...')
+      console.log(' Reloading checklist...')
       await loadChecklistForChild(selectedChild.id)
       
       // Reset state
@@ -733,7 +733,7 @@ export default function ChecklistPage() {
   const cleanupDuplicates = async () => {
     if (!selectedChild) return
     
-    console.log('🧹 Starting duplicate cleanup...')
+    console.log(' Starting duplicate cleanup...')
     
     try {
       const response = await fetch('/api/fix-duplicates')
@@ -775,7 +775,7 @@ export default function ChecklistPage() {
         }
       }
       
-      console.log('📝 Custom item to add:', customItem)
+      console.log(' Custom item to add:', customItem)
       
       // Insert into database
       const { data, error } = await supabase
@@ -814,7 +814,7 @@ export default function ChecklistPage() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'immunization':
+      case 'immunisation':
         return BeakerIcon
       case 'registration':
         return UserGroupIcon
@@ -831,8 +831,8 @@ export default function ChecklistPage() {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'immunization':
-        return 'bg-green-50 text-green-600 border-green-200'
+      case 'immunisation':
+        return 'bg-green-50 text-pam-success border-green-200'
       case 'registration':
         return 'bg-blue-50 text-blue-600 border-blue-200'
       case 'milestone':
@@ -880,7 +880,7 @@ export default function ChecklistPage() {
             <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-gray-900 mb-2">No Children Added</h2>
             <p className="text-sm text-gray-600 mb-6">Add your child to see their personalised Australian immunisation and milestone checklist</p>
-            <a href="/dashboard/children" className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors">
+            <a href="/dashboard/children" className="inline-flex items-center gap-2 px-4 py-2 bg-pam-burgundy text-white rounded-xl font-medium hover:bg-pam-burgundy/90 transition-colors">
               <PlusIcon className="w-5 h-5" />
               Add Your First Child
             </a>
@@ -918,7 +918,7 @@ export default function ChecklistPage() {
 
   // Convert to sorted array
   const sortedWeeks = Object.values(weeklyItems)
-    .sort((a: any, b: any) => a.weekNumber - b.weekNumber)
+    .sort((a: { weekNumber: number }, b: { weekNumber: number }) => a.weekNumber - b.weekNumber)
     .slice(0, 52) // First year only
 
   // Calculate stats
@@ -939,7 +939,7 @@ export default function ChecklistPage() {
   })
   
   // Debug button visibility (keeping for troubleshooting)
-  console.log('🔍 BUTTON DEBUG:', {
+  console.log(' BUTTON DEBUG:', {
     hasChildren: children.length > 0,
     selectedChild: selectedChild?.name,
     isLoading,
@@ -969,7 +969,7 @@ export default function ChecklistPage() {
                   }}
                   className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     selectedChild?.id === child.id
-                      ? 'bg-red-600 text-white'
+                      ? 'bg-pam-burgundy text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
@@ -1027,7 +1027,7 @@ export default function ChecklistPage() {
               <div className="text-sm text-gray-600">
                 {completedCount} of {totalItems} completed
               </div>
-              <div className="text-lg font-semibold text-green-600">
+              <div className="text-lg font-semibold text-pam-success">
                 {completionRate}%
               </div>
             </div>
@@ -1037,7 +1037,7 @@ export default function ChecklistPage() {
           <div className="mt-3">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                className="bg-pam-success h-2 rounded-full transition-all duration-300" 
                 style={{ width: `${completionRate}%` }}
               />
             </div>
@@ -1047,10 +1047,10 @@ export default function ChecklistPage() {
           <div className="mt-4 grid grid-cols-2 gap-2">
             <button
               onClick={() => setShowAddCustomTask(true)}
-              className="flex items-center justify-center gap-2 px-3 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-pam-success text-white rounded-xl text-sm font-medium hover:bg-pam-success/90 transition-colors"
             >
               <PlusIcon className="w-4 h-4" />
-              Add Your Own
+              Add Custom Task
             </button>
             
             <button
@@ -1132,7 +1132,7 @@ export default function ChecklistPage() {
                       <div className="flex-1">
                         <div className="font-medium text-gray-900 text-sm">{task.title}</div>
                         <div className="text-xs text-gray-600 mt-1">
-                          📅 {task.suggestedTiming} • {task.type}
+                           {task.suggestedTiming} • {task.type}
                         </div>
                         {task.notes && (
                           <div className="text-xs text-gray-500 mt-1">{task.notes}</div>
@@ -1155,7 +1155,7 @@ export default function ChecklistPage() {
                 </div>
                 <button
                   onClick={addSelectedOptionalTasks}
-                  className="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"
+                  className="px-4 py-2 bg-pam-success text-white rounded-xl text-sm font-medium hover:bg-pam-success/90 transition-colors"
                 >
                   Add to Timeline
                 </button>
@@ -1175,7 +1175,7 @@ export default function ChecklistPage() {
           <>
             {/* Current Week Highlight */}
             <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-2xl p-4 border border-pink-200 mb-6">
-              <h3 className="font-semibold text-gray-900 mb-2">📅 Week {currentWeek}</h3>
+              <h3 className="font-semibold text-gray-900 mb-2"> Week {currentWeek}</h3>
               <p className="text-sm text-gray-700">
                 {selectedChild?.name} is {currentWeek} week{currentWeek !== 1 ? 's' : ''} old
               </p>
@@ -1211,7 +1211,7 @@ export default function ChecklistPage() {
                     )}
                   </div>
                   <p className="text-sm text-gray-700 mb-2">{milestoneToShow.description}</p>
-                  <p className="text-xs text-gray-600 italic">💝 {milestoneToShow.encouragement}</p>
+                  <p className="text-xs text-gray-600 italic"> {milestoneToShow.encouragement}</p>
                 </div>
               </div>
             </div>
@@ -1219,11 +1219,11 @@ export default function ChecklistPage() {
         })()}
 
         {/* Weekly Timeline */}
-        {sortedWeeks.map((week: any) => {
+        {sortedWeeks.map((week: { weekNumber: number; title: string; items: { id: string; title: string; isCompleted: boolean; isOptional: boolean }[] }) => {
           const weekKey = `week-${week.weekNumber}`
           const isCurrentWeek = week.weekNumber === currentWeek
           const isPastWeek = week.weekNumber < currentWeek
-          const completedInWeek = week.items.filter((item: any) => item.isCompleted).length
+          const completedInWeek = week.items.filter((item: { isCompleted: boolean }) => item.isCompleted).length
           const totalInWeek = week.items.length
           const weekMilestone = getMilestoneForWeek(week.weekNumber)
           
@@ -1255,7 +1255,7 @@ export default function ChecklistPage() {
                     isCurrentWeek 
                       ? 'bg-pink-600 text-white' 
                       : isPastWeek && completedInWeek === totalInWeek
-                        ? 'bg-green-600 text-white'
+                        ? 'bg-pam-success text-white'
                         : 'bg-gray-200 text-gray-600'
                   }`}>
                     {week.weekNumber}
@@ -1284,12 +1284,12 @@ export default function ChecklistPage() {
                     </div>
                     <div className={`w-16 h-1.5 rounded-full ${
                       isPastWeek && completedInWeek === totalInWeek 
-                        ? 'bg-green-600' 
+                        ? 'bg-pam-success' 
                         : 'bg-gray-200'
                     }`}>
                       <div 
                         className={`h-full rounded-full transition-all duration-300 ${
-                          isCurrentWeek ? 'bg-pink-600' : 'bg-green-600'
+                          isCurrentWeek ? 'bg-pink-600' : 'bg-pam-success'
                         }`}
                         style={{ width: `${totalInWeek > 0 ? (completedInWeek / totalInWeek) * 100 : 0}%` }}
                       />
@@ -1313,13 +1313,13 @@ export default function ChecklistPage() {
                             Development Milestone: {weekMilestone.title}
                           </h4>
                           <p className="text-sm text-purple-700 mb-2">{weekMilestone.description}</p>
-                          <p className="text-xs text-purple-600 italic">💝 {weekMilestone.encouragement}</p>
+                          <p className="text-xs text-purple-600 italic"> {weekMilestone.encouragement}</p>
                         </div>
                       </div>
                     </div>
                   )}
                   
-                  {week.items.map((item: any) => {
+                  {week.items.map((item: { id: string; title: string; isCompleted: boolean; isOptional: boolean }) => {
                     const Icon = getCategoryIcon(item.category)
                     const now = new Date()
                     const daysPastDue = Math.floor((now.getTime() - item.dueDate.getTime()) / (1000 * 60 * 60 * 24))
@@ -1331,7 +1331,7 @@ export default function ChecklistPage() {
                     
                     // Debug: Log all items to see which ones should be deletable
                     if (item.metadata?.source || item.title.toLowerCase().includes('optional')) {
-                      console.log('🔍 OPTIONAL/CUSTOM ITEM FOUND:', {
+                      console.log(' OPTIONAL/CUSTOM ITEM FOUND:', {
                         id: item.id,
                         title: item.title,
                         metadata: item.metadata,
@@ -1370,7 +1370,7 @@ export default function ChecklistPage() {
                               isOverdue 
                                 ? 'text-red-600' 
                                 : item.isCompleted
-                                  ? 'text-green-600'
+                                  ? 'text-pam-success'
                                   : 'text-gray-500'
                             }`}>
                               {item.isCompleted ? 'Completed' : 
@@ -1397,7 +1397,7 @@ export default function ChecklistPage() {
                           )}
                           <div className="flex-shrink-0">
                             {item.isCompleted ? (
-                              <CheckCircleSolid className="w-6 h-6 text-green-600" />
+                              <CheckCircleSolid className="w-6 h-6 text-pam-success" />
                             ) : (
                               <div className={`w-6 h-6 border-2 rounded-full ${
                                 isOverdue ? 'border-red-400' : 'border-gray-300'
@@ -1487,7 +1487,7 @@ export default function ChecklistPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="milestone">Milestone</option>
-                  <option value="immunization">Immunisation</option>
+                  <option value="immunisation">Immunisation</option>
                   <option value="registration">Registration</option>
                   <option value="checkup">Check-up</option>
                   <option value="appointment">Appointment</option>
@@ -1527,7 +1527,7 @@ export default function ChecklistPage() {
               <button
                 onClick={addCustomTask}
                 disabled={!customTaskData.title || !customTaskData.dueDate}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-pam-success text-white rounded-lg hover:bg-pam-success/90 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 Add Task
               </button>

@@ -17,19 +17,19 @@ const australianStates = [
 ]
 
 const feedingMethods = [
-  { value: 'breastfeeding', label: 'Breastfeeding', emoji: '🤱' },
-  { value: 'bottle', label: 'Bottle feeding', emoji: '🍼' },
-  { value: 'mixed', label: 'Mixed feeding', emoji: '💕' },
+  { value: 'breastfeeding', label: 'Breastfeeding', emoji: '' },
+  { value: 'bottle', label: 'Bottle feeding', emoji: '' },
+  { value: 'mixed', label: 'Mixed feeding', emoji: '' },
 ]
 
 const birthTypes = [
-  { value: 'vaginal', label: 'Vaginal birth', emoji: '👶' },
-  { value: 'c-section', label: 'C-section', emoji: '🏥' },
+  { value: 'vaginal', label: 'Vaginal birth', emoji: '' },
+  { value: 'c-section', label: 'C-section', emoji: '' },
 ]
 
 const babyTypes = [
-  { value: 'single', label: 'Single baby', emoji: '👶' },
-  { value: 'twins', label: 'Twins', emoji: '👶👶' },
+  { value: 'single', label: 'Single baby', emoji: '' },
+  { value: 'twins', label: 'Twins', emoji: '' },
 ]
 
 export default function OnboardingPage() {
@@ -72,8 +72,8 @@ export default function OnboardingPage() {
     setError('')
 
     try {
-      console.log('🚀 Starting onboarding completion...')
-      console.log('📋 Form data collected:', {
+      console.log('Starting onboarding completion...')
+      console.log('Form data collected:', {
         babyName,
         babyType,
         dateOfBirth,
@@ -88,37 +88,37 @@ export default function OnboardingPage() {
       })
       
       // Step 1: Test basic connection
-      console.log('🔗 Testing Supabase connection...')
+      console.log('Testing Supabase connection...')
       const connectionTest = await supabase.from('profiles').select('count').limit(1)
-      console.log('🔗 Connection test result:', connectionTest)
+      console.log('Connection test result:', connectionTest)
       
-      console.log('🔑 Checking authentication...')
+      console.log('Checking authentication...')
       const { data: { user }, error: authError } = await supabase.auth.getUser()
       
       if (authError) {
-        console.error('❌ Auth check failed:', authError)
+        console.error('ERROR Auth check failed:', authError)
         throw new Error(`Authentication check failed: ${authError.message}`)
       }
       
       if (!user) {
-        console.error('❌ No user found')
+        console.error('ERROR No user found')
         throw new Error('Not authenticated - no user found')
       }
       
-      console.log('✅ User authenticated:', user.id, user.email)
+      console.log('SUCCESS User authenticated:', user.id, user.email)
 
       // Step 2: Test profile table structure
-      console.log('🏗️ Testing profile table structure...')
+      console.log('TESTING Testing profile table structure...')
       const profileStructureTest = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .limit(1)
-      console.log('🏗️ Profile structure test:', profileStructureTest)
+      console.log('TESTING Profile structure test:', profileStructureTest)
 
       // Step 3: Update user profile with state
-      console.log('👤 Updating user profile...')
-      console.log('📍 Profile data to insert:', {
+      console.log(' Updating user profile...')
+      console.log('INFO Profile data to insert:', {
         id: user.id,
         state_territory: stateTerritory
       })
@@ -132,11 +132,11 @@ export default function OnboardingPage() {
         })
         .select()
 
-      console.log('👤 Profile upsert result:', { data: profileData, error: profileError })
+      console.log(' Profile upsert result:', { data: profileData, error: profileError })
 
       if (profileError) {
-        console.error('❌ Profile update failed:', profileError)
-        console.error('❌ Profile error details:', {
+        console.error('ERROR Profile update failed:', profileError)
+        console.error('ERROR Profile error details:', {
           message: profileError.message,
           code: profileError.code,
           details: profileError.details,
@@ -145,21 +145,21 @@ export default function OnboardingPage() {
         throw new Error(`PROFILE ERROR: ${profileError.message} (Code: ${profileError.code})`)
       }
       
-      console.log('✅ Profile updated successfully:', profileData)
+      console.log('SUCCESS Profile updated successfully:', profileData)
 
       // Step 4: Test children table structure
-      console.log('🏗️ Testing children table structure...')
+      console.log('TESTING Testing children table structure...')
       const childrenStructureTest = await supabase
         .from('children')
         .select('*')
         .limit(1)
-      console.log('🏗️ Children structure test:', childrenStructureTest)
+      console.log('TESTING Children structure test:', childrenStructureTest)
 
       // Step 5: Create baby profile with all data
-      console.log('👶 Creating baby profile...')
+      console.log(' Creating baby profile...')
       
       // Include all the collected data
-      let babyData = {
+      const babyData = {
         user_id: user.id,
         name: babyName,
         date_of_birth: dateOfBirth,
@@ -174,18 +174,18 @@ export default function OnboardingPage() {
         is_premium_feature: false
       }
 
-      console.log('📝 Baby data to insert (full):', babyData)
-      let { data: baby, error: babyError } = await supabase
+      console.log(' Baby data to insert (full):', babyData)
+      const { data: baby, error: babyError } = await supabase
         .from('children')
         .insert(babyData)
         .select()
         .single()
 
-      console.log('👶 Baby creation result:', { data: baby, error: babyError })
+      console.log(' Baby creation result:', { data: baby, error: babyError })
 
       if (babyError) {
-        console.error('❌ Baby creation error:', babyError)
-        console.error('❌ Baby error details:', {
+        console.error('ERROR Baby creation error:', babyError)
+        console.error('ERROR Baby error details:', {
           message: babyError.message,
           code: babyError.code,
           details: babyError.details,
@@ -193,7 +193,7 @@ export default function OnboardingPage() {
         })
         
         // Try with basic data if extended columns fail
-        console.log('🔄 Trying with basic baby data only...')
+        console.log('RETRY Trying with basic baby data only...')
         const basicBabyData = {
           user_id: user.id,
           name: babyName,
@@ -201,44 +201,44 @@ export default function OnboardingPage() {
           is_premium_feature: false
         }
         
-        console.log('📝 Basic baby data:', basicBabyData)
+        console.log(' Basic baby data:', basicBabyData)
         const { data: basicBaby, error: basicError } = await supabase
           .from('children')
           .insert(basicBabyData)
           .select()
           .single()
           
-        console.log('👶 Basic baby creation result:', { data: basicBaby, error: basicError })
+        console.log(' Basic baby creation result:', { data: basicBaby, error: basicError })
         
         if (basicError) {
-          console.error('❌ Basic baby creation also failed:', basicError)
+          console.error('ERROR Basic baby creation also failed:', basicError)
           throw new Error(`BABY ERROR: ${basicError.message} (Code: ${basicError.code})`)
         }
         
         baby = basicBaby
-        console.log('✅ Baby profile created with basic data:', baby.id)
+        console.log('SUCCESS Baby profile created with basic data:', baby.id)
       } else {
-        console.log('✅ Baby profile created with full data:', baby.id)
+        console.log('SUCCESS Baby profile created with full data:', baby.id)
       }
       
-      console.log('🎉 Baby profile successfully created:', baby)
+      console.log('COMPLETE Baby profile successfully created:', baby)
 
       // Step 6: Generate checklist for the baby (optional - don't fail if this breaks)
       try {
-        console.log('📋 Testing checklist table structure...')
+        console.log('Form data Testing checklist table structure...')
         const checklistStructureTest = await supabase
           .from('checklist_items')
           .select('*')
           .limit(1)
-        console.log('📋 Checklist structure test:', checklistStructureTest)
+        console.log('Form data Checklist structure test:', checklistStructureTest)
         
-        console.log('📋 Generating checklist...')
+        console.log('Form data Generating checklist...')
         const checklistModule = await import('@/lib/services/checklist-service')
-        console.log('📦 Checklist module loaded:', !!checklistModule)
-        console.log('🔧 ChecklistService available:', !!checklistModule?.ChecklistService)
+        console.log('PACKAGE Checklist module loaded:', !!checklistModule)
+        console.log('TOOL ChecklistService available:', !!checklistModule?.ChecklistService)
         
         if (checklistModule && checklistModule.ChecklistService) {
-          console.log('📋 Calling generateChecklistForChild with:', {
+          console.log('Form data Calling generateChecklistForChild with:', {
             babyId: baby.id,
             dateOfBirth: baby.date_of_birth,
             state: stateTerritory
@@ -249,57 +249,44 @@ export default function OnboardingPage() {
             baby.date_of_birth,
             stateTerritory
           )
-          console.log('✅ Checklist generated successfully')
+          console.log('SUCCESS Checklist generated successfully')
         } else {
-          console.warn('⚠️ ChecklistService not available, skipping checklist generation')
+          console.warn('WARNING ChecklistService not available, skipping checklist generation')
         }
-      } catch (checklistError: any) {
-        console.error('❌ Error generating checklist:', checklistError)
-        console.error('🔍 Checklist error details:', {
-          name: checklistError.name,
-          message: checklistError.message,
-          stack: checklistError.stack,
-          code: checklistError.code,
-          details: checklistError.details,
-          hint: checklistError.hint
-        })
+      } catch (checklistError: unknown) {
+        console.error('ERROR Error generating checklist:', checklistError)
+        console.error('SEARCH Checklist error details:', checklistError)
         
         // Check if it's a schema error
-        if (checklistError.message?.includes('metadata') || checklistError.code === '42703') {
-          console.warn('⚠️ Database schema missing metadata column - checklist generation skipped')
+        const error = checklistError as { message?: string; code?: string }
+        if (error.message?.includes('metadata') || error.code === '42703') {
+          console.warn('WARNING Database schema missing metadata column - checklist generation skipped')
         }
         
         // IMPORTANT: Don't throw here - baby creation succeeded, continue to dashboard
-        console.log('⏭️ Continuing to dashboard despite checklist error')
+        console.log('NEXT Continuing to dashboard despite checklist error')
       }
 
-      console.log('🚀 Redirecting to dashboard...')
+      console.log('Starting Redirecting to dashboard...')
       
       // Success! Redirect immediately without setting loading to false first
-      console.log('📍 About to redirect to /dashboard/today')
+      console.log('INFO About to redirect to /dashboard/today')
       
       // Try router.push first
       try {
         router.push('/dashboard/today')
-        console.log('✅ Router.push called successfully')
+        console.log('SUCCESS Router.push called successfully')
       } catch (routerError) {
-        console.error('❌ Router.push failed:', routerError)
+        console.error('ERROR Router.push failed:', routerError)
         // Fallback to window.location
         window.location.href = '/dashboard/today'
       }
       
       // Return early to prevent setIsLoading(false) in finally block
       return
-    } catch (err: any) {
-      console.error('❌ ONBOARDING FAILED:', err)
-      console.error('❌ Full error details:', {
-        name: err.name,
-        message: err.message,
-        stack: err.stack,
-        code: err.code,
-        details: err.details,
-        hint: err.hint
-      })
+    } catch (err: unknown) {
+      console.error('ERROR ONBOARDING FAILED:', err)
+      console.error('ERROR Full error details:', err)
       
       // Provide very detailed error messages
       let errorMessage = 'An error occurred during setup'
@@ -357,7 +344,7 @@ export default function OnboardingPage() {
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-gray-900">PAM Setup</h1>
-                <p className="text-xs text-gray-500">Let's get you started!</p>
+                <p className="text-xs text-gray-500">Let&apos;s get you started!</p>
               </div>
             </div>
             <div className="text-sm text-gray-500">
@@ -382,7 +369,7 @@ export default function OnboardingPage() {
           {currentStep === 1 && (
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="text-center mb-6">
-                <div className="text-4xl mb-4">👶</div>
+                <div className="text-4xl mb-4"></div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Tell us about your baby</h2>
                 <p className="text-sm text-gray-600">This helps us personalise your timeline</p>
               </div>
@@ -390,7 +377,7 @@ export default function OnboardingPage() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Baby's name
+                    Baby&apos;s name
                   </label>
                   <input
                     type="text"
@@ -429,7 +416,7 @@ export default function OnboardingPage() {
           {currentStep === 2 && (
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="text-center mb-6">
-                <div className="text-4xl mb-4">📅</div>
+                <div className="text-4xl mb-4"></div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">When and where?</h2>
                 <p className="text-sm text-gray-600">This helps us show the right Australian resources</p>
               </div>
@@ -483,7 +470,7 @@ export default function OnboardingPage() {
           {currentStep === 3 && (
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="text-center mb-6">
-                <div className="text-4xl mb-4">📏</div>
+                <div className="text-4xl mb-4"></div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Birth measurements</h2>
                 <p className="text-sm text-gray-600">Optional - you can add these later in growth tracking</p>
               </div>
@@ -559,7 +546,7 @@ export default function OnboardingPage() {
           {currentStep === 4 && (
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="text-center mb-6">
-                <div className="text-4xl mb-4">🍼</div>
+                <div className="text-4xl mb-4"></div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">Feeding & birth details</h2>
                 <p className="text-sm text-gray-600">Optional - helps us give better suggestions</p>
               </div>
@@ -617,10 +604,10 @@ export default function OnboardingPage() {
           {currentStep === 5 && (
             <div className="bg-white rounded-2xl shadow-xl p-6">
               <div className="text-center mb-6">
-                <div className="text-4xl mb-4">🎉</div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">You're all set!</h2>
+                <div className="text-4xl mb-4">✓</div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">You&apos;re all set!</h2>
                 <p className="text-sm text-gray-600 mb-4">
-                  Welcome to PAM! We're creating your personalised timeline now.
+                  Welcome to PAM! We&apos;re creating your personalised timeline now.
                 </p>
                 
                 <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-xl p-4 border border-pink-200">
@@ -630,9 +617,9 @@ export default function OnboardingPage() {
                   </div>
                   <p className="text-sm text-gray-700 text-left">
                     • Get personalised Australian timeline<br/>
-                    • Track {babyName}'s milestones<br/>
+                    • Track {babyName}&apos;s milestones<br/>
                     • Reduce your mental load<br/>
-                    • Take care of yourself too ✨
+                    • Take care of yourself too
                   </p>
                 </div>
               </div>
@@ -640,7 +627,7 @@ export default function OnboardingPage() {
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
                   <div className="flex items-start gap-3">
-                    <div className="text-red-500 text-lg">⚠️</div>
+                    <div className="text-red-500 text-lg">WARNING</div>
                     <div className="w-full">
                       <h4 className="text-sm font-medium text-red-800 mb-1">Setup Error</h4>
                       <p className="text-sm text-red-600 mb-2 break-words">{error}</p>
@@ -704,7 +691,7 @@ export default function OnboardingPage() {
                   </>
                 ) : (
                   <>
-                    Start using PAM 🎉
+                    Start using PAM
                     <Heart className="w-5 h-5" />
                   </>
                 )}

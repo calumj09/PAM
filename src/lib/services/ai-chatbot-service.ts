@@ -477,7 +477,7 @@ Remember: This advice is general in nature. For any health concerns or if someth
     advice += `- Tresillian: 1800 637 357 (family support)\n`
     advice += `- PANDA (Perinatal Anxiety & Depression): 1300 726 306\n\n`
 
-    advice += `Remember: It's okay to put baby in a safe place (cot) and take a few minutes to breathe if you feel overwhelmed. You're doing a great job! 💙`
+    advice += `Remember: It's okay to put baby in a safe place (cot) and take a few minutes to breathe if you feel overwhelmed. You're doing a great job! `
 
     return advice
   }
@@ -557,7 +557,7 @@ Remember: This advice is general in nature. For any health concerns or if someth
     advice += `- Concerns about hearing or vision\n`
     advice += `- Your parental instinct says something isn't right\n\n`
 
-    advice += `Trust your instincts and enjoy this amazing period of rapid development! 🌟`
+    advice += `Trust your instincts and enjoy this amazing period of rapid development! `
 
     return advice
   }

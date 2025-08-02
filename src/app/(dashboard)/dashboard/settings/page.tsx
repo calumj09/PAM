@@ -99,7 +99,7 @@ export default async function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <span className="text-lg">🇦🇺</span>
+              <span className="text-lg"></span>
               About PAM
             </CardTitle>
           </CardHeader>
@@ -117,7 +117,7 @@ export default async function SettingsPage() {
               <div>
                 <h4 className="font-medium text-gray-900 mb-1">Features</h4>
                 <ul className="text-gray-600 space-y-1">
-                  <li>• Automated immunization schedule</li>
+                  <li>• Automated immunisation schedule</li>
                   <li>• Government registration tasks</li>
                   <li>• Baby activity tracking</li>
                   <li>• Voice recognition support</li>

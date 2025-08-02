@@ -303,7 +303,7 @@ export function CalendarIntegration({ userId, isPremium }: CalendarIntegrationPr
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <h4 className="font-medium text-blue-900 mb-2">What you&apos;ll get:</h4>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Automatic calendar events for immunizations</li>
+                <li>• Automatic calendar events for immunisations</li>
                 <li>• Reminders for government registration deadlines</li>
                 <li>• Sync with your existing calendar</li>
                 <li>• Share with partners and healthcare providers</li>
@@ -428,7 +428,7 @@ export function CalendarIntegration({ userId, isPremium }: CalendarIntegrationPr
                   </label>
                   <div className="space-y-2">
                     {[
-                      { key: 'immunization', label: 'Immunizations' },
+                      { key: 'immunisation', label: 'Immunizations' },
                       { key: 'registration', label: 'Government Registration' },
                       { key: 'checkup', label: 'Health Checkups' },
                       { key: 'milestone', label: 'Developmental Milestones' }

@@ -63,7 +63,7 @@ export interface MCPChildContext {
     }>
     allergies?: string[]
     medical_conditions?: string[]
-    immunizations: {
+    immunisations: {
       up_to_date: boolean
       next_due?: {
         vaccine: string
@@ -185,12 +185,12 @@ export class MCPContextService {
       const checklistItems = await ChecklistService.getChildChecklistItems(childId)
       const milestones = checklistItems.filter(item => item.category === 'milestone')
       
-      // Get immunizations
-      const immunizations = checklistItems.filter(item => item.category === 'immunization')
-      const overdueImmunizations = immunizations.filter(item => 
+      // Get immunisations
+      const immunisations = checklistItems.filter(item => item.category === 'immunisation')
+      const overdueImmunizations = immunisations.filter(item => 
         !item.is_completed && new Date(item.due_date) < now
       )
-      const nextImmunization = immunizations
+      const nextImmunization = immunisations
         .filter(item => !item.is_completed && new Date(item.due_date) >= now)
         .sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime())[0]
       
@@ -258,7 +258,7 @@ export class MCPContextService {
             })),
           allergies: child.allergies,
           medical_conditions: child.medical_conditions,
-          immunizations: {
+          immunisations: {
             up_to_date: overdueImmunizations.length === 0,
             next_due: nextImmunization ? {
               vaccine: nextImmunization.title,
@@ -396,7 +396,7 @@ Key information:
   /**
    * Helper methods
    */
-  private static determineGrowthTrend(measurements: any[]): 'normal' | 'above_average' | 'below_average' | 'concerning' {
+  private static determineGrowthTrend(measurements: { weight_percentile?: number }[]): 'normal' | 'above_average' | 'below_average' | 'concerning' {
     if (measurements.length < 2) return 'normal'
     
     // Simple trend analysis based on percentiles
@@ -413,7 +413,7 @@ Key information:
     return 'below_average'
   }
   
-  private static determineFeedingMethod(ageMonths: number, activities: any[]): MCPChildContext['feeding']['feeding_method'] {
+  private static determineFeedingMethod(ageMonths: number, activities: { activity_type?: string; activity_subtype?: string }[]): MCPChildContext['feeding']['feeding_method'] {
     const feedingActivities = activities.filter(a => 
       a.activity_type === 'feeding' || a.activity_type?.category === 'feeding'
     )
@@ -435,7 +435,7 @@ Key information:
     return 'bottle'
   }
   
-  private static determineTypicalBedtime(activities: any[]): string {
+  private static determineTypicalBedtime(activities: { activity_type?: string; started_at?: string }[]): string {
     const nightSleeps = activities
       .filter(a => (a.activity_type === 'sleep' || a.activity_type?.category === 'sleep') && 
                    a.duration_minutes && a.duration_minutes > 180) // Longer than 3 hours
@@ -447,7 +447,7 @@ Key information:
     return `${avgHour}:00 ${avgHour >= 12 ? 'PM' : 'AM'}`
   }
   
-  private static determineTypicalWakeTime(activities: any[]): string {
+  private static determineTypicalWakeTime(activities: { activity_type?: string; ended_at?: string }[]): string {
     const wakeUps = activities
       .filter(a => (a.activity_type === 'sleep' || a.activity_type?.category === 'sleep') && 
                    a.ended_at && a.duration_minutes && a.duration_minutes > 180)
@@ -459,7 +459,7 @@ Key information:
     return `${avgHour}:00 ${avgHour >= 12 ? 'PM' : 'AM'}`
   }
   
-  private static countDailyNaps(activities: any[]): number {
+  private static countDailyNaps(activities: { activity_type?: string; started_at?: string }[]): number {
     return activities.filter(a => 
       (a.activity_type === 'sleep' || a.activity_type?.category === 'sleep') && 
       a.duration_minutes && a.duration_minutes < 180 // Less than 3 hours

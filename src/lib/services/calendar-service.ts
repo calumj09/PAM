@@ -363,7 +363,7 @@ export class CalendarService {
 
     // Determine color based on category
     const categoryColors: Record<string, string> = {
-      immunization: '11', // Red
+      immunisation: '11', // Red
       registration: '9',  // Blue  
       milestone: '10',    // Green
       checkup: '5'        // Yellow

@@ -163,7 +163,7 @@ export default function DashboardPage() {
             <div className="relative">
               <Bell className="w-6 h-6 text-gray-400" />
               {stats.upcomingTasks > 0 && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-pam-burgundy rounded-full flex items-center justify-center">
                   <span className="text-xs text-white font-medium">{stats.upcomingTasks}</span>
                 </div>
               )}
@@ -196,8 +196,8 @@ export default function DashboardPage() {
           {stats.childrenCount === 0 ? (
             <Link href="/dashboard/children">
               <div className="bg-white rounded-2xl p-6 shadow-sm border-2 border-dashed border-gray-200 text-center">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Plus className="w-6 h-6 text-red-600" />
+                <div className="w-12 h-12 bg-pam-burgundy/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Plus className="w-6 h-6 text-pam-burgundy" />
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-1">Add Your First Child</h3>
                 <p className="text-sm text-gray-600">Start tracking your little one's development</p>

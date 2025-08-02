@@ -292,7 +292,7 @@ export default function ChildrenPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-pam-pink rounded-full flex items-center justify-center">
-                      <span className="text-xl">👶</span>
+                      <span className="text-xl"></span>
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{child.name}</h3>

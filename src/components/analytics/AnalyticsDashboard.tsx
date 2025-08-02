@@ -785,7 +785,7 @@ function ReportsTab({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              🏆 Milestones & Achievements
+              Milestones & Achievements
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -806,7 +806,7 @@ function ReportsTab({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              📈 Growth & Development Notes
+              Growth & Development Notes
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -842,7 +842,7 @@ function ReportsTab({
             </div>
             <div className="mt-4 p-3 bg-orange-100 rounded-lg">
               <p className="text-sm text-orange-800">
-                💡 This report can be shared with your GP, pediatrician, or maternal child health nurse.
+                This report can be shared with your GP, pediatrician, or maternal child health nurse.
               </p>
             </div>
           </CardContent>

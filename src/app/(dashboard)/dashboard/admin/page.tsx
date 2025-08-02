@@ -720,10 +720,10 @@ export default function AdminPage() {
         
         <div className="max-w-md mx-auto px-4 py-6">
           <div className="bg-white rounded-2xl shadow-sm text-center py-12 px-6">
-            <div className="text-6xl mb-4">📋</div>
+            <div className="text-6xl mb-4"></div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Admin help ready when you are</h3>
             <p className="text-gray-600 mb-6">
-              Add your baby's profile to get personalised step-by-step guides for Australian government processes.
+              Add your baby&apos;s profile to get personalised step-by-step guides for Australian government processes.
             </p>
             <a href="/dashboard/children" className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors">
               <PlusIcon className="w-5 h-5" />
@@ -786,9 +786,9 @@ export default function AdminPage() {
 
         {/* Me Time Nudge */}
         <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-2xl p-4 border border-pink-200">
-          <h3 className="font-semibold text-gray-900 mb-2">💝 Admin made simple</h3>
+          <h3 className="font-semibold text-gray-900 mb-2"> Admin made simple</h3>
           <p className="text-sm text-gray-700">
-            We've organised all the government admin you need to do into simple steps. Take it one task at a time - you've got this! ✨
+            We&apos;ve organised all the government admin you need to do into simple steps. Take it one task at a time - you&apos;ve got this! ✨
           </p>
         </div>
 
@@ -850,7 +850,7 @@ export default function AdminPage() {
                         <div className="flex-1">
                           <div className="font-medium text-gray-900 text-sm">{task.title}</div>
                           <div className="text-xs text-gray-600 mt-1">
-                            📅 {task.suggestedTiming} • {task.type}
+                             {task.suggestedTiming} • {task.type}
                           </div>
                           {task.notes && (
                             <div className="text-xs text-gray-500 mt-1">{task.notes}</div>
@@ -962,7 +962,7 @@ export default function AdminPage() {
                           {/* Requirements */}
                           {task.requirements.length > 0 && (
                             <div className="mb-3">
-                              <h5 className="text-xs font-medium text-gray-700 mb-2">📋 What you'll need:</h5>
+                              <h5 className="text-xs font-medium text-gray-700 mb-2"> What you&apos;ll need:</h5>
                               <ul className="space-y-1">
                                 {task.requirements.map((req, idx) => (
                                   <li key={idx} className="text-xs text-gray-600 flex items-center gap-2">
@@ -977,7 +977,7 @@ export default function AdminPage() {
                           {/* Steps */}
                           {task.steps && (
                             <div className="mb-3">
-                              <h5 className="text-xs font-medium text-gray-700 mb-2">📝 Steps:</h5>
+                              <h5 className="text-xs font-medium text-gray-700 mb-2"> Steps:</h5>
                               <ol className="space-y-1">
                                 {task.steps.map((step, idx) => (
                                   <li key={idx} className="text-xs text-gray-600 flex items-start gap-2">
@@ -1041,7 +1041,7 @@ export default function AdminPage() {
             <div>
               <h3 className="font-semibold text-gray-900 text-sm">Need help?</h3>
               <p className="text-sm text-gray-600 mt-1">
-                These guides are based on Australian government requirements. Always check official websites for the most current information, and don't hesitate to call the relevant departments if you need assistance.
+                These guides are based on Australian government requirements. Always check official websites for the most current information, and don&apos;t hesitate to call the relevant departments if you need assistance.
               </p>
             </div>
           </div>

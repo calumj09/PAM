@@ -61,7 +61,7 @@ export function AIHelper({
     setMessages([{
       id: '1',
       role: 'assistant',
-      content: "Hi! I'm your PAM AI assistant 👋 I'm here to help with any questions about your baby, Australian admin processes, or parenting tips. What would you like to know?",
+      content: "Hi! I'm your PAM AI assistant. I'm here to help with any questions about your baby, Australian admin processes, or parenting tips. What would you like to know?",
       timestamp: new Date()
     }])
   }, [])
@@ -194,7 +194,7 @@ Please provide helpful, accurate advice suitable for Australian parents. Focus o
     "Is it normal for my baby to sleep this much?",
     "When should I start introducing solid foods?",
     "How do I apply for Family Tax Benefit?",
-    "What immunizations does my baby need next?",
+    "What immunisations does my baby need next?",
     "How can I tell if my baby is getting enough milk?",
     "What should I pack for my 6-week checkup?"
   ]
@@ -204,7 +204,7 @@ Please provide helpful, accurate advice suitable for Australian parents. Focus o
       <div className={className}>
         <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 rounded-2xl p-6">
           <div className="text-center">
-            <div className="text-4xl mb-4">🤖</div>
+            <div className="text-4xl mb-4">AI</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">AI Helper Limit Reached</h3>
             <p className="text-gray-600 mb-4">
               You've used all 5 free questions this month. Upgrade to Premium for unlimited AI assistance!

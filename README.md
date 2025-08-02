@@ -1,168 +1,111 @@
 # PAM - Parent Admin Manager
 
-A Progressive Web App designed to help overwhelmed Australian mums manage the mental load of early motherhood with personalised timelines, reminders, and government admin help - all in one beautiful, empathetic app.
-
-> **🎯 Mission**: To be the trusted companion that reduces stress and brings confidence to Australian parents navigating the first three years of their child's life.
-
-## 🌟 Key Features
-
-### ✅ **Core Features Complete**
-- **Smart Timeline System** - Auto-generated Australian checklist (immunizations, registrations, milestones)
-- **Baby Tracker** - Voice-enabled activity tracking (feeding, sleep, nappies, tummy time)
-- **Growth Tracking** - Height, weight, head circumference with Australian percentile charts
-- **Analytics & Reports** - Pattern detection and healthcare reports for GP visits
-- **Calendar Views** - Timeline can be viewed as list or calendar with milestone integration
-- **AI Smart Helper** - Context-aware parenting assistant (freemium model)
-- **Admin Hub** - State-based Australian government resources and links
-- **Mobile-First PWA** - Offline support, install prompts, optimized for Australian parents
-
-### 🎯 **Recently Completed**
-- **Enhanced Timeline** - Weekly cards with developmental milestones and "What to Expect" bubbles
-- **Tracker Analytics** - Comprehensive pattern analysis for sleep, feeding, and nappy tracking
-- **Growth Tracker Integration** - Birth measurements automatically imported from setup
-- **Premium Features** - Calendar sync, AI enhancements, family sharing foundation
-- **Australian Compliance** - Full localization with metric units and healthcare standards
-
-## 🎨 Design System
-
-**Brand Colors**:
-- **Primary Red**: #7D0820 (PAM brand)
-- **Soft Pink**: #F9B1BC (gentle, nurturing)
-- **Cream**: #FFFBF8 (calming)
-
-**Typography**:
-- **UI**: Inter, Montserrat (clean, accessible)
-- **Headings**: The Seasons, Brown Sugar (warm, friendly)
-
-**Design Philosophy**: Empathetic, gentle, reducing mental load with Apple-quality interactions.
-
-## 🛠️ Tech Stack
-
-- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
-- **UI Components**: shadcn/ui (Apple-quality components)
-- **Icons**: Lucide React (consistent, beautiful)
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **AI**: OpenAI API (Smart Helper)
-- **State**: Zustand
-- **Styling**: Custom PAM design system with semantic colors
-
-## 📁 Project Documentation
-
-- **📋 [PAM-MASTER-PLAN.md](./PAM-MASTER-PLAN.md)** - Comprehensive planning and strategy (single source of truth)
-- **🎨 [design.md](./design.md)** - UI/UX design guidelines and component specifications
-- **💻 [claude.md](./claude.md)** - Technical implementation instructions
-- **📦 [archive/](./archive/)** - Historical files and old documentation
+A Progressive Web App for Australian parents with children aged 0-3 years.
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Node.js 18+
-- Supabase account
-
-### 1. Clone and Install
 ```bash
-git clone <repository>
-cd pam-app
+# Install dependencies
 npm install
-```
 
-### 2. Environment Setup
-Copy `.env.example` to `.env.local` and add your Supabase credentials:
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_KEY=your_supabase_service_key
-```
-
-### 3. Database Setup
-Run the production schema in your Supabase SQL editor:
-1. Execute `database/production-final.sql` (the working schema)
-2. Execute `database/add-missing-column.sql` (final fix)
-
-### 4. Start Development
-```bash
+# Run development server
 npm run dev
+
+# Build for production
+npm run build
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) 🎉
+## 📱 Features
 
-## 🏗️ Project Structure
+- **Timeline Management**: Track immunisations, milestones, and government tasks
+- **Baby Tracker**: Log daily activities (feeding, sleep, nappies)
+- **Growth Tracking**: Monitor height, weight, and development percentiles
+- **Local Resources**: State-specific Australian parenting information
+- **AI Assistant**: Context-aware parenting guidance
+- **Family Sharing**: Multi-user access for partners and caregivers
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS with custom PAM design system
+- **Database**: Supabase (PostgreSQL with Row Level Security)
+- **Deployment**: Render.com
+- **PWA**: Offline support, installable on mobile/desktop
+
+## 🎨 Design System
+
+- **Primary Color**: `#7D2030` (Burgundy)
+- **Success Color**: `#4CAF50` (Green)
+- **Font**: Inter (sans-serif)
+- **Mobile-First**: Optimized for 430px viewport
+
+## 📁 Project Structure
 
 ```
-/PAM/pam-app/
-├── PAM-MASTER-PLAN.md      # 📋 Complete planning document
-├── design.md               # 🎨 UI/UX guidelines  
-├── claude.md               # 💻 Implementation guide
+pam-app/
 ├── src/
-│   ├── app/
-│   │   ├── (auth)/         # Authentication flow
-│   │   ├── (dashboard)/    # Main app pages
-│   │   └── api/           # API routes
-│   ├── components/
-│   │   ├── ui/            # shadcn/ui components
-│   │   ├── admin/         # Admin wizard components
-│   │   ├── ai/            # AI helper components
-│   │   └── documents/     # Document management
-│   ├── lib/
-│   │   ├── services/      # Business logic services
-│   │   ├── data/          # Australian schedules & forms
-│   │   └── supabase/      # Database client
-├── database/              # Production database schema
-│   ├── production-final.sql    # Working schema
-│   └── add-missing-column.sql  # Final fix
-└── archive/               # Historical files
+│   ├── app/            # Next.js app directory
+│   ├── components/     # React components
+│   ├── lib/           # Utilities and services
+│   └── types/         # TypeScript types
+├── public/            # Static assets
+├── database/          # SQL schemas and migrations
+└── supabase/          # Supabase configuration
 ```
-
-## 🇦🇺 Australian Focus
-
-- **Government Integration**: Direct links to Medicare, Centrelink, BDM services
-- **Immunization Schedule**: Official Australian NIP schedule integration
-- **Local Resources**: State-specific information and contacts
-- **Date Format**: DD/MM/YYYY throughout
-- **Privacy Compliance**: Australian Privacy Act 1988 ready
-
-## 🎯 Business Model
-
-**Freemium Approach**:
-- **Free**: Complete timeline, admin help, 5 AI questions/month
-- **Premium ($9.99/month)**: Unlimited AI, calendar sync, family sharing, multi-child support
-
-## 🛡️ Security & Privacy
-
-- Row Level Security on all database tables
-- Australian privacy compliance ready
-- Input validation and sanitization
-- Authentication middleware on protected routes
 
 ## 🚀 Deployment
 
-### Render (Current)
-Connected via GitHub for automatic deployments.
+The app is configured for deployment on Render.com:
 
-### Manual Deployment
+1. Connect your GitHub repository to Render
+2. Set environment variables in Render dashboard
+3. Deploy using `render.yaml` configuration
+
+## 🔐 Environment Variables
+
+Required:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_APP_URL`
+
+Optional (for enhanced features):
+- `OPENAI_API_KEY` - AI assistant
+- `RESEND_API_KEY` - Email notifications
+- Firebase credentials - Push notifications
+
+## 📱 PWA Installation
+
+### iOS
+1. Open in Safari
+2. Tap Share button
+3. Select "Add to Home Screen"
+
+### Android
+1. Open in Chrome
+2. Tap menu (3 dots)
+3. Select "Install app"
+
+## 🧪 Testing
+
 ```bash
-npm run build
-npm run start
+# Run tests
+npm test
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
 ```
 
-## 📊 Recent Achievements (July 2025)
+## 📄 License
 
-✅ **Design System Overhaul**: Complete migration to shadcn/ui + Lucide React  
-✅ **Today Page Optimization**: Empathetic UX with Me Time nudges  
-✅ **Mobile-First Enhancement**: 44px+ touch targets, smooth animations  
-✅ **Project Organization**: Consolidated planning into single source of truth  
-✅ **Component Upgrades**: All major components follow world-class design standards  
+© 2025 PAM. All rights reserved.
 
 ## 🤝 Contributing
 
-1. Read [PAM-MASTER-PLAN.md](./PAM-MASTER-PLAN.md) for context
-2. Follow [design.md](./design.md) for UI guidelines
-3. Use [claude.md](./claude.md) for technical standards
-4. Create feature branch
-5. Submit Pull Request
-
----
-
-**Built with ❤️ for overwhelmed Australian mums**  
-*Making the mental load of early motherhood a little lighter, one gentle reminder at a time.*
+Please refer to the documentation folder for development workflows and guidelines.

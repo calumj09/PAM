@@ -398,14 +398,14 @@ export class TrackerService {
    */
   private static getActivityIcon(type: string): string {
     switch (type) {
-      case 'feeding': return '🍼'
-      case 'sleep': return '😴'
+      case 'feeding': return 'F'
+      case 'sleep': return 'S'
       case 'nappy':
-      case 'diaper': return '🧷'
-      case 'tummy_time': return '🤸‍♀️'
-      case 'growth': return '📏'
-      case 'note': return '📝'
-      default: return '👶'
+      case 'diaper': return 'D'
+      case 'tummy_time': return 'T'
+      case 'growth': return 'G'
+      case 'note': return 'N'
+      default: return 'A'
     }
   }
 

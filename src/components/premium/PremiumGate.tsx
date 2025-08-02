@@ -131,8 +131,8 @@ export function PremiumGate({
             
             <div className="text-xs text-gray-500 space-y-1">
               <p>✨ Cancel anytime</p>
-              <p>🇦🇺 Australian billing & support</p>
-              <p>💳 Secure payment by Stripe</p>
+              <p>Australian billing & support</p>
+              <p>Secure payment by Stripe</p>
             </div>
           </div>
         )}

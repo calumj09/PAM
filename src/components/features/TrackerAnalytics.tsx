@@ -211,7 +211,7 @@ Please discuss with your healthcare provider for professional medical advice.
             {sleepPattern && (
               <div>
                 <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="text-lg">😴</span>
+                  <span className="text-lg"></span>
                   Sleep Patterns (Last 7 Days)
                 </h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
@@ -253,7 +253,7 @@ Please discuss with your healthcare provider for professional medical advice.
             {feedingPattern && (
               <div>
                 <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="text-lg">🍼</span>
+                  <span className="text-lg"></span>
                   Feeding Patterns (Last 7 Days)
                 </h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
@@ -294,7 +294,7 @@ Please discuss with your healthcare provider for professional medical advice.
             {nappyPattern && (
               <div>
                 <h4 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="text-lg">🧷</span>
+                  <span className="text-lg"></span>
                   Nappy Patterns (Last 7 Days)
                 </h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
@@ -373,7 +373,7 @@ Please discuss with your healthcare provider for professional medical advice.
             </div>
             
             <div className="bg-blue-50 p-4 rounded-lg mt-6">
-              <h5 className="font-medium text-blue-900 mb-2">📋 Report Includes:</h5>
+              <h5 className="font-medium text-blue-900 mb-2"> Report Includes:</h5>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• Sleep patterns and schedule analysis</li>
                 <li>• Feeding frequency and duration trends</li>

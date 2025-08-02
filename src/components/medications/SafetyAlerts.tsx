@@ -265,7 +265,7 @@ export function SafetyAlerts({ alerts, onAcknowledge }: SafetyAlertsProps) {
       {/* Summary Information */}
       <Card className="bg-gray-50 border-gray-200">
         <CardContent className="p-4">
-          <h4 className="font-medium text-gray-900 mb-2">🛡️ About Safety Alerts</h4>
+          <h4 className="font-medium text-gray-900 mb-2">About Safety Alerts</h4>
           <div className="text-sm text-gray-700 space-y-1">
             <p>• Alerts are automatically generated based on Australian medication guidelines</p>
             <p>• Critical alerts require immediate action - contact emergency services</p>

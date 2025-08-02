@@ -264,7 +264,7 @@ export default function GrowthPage() {
                     <p className="text-sm text-red-800 mt-1">{alert.message}</p>
                     {alert.gp_consultation_recommended && (
                       <p className="text-xs text-red-700 mt-2">
-                        📋 Consider discussing with your GP
+                         Consider discussing with your GP
                       </p>
                     )}
                   </div>
@@ -471,7 +471,7 @@ export default function GrowthPage() {
       {/* Australian Health Information */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
-          <h4 className="font-medium text-blue-900 mb-2">🇦🇺 Australian Growth Standards</h4>
+          <h4 className="font-medium text-blue-900 mb-2"> Australian Growth Standards</h4>
           <div className="text-sm text-blue-800 space-y-1">
             <p>• Charts based on WHO Child Growth Standards used by Australian GPs</p>
             <p>• Percentiles show where your child sits compared to other Australian children</p>

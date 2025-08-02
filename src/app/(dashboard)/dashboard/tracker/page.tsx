@@ -159,7 +159,7 @@ export default function TrackerPage() {
 
         <div className="max-w-md mx-auto px-4 py-6">
           <div className="bg-white rounded-2xl shadow-sm text-center py-12 px-6">
-            <div className="text-6xl mb-4">👶</div>
+            <div className="text-6xl mb-4"></div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Ready to start tracking?</h3>
             <p className="text-gray-600 mb-6">
               Add your baby's profile to start tracking their daily activities, feeding, and sleep patterns.
@@ -256,13 +256,13 @@ export default function TrackerPage() {
         {dailyStats && (
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white rounded-2xl shadow-sm text-center p-4">
-              <div className="text-2xl mb-2">🍼</div>
+              <div className="text-2xl mb-2"></div>
               <div className="text-2xl font-bold text-gray-900">{dailyStats.feeding_count}</div>
               <div className="text-sm text-gray-600">Feedings</div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm text-center p-4">
-              <div className="text-2xl mb-2">😴</div>
+              <div className="text-2xl mb-2"></div>
               <div className="text-2xl font-bold text-gray-900">
                 {Math.round(dailyStats.sleep_duration_minutes / 60 * 10) / 10}h
               </div>
@@ -270,7 +270,7 @@ export default function TrackerPage() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm text-center p-4">
-              <div className="text-2xl mb-2">🧷</div>
+              <div className="text-2xl mb-2"></div>
               <div className="text-2xl font-bold text-gray-900">{dailyStats.diaper_changes}</div>
               <div className="text-sm text-gray-600">Nappies</div>
             </div>

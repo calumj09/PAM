@@ -79,9 +79,9 @@ export function MilestoneModal({ milestone, onClose }: MilestoneModalProps) {
           {/* Encouragement */}
           <div className="p-4 bg-gradient-to-r from-pink-50 to-orange-50 rounded-lg border border-pink-200">
             <div className="flex items-start gap-2">
-              <span className="text-lg">💝</span>
+              <span className="text-lg">♥</span>
               <div>
-                <h4 className="font-medium text-pink-900 mb-1">For You, Mama</h4>
+                <h4 className="font-medium text-pink-900 mb-1">For You, Parent</h4>
                 <p className="text-sm text-pink-800 italic">
                   {milestone.encouragement}
                 </p>

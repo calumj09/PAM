@@ -488,10 +488,10 @@ export class FamilySharingService {
    */
   static getRoleDisplayName(role: FamilyRole): string {
     const names: Record<FamilyRole, string> = {
-      owner: 'Owner 👑',
-      partner: 'Partner 💑',
-      caregiver: 'Caregiver 👨‍⚕️',
-      grandparent: 'Grandparent 👵'
+      owner: 'Owner ',
+      partner: 'Partner ',
+      caregiver: 'Caregiver',
+      grandparent: 'Grandparent '
     }
     return names[role]
   }

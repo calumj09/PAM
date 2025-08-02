@@ -449,7 +449,7 @@ export class MedicationService {
     const supabase = createClient()
     
     // Get current weight if not provided
-    let enhancedDose = { ...dose }
+    const enhancedDose = { ...dose }
     if (!dose.child_weight_kg) {
       const currentWeight = await this.getCurrentWeightForDosing(dose.child_id)
       if (currentWeight) {
@@ -526,7 +526,7 @@ export class MedicationService {
     const reminderTime = reminder.reminder_time
     const [hours, minutes] = reminderTime.split(':').map(Number)
     
-    let nextReminder = new Date()
+    const nextReminder = new Date()
     nextReminder.setHours(hours, minutes, 0, 0)
     
     // If time has passed today, set for tomorrow

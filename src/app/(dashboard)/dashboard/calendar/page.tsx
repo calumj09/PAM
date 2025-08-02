@@ -31,7 +31,7 @@ interface CalendarEvent {
   description?: string
   date: Date
   time?: string
-  category: 'immunization' | 'registration' | 'checkup' | 'milestone' | 'appointment' | 'me-time'
+  category: 'immunisation' | 'registration' | 'checkup' | 'milestone' | 'appointment' | 'me-time'
   completed: boolean
   urgent: boolean
   child_id?: string
@@ -102,15 +102,15 @@ export default function CalendarPage() {
     
     const mockEvents: CalendarEvent[] = []
 
-    // Generate immunization events based on Australian schedule
-    const immunizationSchedule = [
-      { weeks: 8, title: '2-month immunizations', description: 'DTPa, Hib, hepatitis B, polio, pneumococcal, rotavirus' },
-      { weeks: 16, title: '4-month immunizations', description: 'DTPa, Hib, hepatitis B, polio, pneumococcal, rotavirus' },
-      { weeks: 24, title: '6-month immunizations', description: 'DTPa, Hib, hepatitis B, polio, pneumococcal, rotavirus' },
-      { weeks: 52, title: '12-month immunizations', description: 'Hib, measles-mumps-rubella, meningococcal C, pneumococcal' },
+    // Generate immunisation events based on Australian schedule
+    const immunisationSchedule = [
+      { weeks: 8, title: '2-month immunisations', description: 'DTPa, Hib, hepatitis B, polio, pneumococcal, rotavirus' },
+      { weeks: 16, title: '4-month immunisations', description: 'DTPa, Hib, hepatitis B, polio, pneumococcal, rotavirus' },
+      { weeks: 24, title: '6-month immunisations', description: 'DTPa, Hib, hepatitis B, polio, pneumococcal, rotavirus' },
+      { weeks: 52, title: '12-month immunisations', description: 'Hib, measles-mumps-rubella, meningococcal C, pneumococcal' },
     ]
 
-    immunizationSchedule.forEach(schedule => {
+    immunisationSchedule.forEach(schedule => {
       const eventDate = new Date(birthDate.getTime() + schedule.weeks * 7 * 24 * 60 * 60 * 1000)
       if (eventDate >= new Date(currentDate.getFullYear(), currentDate.getMonth(), 1) && 
           eventDate <= new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0)) {
@@ -120,7 +120,7 @@ export default function CalendarPage() {
           description: schedule.description,
           date: eventDate,
           time: '10:00 AM',
-          category: 'immunization',
+          category: 'immunisation',
           completed: ageInWeeks > schedule.weeks,
           urgent: ageInWeeks >= schedule.weeks && ageInWeeks <= schedule.weeks + 2,
           child_id: selectedChild.id
@@ -246,7 +246,7 @@ export default function CalendarPage() {
 
   const getCategoryColor = (category: CalendarEvent['category']) => {
     switch (category) {
-      case 'immunization': return 'bg-purple-100 text-purple-700 border-purple-200'
+      case 'immunisation': return 'bg-purple-100 text-purple-700 border-purple-200'
       case 'checkup': return 'bg-blue-100 text-blue-700 border-blue-200'
       case 'registration': return 'bg-green-100 text-green-700 border-green-200'
       case 'milestone': return 'bg-yellow-100 text-yellow-700 border-yellow-200'
@@ -258,7 +258,7 @@ export default function CalendarPage() {
 
   const getCategoryIcon = (category: CalendarEvent['category']) => {
     switch (category) {
-      case 'immunization': return '💉'
+      case 'immunisation': return '💉'
       case 'checkup': return '🏥'
       case 'registration': return '📋'
       case 'milestone': return '🎉'
@@ -300,10 +300,10 @@ export default function CalendarPage() {
         
         <div className="max-w-md mx-auto px-4 py-6">
           <div className="bg-white rounded-2xl shadow-sm text-center py-12 px-6">
-            <div className="text-6xl mb-4">📅</div>
+            <div className="text-6xl mb-4">CAL</div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Your calendar awaits</h3>
             <p className="text-gray-600 mb-6">
-              Add your baby's profile to see personalised appointments, immunisations, and me-time reminders.
+              Add your baby&apos;s profile to see personalised appointments, immunisations, and me-time reminders.
             </p>
             <a href="/dashboard/children" className="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors">
               <Plus className="w-5 h-5" />

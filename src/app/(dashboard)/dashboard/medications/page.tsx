@@ -401,7 +401,7 @@ export default function MedicationsPage() {
       {/* Help Information */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
-          <h4 className="font-medium text-blue-900 mb-2">🏥 Medication Safety Tips</h4>
+          <h4 className="font-medium text-blue-900 mb-2"> Medication Safety Tips</h4>
           <div className="text-sm text-blue-800 space-y-1">
             <p>• Always double-check doses before administering</p>
             <p>• Use the provided measuring tools (syringes, cups)</p>

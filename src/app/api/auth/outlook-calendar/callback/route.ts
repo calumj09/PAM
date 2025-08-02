@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
         calendar_id: calendarId,
         sync_enabled: true,
         categories: {
-          immunizations: true,
+          immunisations: true,
           checkups: true,
           milestones: true,
           appointments: true,

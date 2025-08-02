@@ -166,7 +166,7 @@ export default function AIHelperPage() {
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-600">🏥</span>
-              <span>Australian healthcare, Medicare, and immunizations</span>
+              <span>Australian healthcare, Medicare, and immunisations</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-600">📋</span>
@@ -186,10 +186,10 @@ export default function AIHelperPage() {
             Popular questions:
           </h3>
           <div className="space-y-2 text-sm text-gray-600">
-            <div>"Is my baby getting enough sleep?"</div>
-            <div>"How do I apply for Family Tax Benefit?"</div>
-            <div>"When should I introduce solid foods?"</div>
-            <div>"What should I expect at the 6-week checkup?"</div>
+            <div>&quot;Is my baby getting enough sleep?&quot;</div>
+            <div>&quot;How do I apply for Family Tax Benefit?&quot;</div>
+            <div>&quot;When should I introduce solid foods?&quot;</div>
+            <div>&quot;What should I expect at the 6-week checkup?&quot;</div>
           </div>
         </div>
 
@@ -200,7 +200,7 @@ export default function AIHelperPage() {
             Important reminder
           </h3>
           <p className="text-sm text-gray-700">
-            While I'm here to support you, always consult your GP, maternal health nurse, or other healthcare professionals for medical concerns. You're doing an amazing job! 💕
+            While I&apos;m here to support you, always consult your GP, maternal health nurse, or other healthcare professionals for medical concerns. You&apos;re doing an amazing job!
           </p>
         </div>
       </div>

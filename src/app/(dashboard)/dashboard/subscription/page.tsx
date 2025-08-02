@@ -246,7 +246,7 @@ export default function SubscriptionPage() {
                   
                   {plan.trialDays && (
                     <p className="text-sm text-blue-600 font-medium mt-2">
-                      🎁 {plan.trialDays}-day free trial
+                       {plan.trialDays}-day free trial
                     </p>
                   )}
                 </div>
@@ -306,7 +306,7 @@ export default function SubscriptionPage() {
       {/* Australian Compliance Notice */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
-          <h4 className="font-medium text-blue-900 mb-2">🇦🇺 Australian Billing Information</h4>
+          <h4 className="font-medium text-blue-900 mb-2"> Australian Billing Information</h4>
           <div className="text-sm text-blue-800 space-y-1">
             <p>• All prices are in Australian Dollars (AUD) and include GST</p>
             <p>• Payments are processed securely by Stripe</p>

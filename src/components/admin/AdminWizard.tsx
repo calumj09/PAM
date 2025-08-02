@@ -404,7 +404,7 @@ export function AdminWizard({ task, onClose, onComplete }: AdminWizardProps) {
               <ul className="space-y-2">
                 {currentStepData.tips.map((tip, idx) => (
                   <li key={idx} className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                    💡 {tip}
+                     {tip}
                   </li>
                 ))}
               </ul>

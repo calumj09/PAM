@@ -16,7 +16,7 @@ function getResendClient(): Resend {
             return { id: 'mock-email-id' }
           }
         }
-      } as any
+      } as { emails: { send: () => Promise<{ id: string }> } }
     }
     resendClient = new Resend(apiKey)
   }
@@ -110,30 +110,30 @@ export class EmailService {
 </head>
 <body>
   <div class="header">
-    <h1>👶 PAM</h1>
+    <h1>PAM</h1>
     <p>Parent Admin Manager</p>
   </div>
   
   <div class="content">
-    <h2>You've been invited to join a family! 🎉</h2>
+    <h2>You've been invited to join a family!</h2>
     
     <p>Hi there!</p>
     
     <p><strong>${inviterName}</strong> has invited you to join <strong>${familyName}</strong> on PAM (Parent Admin Manager) as a <span class="role-badge">${role}</span>.</p>
     
     <div class="features">
-      <h3>🌟 What you'll be able to do:</h3>
+      <h3>What you'll be able to do:</h3>
       <ul>
-        <li>📋 Track daily activities (feeding, sleep, nappies)</li>
-        <li>📈 View growth measurements and milestones</li>
-        <li>🗓️ Access family calendar and appointments</li>
-        <li>🩺 Share healthcare information</li>
-        <li>📊 View analytics and patterns</li>
-        ${role === 'owner' || role === 'partner' ? '<li>👥 Invite other family members</li>' : ''}
+        <li>Track daily activities (feeding, sleep, nappies)</li>
+        <li>View growth measurements and milestones</li>
+        <li>Access family calendar and appointments</li>
+        <li>Share healthcare information</li>
+        <li>View analytics and patterns</li>
+        ${role === 'owner' || role === 'partner' ? '<li>Invite other family members</li>' : ''}
       </ul>
     </div>
     
-    <p>PAM helps Australian families with children aged 0-3 years track their little one's development, manage healthcare appointments, and stay organized.</p>
+    <p>PAM helps Australian families with children aged 0-3 years track their little one's development, manage healthcare appointments, and stay organised.</p>
     
     <div style="text-align: center;">
       <a href="${inviteUrl}" class="button">Accept Invitation</a>
@@ -143,7 +143,7 @@ export class EmailService {
     
     <p>If you have any questions, just reply to this email or contact the family member who invited you.</p>
     
-    <p>Welcome to the PAM family! 👶💕</p>
+    <p>Welcome to the PAM family!</p>
   </div>
   
   <div class="footer">
@@ -163,7 +163,7 @@ You've been invited to join ${familyName} on PAM!
 
 ${inviterName} has invited you to join ${familyName} on PAM (Parent Admin Manager) as a ${role}.
 
-PAM helps Australian families with children aged 0-3 years track their little one's development, manage healthcare appointments, and stay organized.
+PAM helps Australian families with children aged 0-3 years track their little one's development, manage healthcare appointments, and stay organised.
 
 Accept your invitation: ${inviteUrl}
 
@@ -257,7 +257,7 @@ If you didn't expect this invitation, you can safely ignore this email.
 </head>
 <body>
   <div class="header">
-    <h1>🔔 PAM Reminder</h1>
+    <h1>PAM Reminder</h1>
   </div>
   
   <div class="content">

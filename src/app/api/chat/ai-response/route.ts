@@ -89,7 +89,7 @@ function analyzeForQuickActions(message: string, mcpContext: any) {
 
   if (lowerMessage.includes('feeding') || lowerMessage.includes('feed')) {
     quickActions.push({
-      label: '📱 Log Feeding',
+      label: ' Log Feeding',
       action: 'log_feeding',
       data: { activity_type: 'feeding' }
     })
@@ -97,7 +97,7 @@ function analyzeForQuickActions(message: string, mcpContext: any) {
 
   if (lowerMessage.includes('sleep') || lowerMessage.includes('nap')) {
     quickActions.push({
-      label: '😴 Log Sleep',
+      label: ' Log Sleep',
       action: 'log_sleep',
       data: { activity_type: 'sleep' }
     })
@@ -105,7 +105,7 @@ function analyzeForQuickActions(message: string, mcpContext: any) {
 
   if (lowerMessage.includes('nappy') || lowerMessage.includes('diaper')) {
     quickActions.push({
-      label: '🧷 Log Nappy Change',
+      label: ' Log Nappy Change',
       action: 'log_nappy',
       data: { activity_type: 'nappy' }
     })
@@ -113,7 +113,7 @@ function analyzeForQuickActions(message: string, mcpContext: any) {
 
   if (lowerMessage.includes('immunisation') || lowerMessage.includes('vaccination')) {
     quickActions.push({
-      label: '💉 View Immunisations',
+      label: ' View Immunisations',
       action: 'view_immunisations',
       data: { category: 'immunisation' }
     })
@@ -121,7 +121,7 @@ function analyzeForQuickActions(message: string, mcpContext: any) {
 
   if (lowerMessage.includes('growth') || lowerMessage.includes('weight') || lowerMessage.includes('height')) {
     quickActions.push({
-      label: '📏 Track Growth',
+      label: ' Track Growth',
       action: 'track_growth',
       data: { category: 'growth' }
     })
@@ -136,7 +136,7 @@ function analyzeForQuickActions(message: string, mcpContext: any) {
       
       if (hoursSinceFeeding > 3 && mcpContext.child.age_months < 6) {
         quickActions.push({
-          label: '🍼 Log Next Feeding',
+          label: ' Log Next Feeding',
           action: 'log_feeding',
           data: { 
             activity_type: 'feeding',
@@ -151,7 +151,7 @@ function analyzeForQuickActions(message: string, mcpContext: any) {
       const napsSoFar = mcpContext.recent_activities?.daily_summary.activities_today || 0
       if (napsSoFar < 2 && new Date().getHours() < 17) {
         quickActions.push({
-          label: '😴 Track Nap Time',
+          label: ' Track Nap Time',
           action: 'log_sleep',
           data: { 
             activity_type: 'sleep',

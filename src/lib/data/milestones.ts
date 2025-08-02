@@ -105,7 +105,7 @@ export const AUSTRALIAN_DEVELOPMENTAL_MILESTONES: MilestoneItem[] = [
   {
     id: '12m-first-words',
     title: '12 Month Check: First Words',
-    description: 'Baby says first meaningful words like "mama", "dada"',
+    description: 'Baby says first meaningful words like "parent", "dada"',
     ageInMonths: 12,
     category: 'milestone',
     milestoneType: 'communication',

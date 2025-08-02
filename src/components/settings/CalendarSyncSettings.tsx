@@ -193,7 +193,7 @@ export function CalendarSyncSettings({ userId, isPremium }: CalendarSyncSettings
           'Measles, Mumps and Rubella vaccination due',
           new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 2 weeks from now
           new Date(Date.now() + 14 * 24 * 60 * 60 * 1000 + 30 * 60 * 1000), // 30 minutes duration
-          'immunizations'
+          'immunisations'
         )
       ]
 
@@ -215,13 +215,13 @@ export function CalendarSyncSettings({ userId, isPremium }: CalendarSyncSettings
   const getProviderIcon = (providerId: string) => {
     switch (providerId) {
       case 'google':
-        return '📅'
+        return ''
       case 'apple':
-        return '🍎'
+        return ''
       case 'outlook':
-        return '📮'
+        return ''
       default:
-        return '📅'
+        return ''
     }
   }
 
@@ -398,7 +398,7 @@ export function CalendarSyncSettings({ userId, isPremium }: CalendarSyncSettings
                             <span className="text-sm font-medium text-gray-900">Sync Categories</span>
                             <div className="grid grid-cols-2 gap-2">
                               {[
-                                { key: 'immunizations', label: 'Immunisations' },
+                                { key: 'immunisations', label: 'Immunisations' },
                                 { key: 'checkups', label: 'Health Checkups' },
                                 { key: 'milestones', label: 'Milestones' },
                                 { key: 'appointments', label: 'Appointments' },

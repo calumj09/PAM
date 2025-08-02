@@ -124,21 +124,21 @@ export function DocumentManager({
   }
 
   const getDocumentIcon = (type: string) => {
-    if (type.startsWith('image/')) return '🖼️'
-    if (type === 'application/pdf') return '📄'
-    return '📁'
+    if (type.startsWith('image/')) return 'IMG'
+    if (type === 'application/pdf') return 'PDF'
+    return 'DOC'
   }
 
   const categories = [
-    { value: 'all', label: 'All Documents', icon: '📁' },
-    { value: 'birth-certificate', label: 'Birth Certificate', icon: '📄' },
-    { value: 'medicare-card', label: 'Medicare Card', icon: '💳' },
-    { value: 'hospital-discharge', label: 'Hospital Records', icon: '🏥' },
-    { value: 'immunization-record', label: 'Immunizations', icon: '💉' },
-    { value: 'government-form', label: 'Government Forms', icon: '📋' },
-    { value: 'appointment-letter', label: 'Appointments', icon: '📅' },
-    { value: 'insurance', label: 'Insurance', icon: '🛡️' },
-    { value: 'other', label: 'Other', icon: '📁' }
+    { value: 'all', label: 'All Documents', icon: 'ALL' },
+    { value: 'birth-certificate', label: 'Birth Certificate', icon: 'BC' },
+    { value: 'medicare-card', label: 'Medicare Card', icon: 'MC' },
+    { value: 'hospital-discharge', label: 'Hospital Records', icon: 'HR' },
+    { value: 'immunisation-record', label: 'Immunizations', icon: 'IM' },
+    { value: 'government-form', label: 'Government Forms', icon: 'GF' },
+    { value: 'appointment-letter', label: 'Appointments', icon: 'AP' },
+    { value: 'insurance', label: 'Insurance', icon: 'IN' },
+    { value: 'other', label: 'Other', icon: 'OT' }
   ]
 
   if (isLoading) {

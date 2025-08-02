@@ -134,7 +134,7 @@ export function GrowthAlerts({ alerts, onAcknowledge }: GrowthAlertsProps) {
       <Card className="border-green-200 bg-green-50">
         <CardContent className="p-8 text-center">
           <CheckCircleIcon className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-green-900 mb-2">All Clear! 🎉</h3>
+          <h3 className="text-lg font-bold text-green-900 mb-2">All Clear! </h3>
           <p className="text-green-800">
             No growth alerts at this time. Your child's growth appears to be on track.
           </p>
@@ -313,7 +313,7 @@ export function GrowthAlerts({ alerts, onAcknowledge }: GrowthAlertsProps) {
       {/* Important Note */}
       <Card className="border-blue-200 bg-blue-50">
         <CardContent className="p-4">
-          <h4 className="font-medium text-blue-900 mb-2">🩺 Important Note</h4>
+          <h4 className="font-medium text-blue-900 mb-2"> Important Note</h4>
           <div className="text-sm text-blue-800 space-y-1">
             <p>• Growth alerts are automated guidance based on WHO/Australian standards</p>
             <p>• They are not medical diagnoses and should not replace professional advice</p>

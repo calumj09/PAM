@@ -49,42 +49,42 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
       id: 'unlimited_ai',
       title: 'Unlimited AI Questions',
       description: 'Ask as many questions as you need with personalised advice for your baby',
-      icon: '🤖',
+      icon: 'AI',
       category: 'ai'
     },
     {
       id: 'calendar_sync',
       title: 'Calendar Sync',
       description: 'Sync with Google Calendar, Apple Calendar, and Outlook',
-      icon: '📅',
+      icon: 'CAL',
       category: 'calendar'
     },
     {
       id: 'family_sharing',
       title: 'Family Sharing',
       description: 'Share milestones and progress with partners and grandparents',
-      icon: '👨‍👩‍👧‍👦',
+      icon: 'FAM',
       category: 'family'
     },
     {
       id: 'advanced_insights',
       title: 'Development Insights',
       description: 'AI-powered analysis of your baby\'s sleep, feeding, and development patterns',
-      icon: '📊',
+      icon: 'CHART',
       category: 'insights'
     },
     {
       id: 'expert_chat',
       title: 'Expert Consultations',
       description: 'Access to qualified maternal health experts for urgent questions',
-      icon: '👩‍⚕️',
+      icon: 'DOC',
       category: 'support'
     },
     {
       id: 'priority_support',
       title: 'Priority Support',
       description: '24/7 priority customer support and faster response times',
-      icon: '⚡',
+      icon: 'FAST',
       category: 'support'
     }
   ]
@@ -143,7 +143,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           title: 'You\'ve reached your question limit',
           subtitle: `You have ${remainingQuestions || 0} free questions remaining this month`,
           description: 'Upgrade to Premium for unlimited personalised AI advice tailored to your baby\'s development.',
-          icon: '🤖',
+          icon: 'AI',
           urgency: 'high' as const
         }
       case 'calendar_sync':
@@ -151,7 +151,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           title: 'Sync with your calendar',
           subtitle: 'Never miss an important milestone or appointment',
           description: 'Connect PAM with Google Calendar, Apple Calendar, or Outlook to get reminders on all your devices.',
-          icon: '📅',
+          icon: 'CAL',
           urgency: 'medium' as const
         }
       case 'family_sharing':
@@ -159,7 +159,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           title: 'Share the journey with family',
           subtitle: 'Keep everyone connected to your baby\'s progress',
           description: 'Invite partners, grandparents, and caregivers to share in your baby\'s milestones and development.',
-          icon: '👨‍👩‍👧‍👦',
+          icon: 'FAM',
           urgency: 'low' as const
         }
       case 'advanced_insights':
@@ -167,7 +167,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           title: 'Unlock development insights',
           subtitle: 'AI-powered analysis of your baby\'s patterns',
           description: 'Get personalised insights about sleep, feeding, and development trends with recommendations.',
-          icon: '📊',
+          icon: 'CHART',
           urgency: 'medium' as const
         }
       case 'expert_chat':
@@ -175,7 +175,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           title: 'Chat with parenting experts',
           subtitle: 'Get professional guidance when you need it',
           description: 'Access qualified maternal health experts for urgent questions and personalised advice.',
-          icon: '👩‍⚕️',
+          icon: 'DOC',
           urgency: 'high' as const
         }
       default:
@@ -183,7 +183,7 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           title: 'Unlock Premium Features',
           subtitle: 'Get the most out of PAM',
           description: 'Access all premium features designed to support your parenting journey.',
-          icon: '👑',
+          icon: 'CROWN',
           urgency: 'medium' as const
         }
     }
@@ -329,11 +329,11 @@ export function PremiumPaywall({ trigger, onClose, onUpgrade, remainingQuestions
           </div>
           
           <div className="flex items-center justify-center gap-4 mt-3 text-xs text-gray-500">
-            <span>💳 Cancel anytime</span>
+            <span>Cancel anytime</span>
             <span>•</span>
-            <span>🔒 Secure payment</span>
+            <span>Secure payment</span>
             <span>•</span>
-            <span>📱 Instant access</span>
+            <span>Instant access</span>
           </div>
         </div>
       </div>

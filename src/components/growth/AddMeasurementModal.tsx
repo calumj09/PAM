@@ -401,7 +401,7 @@ export function AddMeasurementModal({
 
           {/* Info Panel */}
           <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">📊 Australian Growth Standards</h4>
+            <h4 className="font-medium text-blue-900 mb-2"> Australian Growth Standards</h4>
             <div className="text-sm text-blue-800 space-y-1">
               <p>• Percentiles shown are based on WHO standards used by Australian GPs</p>
               <p>• 3rd-97th percentile is considered normal range</p>

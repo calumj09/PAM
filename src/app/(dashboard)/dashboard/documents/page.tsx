@@ -62,7 +62,7 @@ export default function DocumentsPage() {
 
         {/* Usage Tips */}
         <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-xl p-4 border border-pink-200">
-          <h3 className="font-semibold text-gray-900 mb-2">💡 Organization Tips</h3>
+          <h3 className="font-semibold text-gray-900 mb-2"> Organization Tips</h3>
           <ul className="text-sm text-gray-700 space-y-1">
             <li>• Upload birth certificate for easy admin tasks</li>
             <li>• Store Medicare cards for quick reference</li>

@@ -35,7 +35,7 @@ export interface CalendarSyncSettings {
   lastSyncTime?: Date
   syncDirection: 'bidirectional' | 'to_external' | 'from_external'
   categories: {
-    immunizations: boolean
+    immunisations: boolean
     checkups: boolean
     milestones: boolean
     appointments: boolean
@@ -48,7 +48,7 @@ export class CalendarSyncService {
     {
       id: 'google',
       name: 'Google Calendar',
-      icon: '📅',
+      icon: 'CAL',
       color: '#4285F4',
       authUrl: '/api/auth/google-calendar',
       supportsSync: true
@@ -56,14 +56,14 @@ export class CalendarSyncService {
     {
       id: 'apple',
       name: 'Apple Calendar',
-      icon: '🍎',
+      icon: 'APPLE',
       color: '#007AFF',
       supportsSync: false // iCloud API requires special setup
     },
     {
       id: 'outlook',
       name: 'Outlook',
-      icon: '📮',
+      icon: 'OUTLOOK',
       color: '#0078D4',
       authUrl: '/api/auth/outlook-calendar',
       supportsSync: true
@@ -156,7 +156,7 @@ export class CalendarSyncService {
   private getEventCategory(event: SyncedEvent): keyof CalendarSyncSettings['categories'] {
     // Determine category based on event title/description
     const title = event.title.toLowerCase()
-    if (title.includes('immunization') || title.includes('vaccine')) return 'immunizations'
+    if (title.includes('immunisation') || title.includes('vaccine')) return 'immunisations'
     if (title.includes('checkup') || title.includes('visit')) return 'checkups'
     if (title.includes('milestone') || title.includes('development')) return 'milestones'
     if (title.includes('me time') || title.includes('self-care')) return 'me_time'
@@ -282,7 +282,7 @@ export class CalendarSyncService {
     }
 
     const data = await response.json()
-    return data.items.map((cal: any) => ({
+    return data.items.map((cal: { id: string; summary: string; primary?: boolean }) => ({
       id: cal.id,
       name: cal.summary,
       primary: cal.primary
@@ -301,7 +301,7 @@ export class CalendarSyncService {
     }
 
     const data = await response.json()
-    return data.value.map((cal: any) => ({
+    return data.value.map((cal: { id: string; name: string; isDefaultCalendar?: boolean }) => ({
       id: cal.id,
       name: cal.name,
       primary: cal.isDefaultCalendar

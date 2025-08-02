@@ -10,8 +10,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        // PAM Brand Colors
-        'pam-red': '#7D0820',
+        // PAM Brand Colors - Updated to new burgundy scheme
+        'pam-burgundy': '#7D2030',
+        'pam-white': '#FFFFFF',
+        'pam-success': '#4CAF50',
+        'pam-gray-border': '#E0E0E0',
+        'pam-text-gray': '#666666',
+        
+        // Legacy colors for backwards compatibility
+        'pam-red': '#7D2030', // Updated to burgundy
         'pam-pink': '#F9B1BC', 
         'pam-cream': '#FFFBF8',
         
@@ -23,12 +30,12 @@ export default {
         popover: 'hsl(var(--popover))',
         'popover-foreground': 'hsl(var(--popover-foreground))',
         primary: {
-          DEFAULT: '#7D0820', // PAM red
-          foreground: '#FFFBF8', // PAM cream
+          DEFAULT: '#7D2030', // PAM burgundy
+          foreground: '#FFFFFF', // White
         },
         secondary: {
           DEFAULT: '#F9B1BC', // PAM pink
-          foreground: '#7D0820', // PAM red
+          foreground: '#7D2030', // PAM burgundy
         },
         muted: {
           DEFAULT: 'hsl(var(--muted))',

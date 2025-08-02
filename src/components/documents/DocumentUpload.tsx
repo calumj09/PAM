@@ -155,14 +155,14 @@ export function DocumentUpload({
 
   const getCategoryDisplay = (category: string) => {
     const categories: { [key: string]: { name: string; icon: string } } = {
-      'birth-certificate': { name: 'Birth Certificate', icon: '📄' },
-      'medicare-card': { name: 'Medicare Card', icon: '💳' },
-      'hospital-discharge': { name: 'Hospital Discharge', icon: '🏥' },
-      'immunization-record': { name: 'Immunization Records', icon: '💉' },
-      'government-form': { name: 'Government Forms', icon: '📋' },
-      'appointment-letter': { name: 'Appointment Letters', icon: '📅' },
-      'insurance': { name: 'Insurance Documents', icon: '🛡️' },
-      'other': { name: 'Other Documents', icon: '📁' }
+      'birth-certificate': { name: 'Birth Certificate', icon: '' },
+      'medicare-card': { name: 'Medicare Card', icon: '' },
+      'hospital-discharge': { name: 'Hospital Discharge', icon: '' },
+      'immunisation-record': { name: 'Immunization Records', icon: '' },
+      'government-form': { name: 'Government Forms', icon: '' },
+      'appointment-letter': { name: 'Appointment Letters', icon: '' },
+      'insurance': { name: 'Insurance Documents', icon: '️' },
+      'other': { name: 'Other Documents', icon: '' }
     }
     return categories[category] || categories['other']
   }
@@ -254,7 +254,7 @@ export function DocumentUpload({
 
       {/* Upload Tips */}
       <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-        <h4 className="text-sm font-medium text-blue-900 mb-2">📸 Upload Tips</h4>
+        <h4 className="text-sm font-medium text-blue-900 mb-2"> Upload Tips</h4>
         <ul className="text-xs text-blue-800 space-y-1">
           <li>• Take clear photos in good lighting</li>
           <li>• Ensure all text is readable</li>

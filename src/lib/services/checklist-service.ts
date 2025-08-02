@@ -7,7 +7,7 @@ export interface ChecklistItemRecord {
   title: string
   description: string
   due_date: string
-  category: 'immunization' | 'registration' | 'milestone' | 'checkup'
+  category: 'immunisation' | 'registration' | 'milestone' | 'checkup'
   is_completed: boolean
   completed_date: string | null
   metadata: {
@@ -221,7 +221,7 @@ export class ChecklistService {
    * Get items by category
    */
   static async getItemsByCategory(
-    category: 'immunization' | 'registration' | 'milestone' | 'checkup'
+    category: 'immunisation' | 'registration' | 'milestone' | 'checkup'
   ): Promise<ChecklistItemRecord[]> {
     const { data, error } = await this.supabase
       .from('checklist_items')

@@ -115,15 +115,15 @@ export function GrowthHistory({ measurements, onUpdate }: GrowthHistoryProps) {
   const getLocationIcon = (location?: string) => {
     switch (location) {
       case 'gp':
-        return '🏥'
+        return ''
       case 'hospital':
-        return '🏥'
+        return ''
       case 'childcare':
-        return '🏫'
+        return ''
       case 'maternal_child_health':
-        return '👩‍⚕️'
+        return '‍⚕️'
       default:
-        return '🏠'
+        return ''
     }
   }
 
@@ -367,7 +367,7 @@ export function GrowthHistory({ measurements, onUpdate }: GrowthHistoryProps) {
       {measurements.length > 0 && (
         <Card className="bg-green-50 border-green-200">
           <CardContent className="p-4">
-            <h4 className="font-medium text-green-900 mb-2">📈 Growth History Summary</h4>
+            <h4 className="font-medium text-green-900 mb-2"> Growth History Summary</h4>
             <div className="text-sm text-green-800 space-y-1">
               <p>• Total measurements recorded: {measurements.length}</p>
               <p>• Tracking period: {formatAge(measurements[measurements.length - 1].age_weeks)} to {formatAge(measurements[0].age_weeks)}</p>

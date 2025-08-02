@@ -1,5 +1,5 @@
 import { addWeeks, addDays, addMonths } from 'date-fns'
-import { AUSTRALIAN_IMMUNIZATION_SCHEDULE } from '@/lib/data/immunization-schedule'
+import { AUSTRALIAN_IMMUNISATION_SCHEDULE } from '@/lib/data/immunisation-schedule'
 import { AUSTRALIAN_GOVERNMENT_TASKS } from '@/lib/data/government-tasks'
 import { AUSTRALIAN_DEVELOPMENTAL_MILESTONES } from '@/lib/data/milestones'
 import { NotificationService } from '@/lib/services/notification-service'
@@ -10,7 +10,7 @@ export interface GeneratedChecklistItem {
   title: string
   description: string
   dueDate: Date
-  category: 'immunization' | 'registration' | 'milestone' | 'checkup'
+  category: 'immunisation' | 'registration' | 'milestone' | 'checkup'
   priority: 'high' | 'medium' | 'low'
   isCompleted: boolean
   metadata: {
@@ -34,10 +34,10 @@ export class ChecklistGenerator {
     console.log('ChecklistGenerator.generateChecklist called with:', { childId, dateOfBirth, userState })
     const checklist: GeneratedChecklistItem[] = []
 
-    // Add immunization schedule
-    const immunizations = this.generateImmunizationItems(childId, dateOfBirth)
-    console.log('Generated immunizations:', immunizations.length)
-    checklist.push(...immunizations)
+    // Add immunisation schedule
+    const immunisations = this.generateImmunizationItems(childId, dateOfBirth)
+    console.log('Generated immunisations:', immunisations.length)
+    checklist.push(...immunisations)
 
     // Add government registration tasks
     const registrations = this.generateRegistrationItems(childId, dateOfBirth, userState)
@@ -236,19 +236,19 @@ export class ChecklistGenerator {
   }
 
   /**
-   * Generate immunization checklist items
+   * Generate immunisation checklist items
    */
   private static generateImmunizationItems(
     childId: string, 
     dateOfBirth: Date
   ): GeneratedChecklistItem[] {
-    console.log('Immunization schedule items:', AUSTRALIAN_IMMUNIZATION_SCHEDULE.length)
-    const items = AUSTRALIAN_IMMUNIZATION_SCHEDULE.map(vaccine => ({
-      id: `${childId}-immunization-${vaccine.id}`,
+    console.log('Immunisation schedule items:', AUSTRALIAN_IMMUNISATION_SCHEDULE.length)
+    const items = AUSTRALIAN_IMMUNISATION_SCHEDULE.map(vaccine => ({
+      id: `${childId}-immunisation-${vaccine.id}`,
       title: vaccine.title,
       description: vaccine.description,
       dueDate: addWeeks(dateOfBirth, vaccine.ageInWeeks),
-      category: 'immunization' as const,
+      category: 'immunisation' as const,
       priority: vaccine.isRequired ? 'high' as const : 'medium' as const,
       isCompleted: false,
       metadata: {
@@ -256,7 +256,7 @@ export class ChecklistGenerator {
         isOptional: !vaccine.isRequired
       }
     }))
-    console.log('Generated immunization items:', items.length)
+    console.log('Generated immunisation items:', items.length)
     return items
   }
 
@@ -316,7 +316,7 @@ export class ChecklistGenerator {
   ): GeneratedChecklistItem[] {
     const checkups = [
       { weeks: 2, title: '2 Week Health Check', description: 'First routine health check with GP or nurse' },
-      { weeks: 6, title: '6 Week Health Check', description: 'Health check before first immunizations' },
+      { weeks: 6, title: '6 Week Health Check', description: 'Health check before first immunisations' },
       { months: 4, title: '4 Month Health Check', description: 'Routine health and development check' },
       { months: 6, title: '6 Month Health Check', description: 'Health check and discussion about starting solids' },
       { months: 12, title: '12 Month Health Check', description: 'Annual health check and development assessment' },

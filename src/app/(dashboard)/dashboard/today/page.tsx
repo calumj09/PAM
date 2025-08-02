@@ -22,6 +22,7 @@ interface Child {
 export default function TodayPage() {
   const [children, setChildren] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
+  const [userName, setUserName] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [currentTime, setCurrentTime] = useState(new Date())
   
@@ -38,6 +39,20 @@ export default function TodayPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+
+      // Get user profile for name
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, first_name')
+        .eq('id', user.id)
+        .single()
+
+      if (profile) {
+        const displayName = profile.first_name || profile.full_name || 'there'
+        setUserName(displayName)
+      } else {
+        setUserName('there')
+      }
 
       const { data: childrenData } = await supabase
         .from('children')
@@ -95,16 +110,16 @@ export default function TodayPage() {
   }
 
   const mTimeNudges = [
-    "Remember to stay hydrated today - your body is working hard 💧",
-    "You're doing an amazing job, mama - even when it doesn't feel like it ✨",
-    "Take 10 minutes for yourself when you can - you deserve it 🧘‍♀️",
-    "Rest when baby rests - there's no shame in prioritizing sleep 💤",
-    "Ask for help when you need it - you're not alone in this journey 🤗",
-    "Have you eaten something nourishing today? Your body needs fuel too 🥗",
-    "It's okay to feel overwhelmed - these early days are intense 💙",
-    "Take a moment to breathe deeply - you're stronger than you know 🌸",
-    "Your best is enough, even on the hardest days 🌟",
-    "Remember: progress over perfection, always 🌱"
+    "Remember to stay hydrated today - your body is working hard",
+    "You're doing an amazing job - even when it doesn't feel like it",
+    "Take 10 minutes for yourself when you can - you deserve it",
+    "Rest when baby rests - there's no shame in prioritising sleep",
+    "Ask for help when you need it - you're not alone in this journey",
+    "Have you eaten something nourishing today? Your body needs fuel too",
+    "It's okay to feel overwhelmed - these early days are intense",
+    "Take a moment to breathe deeply - you're stronger than you know",
+    "Your best is enough, even on the hardest days",
+    "Remember: progress over perfection, always"
   ]
 
   const randomNudge = mTimeNudges[Math.floor(Math.random() * mTimeNudges.length)]
@@ -174,7 +189,7 @@ export default function TodayPage() {
               {getTimeOfDayIcon()}
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">
-                  {getGreeting()}, Mama!
+                  {getGreeting()}{userName ? `, ${userName}` : ''}!
                 </h1>
                 <p className="text-sm text-gray-600">
                   {currentTime.toLocaleDateString('en-AU', { 
@@ -229,7 +244,7 @@ export default function TodayPage() {
                   {todaysTasks.length} gentle reminders
                 </span>
               </div>
-              <p className="text-xs text-gray-600 mt-1">Take these one at a time - no pressure! 🌸</p>
+              <p className="text-xs text-gray-600 mt-1">Take these one at a time - no pressure!</p>
             </div>
             
             <div className="p-4 space-y-3">
@@ -273,7 +288,7 @@ export default function TodayPage() {
           <div className="bg-white rounded-2xl p-6 text-center shadow-sm">
             <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3 fill-current" />
             <h3 className="font-semibold text-gray-900 mb-1">You're All Caught Up!</h3>
-            <p className="text-sm text-gray-600">No urgent tasks for today. Great job, mama!</p>
+            <p className="text-sm text-gray-600">No urgent tasks for today. Great job!</p>
           </div>
         )}
 
@@ -295,14 +310,14 @@ export default function TodayPage() {
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center hover:bg-green-200 transition-colors">
                 <CheckCircle className="w-6 h-6 text-green-600" />
               </div>
-              <span className="text-sm font-medium text-gray-900 text-center">Admin Help</span>
+              <span className="text-sm font-medium text-gray-900 text-center">Local Info</span>
             </a>
             
             <a href="/dashboard/tracker" className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 touch-manipulation min-h-[100px]">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center hover:bg-purple-200 transition-colors">
                 <Heart className="w-6 h-6 text-purple-600" />
               </div>
-              <span className="text-sm font-medium text-gray-900 text-center">Baby Log</span>
+              <span className="text-sm font-medium text-gray-900 text-center">Tracker</span>
             </a>
             
             <a href="/dashboard/growth" className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-gray-50 active:bg-gray-100 transition-all duration-200 touch-manipulation min-h-[100px]">
@@ -322,7 +337,7 @@ export default function TodayPage() {
             <p className="text-sm text-gray-700 leading-relaxed">
               Being a new mum is one of the hardest jobs in the world. Every small step counts, 
               every loving moment matters, and you're handling it all with more grace than you realize. 
-              <span className="block mt-2 font-medium text-gray-800">You are enough. You are loved. You are doing beautifully. 💕</span>
+              <span className="block mt-2 font-medium text-gray-800">You are enough. You are loved. You are doing beautifully.</span>
             </p>
           </div>
         </div>

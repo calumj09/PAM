@@ -372,7 +372,7 @@ export function FamilyManagement({ familyId, userRole }: FamilyManagementProps) 
       {/* Help Text */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
-          <h4 className="font-medium text-blue-900 mb-2">🔒 Family Sharing Privacy</h4>
+          <h4 className="font-medium text-blue-900 mb-2">Family Sharing Privacy</h4>
           <div className="text-sm text-blue-800 space-y-1">
             <p>• Only family members can see your children's data</p>
             <p>• Each role has different permissions for data access</p>

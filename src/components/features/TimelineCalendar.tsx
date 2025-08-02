@@ -17,7 +17,7 @@ interface ChecklistItem {
   title: string
   description: string
   due_date: string
-  category: 'immunization' | 'registration' | 'milestone' | 'checkup' | 'appointment'
+  category: 'immunisation' | 'registration' | 'milestone' | 'checkup' | 'appointment'
   is_completed: boolean
   completed_date: string | null
   metadata?: {
@@ -155,7 +155,7 @@ export function TimelineCalendar({
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'immunization': return 'bg-green-100 text-green-700 border-green-300'
+      case 'immunisation': return 'bg-green-100 text-green-700 border-green-300'
       case 'registration': return 'bg-blue-100 text-blue-700 border-blue-300'
       case 'milestone': return 'bg-purple-100 text-purple-700 border-purple-300'
       case 'checkup': return 'bg-orange-100 text-orange-700 border-orange-300'

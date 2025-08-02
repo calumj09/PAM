@@ -51,7 +51,7 @@ export type Database = {
           title: string
           description: string | null
           due_date: string | null
-          category: 'immunization' | 'registration' | 'milestone' | 'checkup'
+          category: 'immunisation' | 'registration' | 'milestone' | 'checkup'
           is_completed: boolean
           completed_date: string | null
         }
@@ -61,7 +61,7 @@ export type Database = {
           title: string
           description?: string | null
           due_date?: string | null
-          category: 'immunization' | 'registration' | 'milestone' | 'checkup'
+          category: 'immunisation' | 'registration' | 'milestone' | 'checkup'
           is_completed?: boolean
           completed_date?: string | null
         }
@@ -71,7 +71,7 @@ export type Database = {
           title?: string
           description?: string | null
           due_date?: string | null
-          category?: 'immunization' | 'registration' | 'milestone' | 'checkup'
+          category?: 'immunisation' | 'registration' | 'milestone' | 'checkup'
           is_completed?: boolean
           completed_date?: string | null
         }

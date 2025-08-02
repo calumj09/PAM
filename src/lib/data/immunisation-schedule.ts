@@ -1,32 +1,32 @@
 // Australian National Immunisation Program Schedule (0-3 years)
 // Source: https://www.health.gov.au/our-work/national-immunisation-program
 
-export interface ImmunizationScheduleItem {
+export interface ImmunisationScheduleItem {
   id: string
   title: string
   description: string
   ageInWeeks: number
-  category: 'immunization'
+  category: 'immunisation'
   vaccines: string[]
   isRequired: boolean
 }
 
-export const AUSTRALIAN_IMMUNIZATION_SCHEDULE: ImmunizationScheduleItem[] = [
+export const AUSTRALIAN_IMMUNISATION_SCHEDULE: ImmunisationScheduleItem[] = [
   {
     id: 'birth-hepb',
-    title: 'Birth Immunizations',
+    title: 'Birth Immunisations',
     description: 'Hepatitis B vaccine - first dose',
     ageInWeeks: 0, // At birth
-    category: 'immunization',
+    category: 'immunisation',
     vaccines: ['Hepatitis B'],
     isRequired: true
   },
   {
     id: '6-weeks',
-    title: '6 Week Immunizations',
-    description: 'First round of routine immunizations',
+    title: '6 Week Immunisations',
+    description: 'First round of routine immunisations',
     ageInWeeks: 6,
-    category: 'immunization',
+    category: 'immunisation',
     vaccines: [
       'Diphtheria, tetanus, pertussis (whooping cough)',
       'Haemophilus influenzae type b (Hib)',
@@ -39,10 +39,10 @@ export const AUSTRALIAN_IMMUNIZATION_SCHEDULE: ImmunizationScheduleItem[] = [
   },
   {
     id: '4-months',
-    title: '4 Month Immunizations',
-    description: 'Second round of routine immunizations',
+    title: '4 Month Immunisations',
+    description: 'Second round of routine immunisations',
     ageInWeeks: 16,
-    category: 'immunization',
+    category: 'immunisation',
     vaccines: [
       'Diphtheria, tetanus, pertussis (whooping cough)',
       'Haemophilus influenzae type b (Hib)',
@@ -55,10 +55,10 @@ export const AUSTRALIAN_IMMUNIZATION_SCHEDULE: ImmunizationScheduleItem[] = [
   },
   {
     id: '6-months',
-    title: '6 Month Immunizations',
-    description: 'Third round of routine immunizations',
+    title: '6 Month Immunisations',
+    description: 'Third round of routine immunisations',
     ageInWeeks: 24,
-    category: 'immunization',
+    category: 'immunisation',
     vaccines: [
       'Diphtheria, tetanus, pertussis (whooping cough)',
       'Haemophilus influenzae type b (Hib)',
@@ -70,10 +70,10 @@ export const AUSTRALIAN_IMMUNIZATION_SCHEDULE: ImmunizationScheduleItem[] = [
   },
   {
     id: '12-months',
-    title: '12 Month Immunizations',
+    title: '12 Month Immunisations',
     description: 'Fourth round including MMR vaccine',
     ageInWeeks: 52,
-    category: 'immunization',
+    category: 'immunisation',
     vaccines: [
       'Haemophilus influenzae type b (Hib)',
       'Measles, mumps, rubella (MMR)',
@@ -84,10 +84,10 @@ export const AUSTRALIAN_IMMUNIZATION_SCHEDULE: ImmunizationScheduleItem[] = [
   },
   {
     id: '18-months',
-    title: '18 Month Immunizations',
-    description: 'Fifth round of routine immunizations',
+    title: '18 Month Immunisations',
+    description: 'Fifth round of routine immunisations',
     ageInWeeks: 78,
-    category: 'immunization',
+    category: 'immunisation',
     vaccines: [
       'Diphtheria, tetanus, pertussis (whooping cough)',
       'Haemophilus influenzae type b (Hib)',
@@ -101,7 +101,7 @@ export const AUSTRALIAN_IMMUNIZATION_SCHEDULE: ImmunizationScheduleItem[] = [
     title: 'Annual Influenza Vaccine (2+ years)',
     description: 'Annual influenza vaccination recommended',
     ageInWeeks: 104, // 2 years
-    category: 'immunization',
+    category: 'immunisation',
     vaccines: ['Influenza'],
     isRequired: false
   }

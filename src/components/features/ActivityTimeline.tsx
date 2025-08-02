@@ -31,27 +31,27 @@ export function ActivityTimeline({ activities, onDeleteActivity, childName }: Ac
   const getActivityIcon = (category: string, name: string) => {
     switch (category) {
       case 'feeding':
-        if (name.includes('Breast')) return '🤱'
-        if (name.includes('Bottle')) return '🍼'
-        if (name.includes('Solid')) return '🥄'
-        return '🍽️'
+        if (name.includes('Breast')) return 'BF'
+        if (name.includes('Bottle')) return 'BT'
+        if (name.includes('Solid')) return 'SF'
+        return 'FD'
       case 'sleep':
-        return '😴'
+        return 'SL'
       case 'diaper':
-        if (name.includes('Wet')) return '💧'
-        if (name.includes('Dirty')) return '💩'
-        return '👶'
+        if (name.includes('Wet')) return 'WD'
+        if (name.includes('Dirty')) return 'DD'
+        return 'DP'
       case 'milestone':
-        return '🎉'
+        return 'MS'
       case 'health':
-        return '🏥'
+        return 'HL'
       case 'other':
-        if (name.includes('Tummy')) return '🤸'
-        if (name.includes('Bath')) return '🛁'
-        if (name.includes('Play')) return '🧸'
-        return '📝'
+        if (name.includes('Tummy')) return 'TT'
+        if (name.includes('Bath')) return 'BT'
+        if (name.includes('Play')) return 'PL'
+        return 'OT'
       default:
-        return '📝'
+        return 'OT'
     }
   }
 

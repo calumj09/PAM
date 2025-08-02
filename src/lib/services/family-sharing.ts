@@ -42,7 +42,7 @@ export interface SharedActivity {
   title: string
   description?: string
   timestamp: Date
-  data: any
+  data: Record<string, unknown>
   visibility: 'all_family' | 'parents_only' | 'primary_only'
   reactions: {
     userId: string

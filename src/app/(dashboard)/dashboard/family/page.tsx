@@ -307,7 +307,7 @@ export default function FamilyPage() {
       {/* Tips */}
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
-          <h4 className="font-medium text-blue-900 mb-2">💡 Family Sharing Tips</h4>
+          <h4 className="font-medium text-blue-900 mb-2"> Family Sharing Tips</h4>
           <div className="text-sm text-blue-800 space-y-1">
             <p>• <strong>Partners</strong> have almost full access - perfect for spouses</p>
             <p>• <strong>Caregivers</strong> can add activities but not edit existing ones</p>

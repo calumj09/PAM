@@ -346,7 +346,7 @@ export function MedicationHistory({ childId, medications }: MedicationHistoryPro
       {filteredDoses.length > 0 && (
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-4">
-            <h4 className="font-medium text-blue-900 mb-2">📊 History Summary</h4>
+            <h4 className="font-medium text-blue-900 mb-2">History Summary</h4>
             <div className="text-sm text-blue-800 space-y-1">
               <p>• Total doses in period: {filteredDoses.length}</p>
               <p>• Most common reason: {stats?.most_common_reason || 'fever'}</p>

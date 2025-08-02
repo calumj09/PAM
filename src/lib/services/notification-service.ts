@@ -27,7 +27,7 @@ export interface ScheduledNotification {
   id: string
   user_id: string
   checklist_item_id?: string
-  notification_type: 'checklist_reminder' | 'immunization_due' | 'appointment_reminder'
+  notification_type: 'checklist_reminder' | 'immunisation_due' | 'appointment_reminder'
   title: string
   body: string
   scheduled_for: string

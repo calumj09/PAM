@@ -51,7 +51,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* App Icon and Branding */}
         <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-red-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
+          <div className="w-20 h-20 bg-pam-burgundy rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
             <span className="text-3xl font-bold text-white">P</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">PAM</h1>
@@ -99,7 +99,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-red-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
+              className="w-full bg-pam-burgundy text-white py-3 px-4 rounded-xl font-semibold hover:bg-pam-burgundy/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -115,7 +115,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center space-y-4">
             <Link 
               href="/forgot-password" 
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
+              className="text-sm text-pam-burgundy hover:text-pam-burgundy/80 font-medium"
             >
               Forgot Password?
             </Link>
@@ -127,10 +127,10 @@ export default function LoginPage() {
             </div>
             
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link 
                 href="/signup" 
-                className="text-red-600 hover:text-red-700 font-semibold"
+                className="text-pam-burgundy hover:text-pam-burgundy/80 font-semibold"
               >
                 Create Account
               </Link>

@@ -3,7 +3,7 @@
 export interface OfflineData {
   id: string
   type: 'checklist_completion' | 'baby_tracking' | 'profile_update'
-  data: any
+  data: Record<string, unknown>
   timestamp: number
   synced: boolean
 }
@@ -143,7 +143,7 @@ export const offlineManager = new OfflineManager()
 // PWA installation utilities
 export const isPWAInstalled = (): boolean => {
   return window.matchMedia('(display-mode: standalone)').matches ||
-         (window.navigator as any).standalone === true
+         (window.navigator as { standalone?: boolean }).standalone === true
 }
 
 export const isIOSDevice = (): boolean => {
