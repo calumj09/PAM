@@ -459,14 +459,13 @@ export default function GrowthPage() {
       )}
 
       {/* Add Measurement Modal */}
-      {showAddMeasurement && selectedChild && (
-        <AddMeasurementModal
-          childId={selectedChild.id}
-          childDateOfBirth={selectedChild.date_of_birth}
-          onClose={() => setShowAddMeasurement(false)}
-          onAdded={handleMeasurementAdded}
-        />
-      )}
+      <AddMeasurementModal
+        childId={selectedChild?.id || ''}
+        childDateOfBirth={selectedChild?.date_of_birth}
+        isOpen={showAddMeasurement && !!selectedChild}
+        onClose={() => setShowAddMeasurement(false)}
+        onSuccess={handleMeasurementAdded}
+      />
 
       {/* Australian Health Information */}
       <Card className="bg-blue-50 border-blue-200">
