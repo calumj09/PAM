@@ -94,45 +94,45 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-orange-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         {/* App Icon and Branding */}
         <div className="text-center mb-12">
-          <div className="w-20 h-20 bg-pam-burgundy rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
-            <span className="text-3xl font-bold text-white">P</span>
+          <div className="w-20 h-20 bg-primary rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg">
+            <span className="text-3xl font-bold text-primary-foreground">P</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">PAM</h1>
-          <p className="text-gray-600 text-base">Parent Admin Manager</p>
-          <p className="text-gray-500 text-sm mt-1">Join thousands of Australian mums</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">PAM</h1>
+          <p className="text-muted-foreground text-base">Parent Admin Manager</p>
+          <p className="text-muted-foreground text-sm mt-1 opacity-80">Join thousands of Australian mums</p>
         </div>
 
         {/* Signup Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">Create Your Account</h2>
+        <div className="content-card">
+          <h2 className="text-xl font-semibold text-foreground mb-6 text-center">Create Your Account</h2>
           
           <form onSubmit={handleSignup} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                className="input-field"
                 placeholder="Enter your email"
                 required
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 State/Territory
               </label>
               <select
                 value={stateTerritory}
                 onChange={(e) => setStateTerritory(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                className="select-field"
                 required
               >
                 <option value="">Select your state/territory</option>
@@ -145,44 +145,44 @@ export default function SignupPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                className="input-field"
                 placeholder="Enter your password"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
+              <p className="text-xs text-muted-foreground mt-1">Must be at least 6 characters</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Confirm Password
               </label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                className="input-field"
                 placeholder="Confirm your password"
                 required
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl p-3">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="bg-error/10 border border-error/20 rounded-xl p-3">
+                <p className="text-sm text-error">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-pam-burgundy text-white py-3 px-4 rounded-xl font-semibold hover:bg-pam-burgundy/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
+              className="button-primary"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -196,11 +196,11 @@ export default function SignupPage() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Already have an account?{' '}
               <Link 
                 href="/login" 
-                className="text-pam-burgundy hover:text-pam-burgundy/80 font-semibold"
+                className="text-primary hover:text-primary-dark font-semibold"
               >
                 Sign In
               </Link>
@@ -210,7 +210,7 @@ export default function SignupPage() {
 
         {/* Footer */}
         <div className="text-center mt-8">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-muted-foreground">
             Designed for Australian mums with babies aged 0-3
           </p>
         </div>

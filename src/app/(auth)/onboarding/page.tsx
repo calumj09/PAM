@@ -307,29 +307,29 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-orange-50 flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-4 py-4">
+      <div className="bg-surface border-b border-border px-4 py-4">
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <span className="text-sm font-bold text-white">P</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-sm font-bold text-primary-foreground">P</span>
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-gray-900">PAM Setup</h1>
-                <p className="text-xs text-gray-500">Let&apos;s get you started!</p>
+                <h1 className="text-lg font-semibold text-foreground">PAM Setup</h1>
+                <p className="text-xs text-muted-foreground">Let&apos;s get you started!</p>
               </div>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-muted-foreground">
               {currentStep}/{totalSteps}
             </div>
           </div>
           
           {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="progress-bar">
             <div 
-              className="bg-red-600 h-2 rounded-full transition-all duration-300" 
+              className="progress-fill" 
               style={{ width: `${(currentStep / totalSteps) * 100}%` }}
             />
           </div>
@@ -341,23 +341,23 @@ export default function OnboardingPage() {
         <div className="w-full max-w-md">
           {/* Step 1: Baby Basic Info */}
           {currentStep === 1 && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="content-card">
               <div className="text-center mb-6">
                 <div className="text-4xl mb-4"></div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Tell us about your baby</h2>
-                <p className="text-sm text-gray-600">This helps us personalise your timeline</p>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Tell us about your baby</h2>
+                <p className="text-sm text-muted-foreground">This helps us personalise your timeline</p>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Baby&apos;s name
                   </label>
                   <input
                     type="text"
                     value={babyName}
                     onChange={(e) => setBabyName(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                    className="input-field"
                     placeholder="Enter baby's name"
                   />
                 </div>
@@ -388,7 +388,7 @@ export default function OnboardingPage() {
 
           {/* Step 2: Date & Location */}
           {currentStep === 2 && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="content-card">
               <div className="text-center mb-6">
                 <div className="text-4xl mb-4"></div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-2">When and where?</h2>
@@ -397,14 +397,14 @@ export default function OnboardingPage() {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Date of birth (or due date)
                   </label>
                   <input
                     type="date"
                     value={dateOfBirth}
                     onChange={(e) => setDateOfBirth(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                    className="input-field"
                   />
                   <div className="mt-2">
                     <label className="flex items-center gap-2">
@@ -412,21 +412,21 @@ export default function OnboardingPage() {
                         type="checkbox"
                         checked={isDueDate}
                         onChange={(e) => setIsDueDate(e.target.checked)}
-                        className="rounded border-gray-300 text-red-600 focus:ring-red-500"
+                        className="rounded border-border text-primary focus:ring-primary"
                       />
-                      <span className="text-sm text-gray-600">This is a due date (baby not born yet)</span>
+                      <span className="text-sm text-muted-foreground">This is a due date (baby not born yet)</span>
                     </label>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Your state/territory
                   </label>
                   <select
                     value={stateTerritory}
                     onChange={(e) => setStateTerritory(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                    className="select-field"
                   >
                     <option value="">Select your state/territory</option>
                     {australianStates.map((state) => (
@@ -442,16 +442,16 @@ export default function OnboardingPage() {
 
           {/* Step 3: Baby Measurements (Optional) */}
           {currentStep === 3 && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="content-card">
               <div className="text-center mb-6">
                 <div className="text-4xl mb-4"></div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Birth measurements</h2>
-                <p className="text-sm text-gray-600">Optional - you can add these later in growth tracking</p>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Birth measurements</h2>
+                <p className="text-sm text-muted-foreground">Optional - you can add these later in growth tracking</p>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Gender (optional)
                   </label>
                   <div className="flex gap-2">
@@ -459,10 +459,8 @@ export default function OnboardingPage() {
                       <button
                         key={g}
                         onClick={() => setGender(g)}
-                        className={`flex-1 p-3 rounded-xl border-2 transition-all ${
-                          gender === g
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                        className={`toggle-button flex-1 ${
+                          gender === g ? 'selected' : ''
                         }`}
                       >
                         <div className="text-sm font-medium capitalize">{g}</div>
@@ -473,7 +471,7 @@ export default function OnboardingPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Weight (kg)
                     </label>
                     <input
@@ -481,26 +479,26 @@ export default function OnboardingPage() {
                       step="0.1"
                       value={weight}
                       onChange={(e) => setWeight(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                      className="input-field"
                       placeholder="3.5"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-foreground mb-2">
                       Height (cm)
                     </label>
                     <input
                       type="number"
                       value={height}
                       onChange={(e) => setHeight(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                      className="input-field"
                       placeholder="50"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Head circumference (cm)
                   </label>
                   <input
@@ -508,7 +506,7 @@ export default function OnboardingPage() {
                     step="0.1"
                     value={headCircumference}
                     onChange={(e) => setHeadCircumference(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                    className="input-field"
                     placeholder="35"
                   />
                 </div>
@@ -518,11 +516,11 @@ export default function OnboardingPage() {
 
           {/* Step 4: Feeding & Birth Info (Optional) */}
           {currentStep === 4 && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="content-card">
               <div className="text-center mb-6">
                 <div className="text-4xl mb-4"></div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">Feeding & birth details</h2>
-                <p className="text-sm text-gray-600">Optional - helps us give better suggestions</p>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Feeding & birth details</h2>
+                <p className="text-sm text-muted-foreground">Optional - helps us give better suggestions</p>
               </div>
               
               <div className="space-y-4">
@@ -535,10 +533,8 @@ export default function OnboardingPage() {
                       <button
                         key={method.value}
                         onClick={() => setFeedingMethod(method.value)}
-                        className={`w-full p-3 rounded-xl border-2 transition-all text-left ${
-                          feedingMethod === method.value
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                        className={`toggle-button w-full text-left ${
+                          feedingMethod === method.value ? 'selected' : ''
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -559,10 +555,8 @@ export default function OnboardingPage() {
                       <button
                         key={type.value}
                         onClick={() => setBirthType(type.value)}
-                        className={`w-full p-3 rounded-xl border-2 transition-all text-left ${
-                          birthType === type.value
-                            ? 'border-red-500 bg-red-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                        className={`toggle-button w-full text-left ${
+                          birthType === type.value ? 'selected' : ''
                         }`}
                       >
                         <span className="font-medium">{type.label}</span>
@@ -576,20 +570,20 @@ export default function OnboardingPage() {
 
           {/* Step 5: Final Welcome */}
           {currentStep === 5 && (
-            <div className="bg-white rounded-2xl shadow-xl p-6">
+            <div className="content-card">
               <div className="text-center mb-6">
                 <div className="text-4xl mb-4">✓</div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">You&apos;re all set!</h2>
-                <p className="text-sm text-gray-600 mb-4">
+                <h2 className="text-xl font-semibold text-foreground mb-2">You&apos;re all set!</h2>
+                <p className="text-sm text-muted-foreground mb-4">
                   Welcome to PAM! We&apos;re creating your personalised timeline now.
                 </p>
                 
-                <div className="bg-gradient-to-r from-pink-100 to-orange-100 rounded-xl p-4 border border-pink-200">
+                <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
                   <div className="flex items-center gap-3 mb-3">
-                    <Heart className="w-5 h-5 text-pink-600" />
-                    <span className="font-medium text-gray-900">Your PAM journey starts now</span>
+                    <Heart className="w-5 h-5 text-primary" />
+                    <span className="font-medium text-foreground">Your PAM journey starts now</span>
                   </div>
-                  <p className="text-sm text-gray-700 text-left">
+                  <p className="text-sm text-muted-foreground text-left">
                     • Get personalised Australian timeline<br/>
                     • Track {babyName}&apos;s milestones<br/>
                     • Reduce your mental load<br/>
@@ -599,17 +593,17 @@ export default function OnboardingPage() {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                <div className="bg-error/10 border border-error/20 rounded-xl p-4 mb-4">
                   <div className="flex items-start gap-3">
-                    <div className="text-red-500 text-lg">WARNING</div>
+                    <div className="text-error text-lg">WARNING</div>
                     <div className="w-full">
-                      <h4 className="text-sm font-medium text-red-800 mb-1">Setup Error</h4>
-                      <p className="text-sm text-red-600 mb-2 break-words">{error}</p>
-                      <details className="text-xs text-red-500">
-                        <summary className="cursor-pointer hover:text-red-700">Technical details</summary>
-                        <pre className="mt-2 p-2 bg-red-100 rounded overflow-x-auto text-[10px]">{error}</pre>
+                      <h4 className="text-sm font-medium text-error mb-1">Setup Error</h4>
+                      <p className="text-sm text-error mb-2 break-words">{error}</p>
+                      <details className="text-xs text-error">
+                        <summary className="cursor-pointer hover:text-error/80">Technical details</summary>
+                        <pre className="mt-2 p-2 bg-error/10 rounded overflow-x-auto text-[10px]">{error}</pre>
                       </details>
-                      <p className="text-xs text-red-500 mt-2">
+                      <p className="text-xs text-error mt-2">
                         Please check the browser console for more details. Press F12 to open developer tools.
                       </p>
                     </div>
@@ -626,8 +620,8 @@ export default function OnboardingPage() {
               disabled={currentStep === 1}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                 currentStep === 1
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white'
+                  ? 'text-muted-foreground cursor-not-allowed'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-surface'
               }`}
             >
               <ChevronLeft className="w-5 h-5" />
@@ -638,10 +632,8 @@ export default function OnboardingPage() {
               <button
                 onClick={nextStep}
                 disabled={!isStepValid()}
-                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
-                  isStepValid()
-                    ? 'bg-red-600 text-white hover:bg-red-700'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                className={`button-primary px-6 py-3 font-semibold ${
+                  !isStepValid() ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
                 Continue
@@ -651,7 +643,7 @@ export default function OnboardingPage() {
               <button
                 onClick={completeOnboarding}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="button-primary px-6 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>

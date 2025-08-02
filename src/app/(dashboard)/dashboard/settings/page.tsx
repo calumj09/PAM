@@ -38,8 +38,8 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <CogIcon className="w-6 h-6 text-pam-red" />
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <CogIcon className="w-6 h-6 text-primary" />
+        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
       </div>
 
       <div className="space-y-6">
@@ -53,10 +53,10 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Email
               </label>
-              <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-600">
+              <div className="px-3 py-2 bg-muted border border-border rounded-lg text-muted-foreground">
                 {user.email}
               </div>
             </div>
@@ -64,27 +64,27 @@ export default async function SettingsPage() {
             {profile && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     State/Territory
                   </label>
-                  <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-600">
+                  <div className="px-3 py-2 bg-muted border border-border rounded-lg text-muted-foreground">
                     {profile.state_territory || 'Not specified'}
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Postcode
                   </label>
-                  <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-600">
+                  <div className="px-3 py-2 bg-muted border border-border rounded-lg text-muted-foreground">
                     {profile.postcode || 'Not specified'}
                   </div>
                 </div>
               </>
             )}
             
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-500">
+            <div className="pt-4 border-t border-border">
+              <p className="text-sm text-muted-foreground">
                 Account created: {new Date(user.created_at).toLocaleDateString('en-AU')}
               </p>
             </div>
@@ -110,8 +110,8 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Parenting Assistance Mobile</h3>
-              <p className="text-sm text-gray-600 mb-4">
+              <h3 className="font-medium text-foreground mb-2">Parenting Assistance Mobile</h3>
+              <p className="text-sm text-muted-foreground mb-4">
                 PAM is designed specifically for Australian parents with children aged 0-3 years, 
                 providing automated checklists, baby tracking, and reminders tailored to Australian 
                 healthcare and government requirements.
@@ -120,8 +120,8 @@ export default async function SettingsPage() {
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <h4 className="font-medium text-gray-900 mb-1">Features</h4>
-                <ul className="text-gray-600 space-y-1">
+                <h4 className="font-medium text-foreground mb-1">Features</h4>
+                <ul className="text-muted-foreground space-y-1">
                   <li>• Automated immunisation schedule</li>
                   <li>• Government registration tasks</li>
                   <li>• Baby activity tracking</li>
@@ -131,8 +131,8 @@ export default async function SettingsPage() {
               </div>
               
               <div>
-                <h4 className="font-medium text-gray-900 mb-1">Australian Compliance</h4>
-                <ul className="text-gray-600 space-y-1">
+                <h4 className="font-medium text-foreground mb-1">Australian Compliance</h4>
+                <ul className="text-muted-foreground space-y-1">
                   <li>• DD/MM/YYYY date format</li>
                   <li>• Australian English</li>
                   <li>• State-specific links</li>
@@ -142,8 +142,8 @@ export default async function SettingsPage() {
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500">
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs text-muted-foreground">
                 Version 1.0.0 • Built with ❤️ for Australian families
               </p>
             </div>
@@ -157,29 +157,29 @@ export default async function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Your Data</h3>
-              <p className="text-sm text-gray-600 mb-3">
+              <h3 className="font-medium text-foreground mb-2">Your Data</h3>
+              <p className="text-sm text-muted-foreground mb-3">
                 All your data is securely stored and encrypted. You have full control over your information.
               </p>
               
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Data storage:</span>
-                  <span className="font-medium">Encrypted in Australia</span>
+                  <span className="text-muted-foreground">Data storage:</span>
+                  <span className="font-medium text-foreground">Encrypted in Australia</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Data sharing:</span>
-                  <span className="font-medium">Never shared with third parties</span>
+                  <span className="text-muted-foreground">Data sharing:</span>
+                  <span className="font-medium text-foreground">Never shared with third parties</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Data retention:</span>
-                  <span className="font-medium">Until you delete your account</span>
+                  <span className="text-muted-foreground">Data retention:</span>
+                  <span className="font-medium text-foreground">Until you delete your account</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-gray-200">
-              <p className="text-xs text-gray-500">
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs text-muted-foreground">
                 PAM complies with the Australian Privacy Principles and GDPR where applicable.
               </p>
             </div>

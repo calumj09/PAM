@@ -948,12 +948,12 @@ export default function ChecklistPage() {
   })
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-gray-100 sticky top-0 z-10">
+      <div className="bg-surface border-b border-border sticky top-0 z-10">
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">Timeline <span className="text-xs text-gray-500">v3</span></h1>
+            <h1 className="text-xl font-semibold text-foreground">Timeline <span className="text-xs text-muted-foreground">v3</span></h1>
           </div>
           
           
@@ -967,10 +967,8 @@ export default function ChecklistPage() {
                     setSelectedChild(child)
                     await loadChecklistForChild(child.id)
                   }}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                    selectedChild?.id === child.id
-                      ? 'bg-pam-burgundy text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`toggle-button px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap ${
+                    selectedChild?.id === child.id ? 'selected' : ''
                   }`}
                 >
                   {child.name}
@@ -982,8 +980,8 @@ export default function ChecklistPage() {
           {/* State Indicator */}
           {userState && (
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-xs text-gray-500">Australian timeline for</span>
-              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+              <span className="text-xs text-muted-foreground">Australian timeline for</span>
+              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">
                 {userState === 'NSW' ? 'New South Wales' :
                  userState === 'VIC' ? 'Victoria' :
                  userState === 'QLD' ? 'Queensland' :
