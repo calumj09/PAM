@@ -12,3 +12,5 @@ services:
         fromEnv: NEXT_PUBLIC_SUPABASE_URL
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         fromEnv: NEXT_PUBLIC_SUPABASE_ANON_KEY
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://pam-7xeo.onrender.com
