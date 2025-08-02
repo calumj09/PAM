@@ -62,7 +62,10 @@ export default function SignupPage() {
         email: email.trim(),
         password: password,
         options: {
-          emailRedirectTo: `${getAppUrl()}/auth/callback`
+          emailRedirectTo: `${getAppUrl()}/auth/callback?type=email`,
+          data: {
+            state_territory: stateTerritory
+          }
         }
       })
 
