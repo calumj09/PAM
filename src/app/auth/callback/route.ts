@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const type = searchParams.get('type')
   const next = searchParams.get('next') ?? '/dashboard/today'
 
   if (code) {
@@ -11,7 +12,12 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!error) {
-      // Check if user has completed onboarding
+      // Handle password recovery flow
+      if (type === 'recovery') {
+        return NextResponse.redirect(`${origin}/reset-password`)
+      }
+      
+      // Handle normal auth flow
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
