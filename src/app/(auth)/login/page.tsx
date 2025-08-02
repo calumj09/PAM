@@ -31,7 +31,14 @@ export default function LoginPage() {
 
       if (error) {
         console.error('Login error:', error)
-        setError(error.message)
+        // Check for specific error types
+        if (error.message.includes('Email not confirmed') || error.message.includes('email_not_confirmed')) {
+          setError('Please check your email and click the confirmation link before logging in.')
+        } else if (error.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please try again.')
+        } else {
+          setError(error.message)
+        }
       } else if (data.user) {
         console.log('Login successful, redirecting...')
         router.push('/dashboard/today')

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { getAppUrl } from '@/lib/config/app'
+import { SuccessMessage } from './SuccessMessage'
 
 const australianStates = [
   { value: 'NSW', label: 'New South Wales' },
@@ -24,6 +25,7 @@ export default function SignupPage() {
   const [stateTerritory, setStateTerritory] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
   
   const router = useRouter()
   const supabase = createClient()
@@ -70,9 +72,9 @@ export default function SignupPage() {
         console.error('Auth error:', authError)
         setError(authError.message)
       } else if (data.user) {
-        console.log('Signup successful, redirecting to onboarding...')
-        // Success - redirect to onboarding flow
-        router.push('/onboarding')
+        console.log('Signup successful')
+        // Always show success message for email confirmation
+        setShowSuccess(true)
       } else {
         setError('Signup failed - no user returned')
       }
@@ -82,6 +84,10 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (showSuccess) {
+    return <SuccessMessage email={email} />
   }
 
   return (
