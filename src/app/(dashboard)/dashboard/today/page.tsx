@@ -10,7 +10,8 @@ import {
   Sparkles,
   Calendar,
   Sun,
-  Moon
+  Moon,
+  ChevronDown
 } from 'lucide-react'
 
 interface Child {
@@ -159,9 +160,32 @@ export default function TodayPage() {
             </div>
           </div>
 
-          {/* Baby Info */}
+          {/* Child Selection & Info */}
           {selectedChild && (
             <div className="bg-primary/10 rounded-2xl p-4">
+              {children.length > 1 ? (
+                <div className="mb-3">
+                  <label className="block text-xs font-medium text-muted-foreground mb-2">Viewing timeline for:</label>
+                  <div className="relative">
+                    <select
+                      value={selectedChild.id}
+                      onChange={(e) => {
+                        const child = children.find(c => c.id === e.target.value)
+                        if (child) setSelectedChild(child)
+                      }}
+                      className="w-full appearance-none bg-surface/80 border border-border rounded-lg px-3 py-2 pr-8 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      {children.map((child) => (
+                        <option key={child.id} value={child.id}>
+                          {child.name} ({getChildAge(child.date_of_birth)})
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                </div>
+              ) : null}
+              
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-primary" />
@@ -234,7 +258,7 @@ export default function TodayPage() {
               })}
               
               <a 
-                href="/dashboard/checklist"
+                href={`/dashboard/checklist${selectedChild ? `?child=${selectedChild.id}` : ''}`}
                 className="block text-center py-3 text-primary hover:text-primary-dark font-medium text-sm"
               >
                 View Full Timeline →
@@ -254,7 +278,7 @@ export default function TodayPage() {
           <h2 className="font-semibold text-foreground mb-4">Quick Actions</h2>
           
           <div className="grid grid-cols-2 gap-3">
-            <a href="/dashboard/checklist" className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
+            <a href={`/dashboard/checklist${selectedChild ? `?child=${selectedChild.id}` : ''}`} className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-colors">
                 <Calendar className="w-6 h-6 text-primary" />
               </div>
@@ -268,14 +292,14 @@ export default function TodayPage() {
               <span className="text-sm font-medium text-foreground text-center">Local Info</span>
             </a>
             
-            <a href="/dashboard/tracker" className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
+            <a href={`/dashboard/tracker${selectedChild ? `?child=${selectedChild.id}` : ''}`} className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
               <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center hover:bg-primary/20 transition-colors">
                 <Heart className="w-6 h-6 text-primary" />
               </div>
               <span className="text-sm font-medium text-foreground text-center">Tracker</span>
             </a>
             
-            <a href="/dashboard/growth" className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
+            <a href={`/dashboard/growth${selectedChild ? `?child=${selectedChild.id}` : ''}`} className="flex flex-col items-center gap-3 p-5 rounded-xl hover:bg-muted/50 active:bg-muted transition-all duration-200 touch-manipulation min-h-[100px]">
               <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center hover:bg-warning/20 transition-colors">
                 <Sparkles className="w-6 h-6 text-warning" />
               </div>

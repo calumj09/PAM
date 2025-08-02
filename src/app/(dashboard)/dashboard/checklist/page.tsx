@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
 import { getMilestoneForWeek, getUpcomingMilestones } from '@/lib/data/milestone-bubbles'
@@ -49,6 +50,7 @@ interface ChecklistItem {
 }
 
 export default function ChecklistPage() {
+  const searchParams = useSearchParams()
   const [children, setChildren] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([])
@@ -149,8 +151,21 @@ export default function ChecklistPage() {
 
       if (childrenData && childrenData.length > 0) {
         setChildren(childrenData)
-        setSelectedChild(childrenData[0])
-        await loadChecklistForChild(childrenData[0].id)
+        
+        // Check for child ID from URL params
+        const childParam = searchParams.get('child')
+        const targetChild = childParam 
+          ? childrenData.find(c => c.id === childParam) 
+          : childrenData[0]
+        
+        if (targetChild) {
+          setSelectedChild(targetChild)
+          await loadChecklistForChild(targetChild.id)
+        } else {
+          // Fallback to first child if URL param is invalid
+          setSelectedChild(childrenData[0])
+          await loadChecklistForChild(childrenData[0].id)
+        }
       }
     } finally {
       setIsLoading(false)

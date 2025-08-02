@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { UserGroupIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline'
+import { AddChildModal } from '@/components/modals/AddChildModal'
+import { UserGroupIcon, TrashIcon, PencilIcon, PlusIcon } from '@heroicons/react/24/outline'
 
 interface Child {
   id: string
@@ -23,6 +24,7 @@ export function ChildrenManagement({ userId }: ChildrenManagementProps) {
   const [children, setChildren] = useState<Child[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -128,21 +130,21 @@ export function ChildrenManagement({ userId }: ChildrenManagementProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         {children.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No children added yet.</p>
+          <p className="text-muted-foreground text-center py-4">No children added yet.</p>
         ) : (
           <>
             <div className="space-y-3">
               {children.map((child) => (
                 <div
                   key={child.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                  className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border"
                 >
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{child.name}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-medium text-foreground">{child.name}</h3>
+                    <p className="text-sm text-muted-foreground">
                       {child.is_due_date ? 'Due ' : 'Born '} {formatDate(child.date_of_birth)}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {calculateAge(child.date_of_birth, child.is_due_date)} • {child.baby_type === 'twins' ? 'Twins' : 'Single baby'}
                     </p>
                   </div>
@@ -155,7 +157,7 @@ export function ChildrenManagement({ userId }: ChildrenManagementProps) {
                         // TODO: Implement edit functionality
                         alert('Edit functionality coming soon!')
                       }}
-                      className="text-gray-600 hover:text-gray-900"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       <PencilIcon className="w-4 h-4" />
                     </Button>
@@ -164,11 +166,11 @@ export function ChildrenManagement({ userId }: ChildrenManagementProps) {
                       size="sm"
                       onClick={() => deleteChild(child.id)}
                       disabled={deletingId === child.id || children.length === 1}
-                      className="text-red-600 hover:text-red-700 disabled:opacity-50"
+                      className="text-error hover:text-error/80 disabled:opacity-50"
                       title={children.length === 1 ? "You must have at least one child" : "Delete child"}
                     >
                       {deletingId === child.id ? (
-                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-error border-t-transparent rounded-full animate-spin" />
                       ) : (
                         <TrashIcon className="w-4 h-4" />
                       )}
@@ -179,8 +181,8 @@ export function ChildrenManagement({ userId }: ChildrenManagementProps) {
             </div>
             
             {children.length > 1 && (
-              <div className="pt-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500">
+              <div className="pt-4 border-t border-border">
+                <p className="text-xs text-muted-foreground">
                   Note: You have multiple children registered. The app may show combined data in some sections.
                 </p>
               </div>
@@ -192,16 +194,21 @@ export function ChildrenManagement({ userId }: ChildrenManagementProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              // TODO: Implement add child functionality
-              alert('To add another child, please use the onboarding flow. Multiple child support is coming soon!')
-            }}
+            onClick={() => setShowAddModal(true)}
             className="w-full"
           >
+            <PlusIcon className="w-4 h-4 mr-2" />
             Add Another Child
           </Button>
         </div>
       </CardContent>
+      
+      <AddChildModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onChildAdded={loadChildren}
+        userId={userId}
+      />
     </Card>
   )
 }
