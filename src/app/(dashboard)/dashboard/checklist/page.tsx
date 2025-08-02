@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { australianChecklistItems, calculateDueDate, getChecklistForChild } from '@/lib/data/checklist-items'
@@ -49,7 +49,7 @@ interface ChecklistItem {
   metadata: Record<string, unknown>;
 }
 
-export default function ChecklistPage() {
+function ChecklistPageContent() {
   const searchParams = useSearchParams()
   const [children, setChildren] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
@@ -1549,5 +1549,19 @@ export default function ChecklistPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function ChecklistPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <div className="flex items-center justify-center h-screen">
+          <div className="loading-spinner"></div>
+        </div>
+      </div>
+    }>
+      <ChecklistPageContent />
+    </Suspense>
   )
 }
