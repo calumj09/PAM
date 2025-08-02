@@ -223,49 +223,8 @@ export default function OnboardingPage() {
       
       console.log('COMPLETE Baby profile successfully created:', baby)
 
-      // Step 6: Generate checklist for the baby (optional - don't fail if this breaks)
-      try {
-        console.log('Form data Testing checklist table structure...')
-        const checklistStructureTest = await supabase
-          .from('checklist_items')
-          .select('*')
-          .limit(1)
-        console.log('Form data Checklist structure test:', checklistStructureTest)
-        
-        console.log('Form data Generating checklist...')
-        const checklistModule = await import('@/lib/services/checklist-service')
-        console.log('PACKAGE Checklist module loaded:', !!checklistModule)
-        console.log('TOOL ChecklistService available:', !!checklistModule?.ChecklistService)
-        
-        if (checklistModule && checklistModule.ChecklistService) {
-          console.log('Form data Calling generateChecklistForChild with:', {
-            babyId: baby.id,
-            dateOfBirth: baby.date_of_birth,
-            state: stateTerritory
-          })
-          
-          await checklistModule.ChecklistService.generateChecklistForChild(
-            baby.id,
-            baby.date_of_birth,
-            stateTerritory
-          )
-          console.log('SUCCESS Checklist generated successfully')
-        } else {
-          console.warn('WARNING ChecklistService not available, skipping checklist generation')
-        }
-      } catch (checklistError: unknown) {
-        console.error('ERROR Error generating checklist:', checklistError)
-        console.error('SEARCH Checklist error details:', checklistError)
-        
-        // Check if it's a schema error
-        const error = checklistError as { message?: string; code?: string }
-        if (error.message?.includes('metadata') || error.code === '42703') {
-          console.warn('WARNING Database schema missing metadata column - checklist generation skipped')
-        }
-        
-        // IMPORTANT: Don't throw here - baby creation succeeded, continue to dashboard
-        console.log('NEXT Continuing to dashboard despite checklist error')
-      }
+      // Step 6: Skip checklist generation for now - it's causing issues
+      console.log('Skipping checklist generation to avoid errors')
 
       console.log('Starting Redirecting to dashboard...')
       
@@ -677,7 +636,7 @@ export default function OnboardingPage() {
               <button
                 onClick={completeOnboarding}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isLoading ? (
                   <>
