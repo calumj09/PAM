@@ -8,7 +8,8 @@ import {
   DocumentTextIcon,
   ChartBarIcon,
   CalendarDaysIcon,
-  SparklesIcon
+  SparklesIcon,
+  CogIcon
 } from '@heroicons/react/24/outline'
 import {
   HomeIcon as HomeSolid,
@@ -16,7 +17,8 @@ import {
   DocumentTextIcon as DocumentSolid,
   ChartBarIcon as ChartSolid,
   CalendarDaysIcon as CalendarSolid,
-  SparklesIcon as SparklesSolid
+  SparklesIcon as SparklesSolid,
+  CogIcon as CogSolid
 } from '@heroicons/react/24/solid'
 
 const navItems = [
@@ -49,6 +51,12 @@ const navItems = [
     label: 'Tracker', 
     icon: ChartBarIcon,
     activeIcon: ChartSolid
+  },
+  { 
+    href: '/dashboard/settings', 
+    label: 'Settings', 
+    icon: CogIcon,
+    activeIcon: CogSolid
   },
 ]
 
