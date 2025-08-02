@@ -37,7 +37,22 @@ export default function OnboardingPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   
-  // Form data
+  // Multiple children support
+  const [children, setChildren] = useState<Array<{
+    name: string
+    type: string
+    dateOfBirth: string
+    isDueDate: boolean
+    gender: string
+    height: string
+    weight: string
+    headCircumference: string
+    feedingMethod: string
+    birthType: string
+  }>>([])
+  const [currentChildIndex, setCurrentChildIndex] = useState(0)
+  
+  // Form data for current child
   const [babyName, setBabyName] = useState('')
   const [babyType, setBabyType] = useState('')
   const [dateOfBirth, setDateOfBirth] = useState('')
@@ -53,7 +68,47 @@ export default function OnboardingPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const totalSteps = 5
+  const totalSteps = 6
+
+  const saveCurrentChild = () => {
+    const currentChild = {
+      name: babyName,
+      type: babyType,
+      dateOfBirth,
+      isDueDate,
+      gender,
+      height,
+      weight,
+      headCircumference,
+      feedingMethod,
+      birthType
+    }
+    
+    const updatedChildren = [...children]
+    updatedChildren[currentChildIndex] = currentChild
+    setChildren(updatedChildren)
+    return currentChild
+  }
+
+  const clearCurrentForm = () => {
+    setBabyName('')
+    setBabyType('')
+    setDateOfBirth('')
+    setIsDueDate(false)
+    setGender('')
+    setHeight('')
+    setWeight('')
+    setHeadCircumference('')
+    setFeedingMethod('')
+    setBirthType('')
+  }
+
+  const addAnotherChild = () => {
+    saveCurrentChild()
+    clearCurrentForm()
+    setCurrentChildIndex(children.length + 1)
+    setCurrentStep(1) // Go back to step 1 for new child
+  }
 
   const nextStep = () => {
     if (currentStep < totalSteps) {
@@ -72,20 +127,13 @@ export default function OnboardingPage() {
     setError('')
 
     try {
+      // Save current child before processing
+      const finalChild = saveCurrentChild()
+      const allChildren = [...children, finalChild]
+      
       console.log('Starting onboarding completion...')
-      console.log('Form data collected:', {
-        babyName,
-        babyType,
-        dateOfBirth,
-        isDueDate,
-        gender,
-        height,
-        weight,
-        headCircumference,
-        feedingMethod,
-        birthType,
-        stateTerritory
-      })
+      console.log('All children data:', allChildren)
+      console.log('State territory:', stateTerritory)
       
       // Step 1: Test basic connection
       console.log('Testing Supabase connection...')
@@ -300,6 +348,8 @@ export default function OnboardingPage() {
       case 4:
         return true // Optional feeding/birth info
       case 5:
+        return true // Add another child step
+      case 6:
         return true // Final confirmation
       default:
         return false
@@ -568,8 +618,57 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 5: Final Welcome */}
+          {/* Step 5: Add Another Child */}
           {currentStep === 5 && (
+            <div className="content-card">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4">👶</div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Add another child?</h2>
+                <p className="text-sm text-muted-foreground">
+                  Do you have more children aged 0-3 to add to PAM?
+                </p>
+              </div>
+              
+              {children.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-medium text-foreground mb-3">Children added so far:</h3>
+                  <div className="space-y-2">
+                    {[...children, { name: babyName, dateOfBirth }].map((child, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                        <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-semibold text-primary">{child.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{child.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Born: {new Date(child.dateOfBirth).toLocaleDateString('en-AU')}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-3">
+                <button
+                  onClick={addAnotherChild}
+                  className="button-secondary w-full"
+                >
+                  + Add Another Child
+                </button>
+                <button
+                  onClick={nextStep}
+                  className="button-primary w-full"
+                >
+                  Continue with {children.length + 1} child{children.length > 0 ? 'ren' : ''}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 6: Final Welcome */}
+          {currentStep === 6 && (
             <div className="content-card">
               <div className="text-center mb-6">
                 <div className="text-4xl mb-4">✓</div>
