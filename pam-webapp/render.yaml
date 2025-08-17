@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: pam-app
+    env: node
+    plan: free
+    buildCommand: npm ci --production=false && npm run build
+    startCommand: npm run start
+    buildFilter:
+      paths:
+      - src/**
+      - public/**
+      - package.json
+      - package-lock.json
+      - next.config.ts
+      - tailwind.config.ts
+      - tsconfig.json
+      - render.yaml
+      ignoredPaths:
+      - archive/**
+      - "*.md"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        fromEnv: NEXT_PUBLIC_SUPABASE_URL
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        fromEnv: NEXT_PUBLIC_SUPABASE_ANON_KEY
+      - key: NEXT_PUBLIC_APP_URL
+        value: https://pam-7xeo.onrender.com

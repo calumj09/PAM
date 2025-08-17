@@ -1,0 +1,770 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react'
+
+const australianStates = [
+  { value: 'NSW', label: 'New South Wales' },
+  { value: 'VIC', label: 'Victoria' },
+  { value: 'QLD', label: 'Queensland' },
+  { value: 'WA', label: 'Western Australia' },
+  { value: 'SA', label: 'South Australia' },
+  { value: 'TAS', label: 'Tasmania' },
+  { value: 'ACT', label: 'Australian Capital Territory' },
+  { value: 'NT', label: 'Northern Territory' },
+]
+
+const feedingMethods = [
+  { value: 'breastfeeding', label: 'Breastfeeding', emoji: '' },
+  { value: 'bottle', label: 'Bottle feeding', emoji: '' },
+  { value: 'mixed', label: 'Mixed feeding', emoji: '' },
+]
+
+const birthTypes = [
+  { value: 'vaginal', label: 'Vaginal birth', emoji: '' },
+  { value: 'c-section', label: 'C-section', emoji: '' },
+]
+
+const babyTypes = [
+  { value: 'single', label: 'Single baby', emoji: '' },
+  { value: 'twins', label: 'Twins', emoji: '' },
+]
+
+export default function OnboardingPage() {
+  const [currentStep, setCurrentStep] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  
+  // Multiple children support
+  const [children, setChildren] = useState<Array<{
+    name: string
+    type: string
+    dateOfBirth: string
+    isDueDate: boolean
+    gender: string
+    height: string
+    weight: string
+    headCircumference: string
+    feedingMethod: string
+    birthType: string
+  }>>([])
+  const [currentChildIndex, setCurrentChildIndex] = useState(0)
+  
+  // Form data for current child
+  const [babyName, setBabyName] = useState('')
+  const [babyType, setBabyType] = useState('')
+  const [dateOfBirth, setDateOfBirth] = useState('')
+  const [isDueDate, setIsDueDate] = useState(false)
+  const [gender, setGender] = useState('')
+  const [height, setHeight] = useState('')
+  const [weight, setWeight] = useState('')
+  const [headCircumference, setHeadCircumference] = useState('')
+  const [feedingMethod, setFeedingMethod] = useState('')
+  const [birthType, setBirthType] = useState('')
+  const [stateTerritory, setStateTerritory] = useState('')
+  
+  const router = useRouter()
+  const supabase = createClient()
+
+  const totalSteps = 6
+
+  const saveCurrentChild = () => {
+    const currentChild = {
+      name: babyName,
+      type: babyType,
+      dateOfBirth,
+      isDueDate,
+      gender,
+      height,
+      weight,
+      headCircumference,
+      feedingMethod,
+      birthType
+    }
+    
+    const updatedChildren = [...children]
+    updatedChildren[currentChildIndex] = currentChild
+    setChildren(updatedChildren)
+    return currentChild
+  }
+
+  const clearCurrentForm = () => {
+    setBabyName('')
+    setBabyType('')
+    setDateOfBirth('')
+    setIsDueDate(false)
+    setGender('')
+    setHeight('')
+    setWeight('')
+    setHeadCircumference('')
+    setFeedingMethod('')
+    setBirthType('')
+  }
+
+  const addAnotherChild = () => {
+    saveCurrentChild()
+    clearCurrentForm()
+    setCurrentChildIndex(children.length + 1)
+    setCurrentStep(1) // Go back to step 1 for new child
+  }
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1)
+    }
+  }
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const completeOnboarding = async () => {
+    setIsLoading(true)
+    setError('')
+
+    try {
+      // Save current child before processing
+      const finalChild = saveCurrentChild()
+      const allChildren = [...children, finalChild]
+      
+      console.log('Starting onboarding completion...')
+      console.log('All children data:', allChildren)
+      console.log('State territory:', stateTerritory)
+      
+      // Step 1: Test basic connection
+      console.log('Testing Supabase connection...')
+      const connectionTest = await supabase.from('profiles').select('count').limit(1)
+      console.log('Connection test result:', connectionTest)
+      
+      console.log('Checking authentication...')
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError) {
+        console.error('ERROR Auth check failed:', authError)
+        throw new Error(`Authentication check failed: ${authError.message}`)
+      }
+      
+      if (!user) {
+        console.error('ERROR No user found')
+        throw new Error('Not authenticated - no user found')
+      }
+      
+      console.log('SUCCESS User authenticated:', user.id, user.email)
+
+      // Step 2: Test profile table structure
+      console.log('TESTING Testing profile table structure...')
+      const profileStructureTest = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .limit(1)
+      console.log('TESTING Profile structure test:', profileStructureTest)
+
+      // Step 3: Update user profile with state
+      console.log(' Updating user profile...')
+      console.log('INFO Profile data to insert:', {
+        id: user.id,
+        state_territory: stateTerritory
+      })
+      
+      // Use basic profile data to avoid column errors
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          state_territory: stateTerritory
+        })
+        .select()
+
+      console.log(' Profile upsert result:', { data: profileData, error: profileError })
+
+      if (profileError) {
+        console.error('ERROR Profile update failed:', profileError)
+        console.error('ERROR Profile error details:', {
+          message: profileError.message,
+          code: profileError.code,
+          details: profileError.details,
+          hint: profileError.hint
+        })
+        throw new Error(`PROFILE ERROR: ${profileError.message} (Code: ${profileError.code})`)
+      }
+      
+      console.log('SUCCESS Profile updated successfully:', profileData)
+
+      // Step 4: Test children table structure
+      console.log('TESTING Testing children table structure...')
+      const childrenStructureTest = await supabase
+        .from('children')
+        .select('*')
+        .limit(1)
+      console.log('TESTING Children structure test:', childrenStructureTest)
+
+      // Step 5: Create baby profile with all data
+      console.log(' Creating baby profile...')
+      
+      // Include all the collected data
+      const babyData = {
+        user_id: user.id,
+        name: babyName,
+        date_of_birth: dateOfBirth,
+        is_due_date: isDueDate,
+        baby_type: babyType,
+        gender: gender || null,
+        birth_height_cm: height ? parseFloat(height) : null,
+        birth_weight_grams: weight ? parseFloat(weight) * 1000 : null, // Convert kg to grams
+        head_circumference_cm: headCircumference ? parseFloat(headCircumference) : null,
+        feeding_method: feedingMethod || null,
+        birth_type: birthType || null,
+        is_premium_feature: false
+      }
+
+      console.log(' Baby data to insert (full):', babyData)
+      const { data: baby, error: babyError } = await supabase
+        .from('children')
+        .insert(babyData)
+        .select()
+        .single()
+
+      console.log(' Baby creation result:', { data: baby, error: babyError })
+
+      if (babyError) {
+        console.error('ERROR Baby creation error:', babyError)
+        console.error('ERROR Baby error details:', {
+          message: babyError.message,
+          code: babyError.code,
+          details: babyError.details,
+          hint: babyError.hint
+        })
+        
+        // Try with basic data if extended columns fail
+        console.log('RETRY Trying with basic baby data only...')
+        const basicBabyData = {
+          user_id: user.id,
+          name: babyName,
+          date_of_birth: dateOfBirth,
+          is_premium_feature: false
+        }
+        
+        console.log(' Basic baby data:', basicBabyData)
+        const { data: basicBaby, error: basicError } = await supabase
+          .from('children')
+          .insert(basicBabyData)
+          .select()
+          .single()
+          
+        console.log(' Basic baby creation result:', { data: basicBaby, error: basicError })
+        
+        if (basicError) {
+          console.error('ERROR Basic baby creation also failed:', basicError)
+          throw new Error(`BABY ERROR: ${basicError.message} (Code: ${basicError.code})`)
+        }
+        
+        baby = basicBaby
+        console.log('SUCCESS Baby profile created with basic data:', baby.id)
+      } else {
+        console.log('SUCCESS Baby profile created with full data:', baby.id)
+      }
+      
+      console.log('COMPLETE Baby profile successfully created:', baby)
+
+      // Step 6: Generate checklist for the baby
+      try {
+        console.log('Generating checklist...')
+        const checklistModule = await import('@/lib/services/checklist-service')
+        
+        if (checklistModule && checklistModule.ChecklistService) {
+          await checklistModule.ChecklistService.generateChecklistForChild(
+            baby.id,
+            baby.date_of_birth,
+            stateTerritory
+          )
+          console.log('SUCCESS Checklist generated successfully')
+        }
+      } catch (checklistError: unknown) {
+        console.error('ERROR Error generating checklist:', checklistError)
+        // Continue anyway - don't block onboarding
+      }
+
+      console.log('Starting Redirecting to dashboard...')
+      
+      // Success! Redirect immediately without setting loading to false first
+      console.log('INFO About to redirect to /dashboard/today')
+      
+      // Try router.push first
+      try {
+        router.push('/dashboard/today')
+        console.log('SUCCESS Router.push called successfully')
+      } catch (routerError) {
+        console.error('ERROR Router.push failed:', routerError)
+        // Fallback to window.location
+        window.location.href = '/dashboard/today'
+      }
+      
+      // Return early to prevent setIsLoading(false) in finally block
+      return
+    } catch (err: unknown) {
+      console.error('ERROR ONBOARDING FAILED:', err)
+      console.error('ERROR Full error details:', err)
+      
+      // Provide very detailed error messages
+      let errorMessage = 'An error occurred during setup'
+      
+      if (err instanceof Error) {
+        if (err.message.includes('PROFILE ERROR')) {
+          errorMessage = `Profile creation failed: ${err.message}`
+        } else if (err.message.includes('BABY ERROR')) {
+          errorMessage = `Baby profile creation failed: ${err.message}`
+        } else if (err.message.includes('column') || err.message.includes('42703')) {
+          errorMessage = `Database column missing: ${err.message}. Please run the database migration.`
+        } else if (err.message.includes('authentication') || err.message.includes('auth')) {
+          errorMessage = `Authentication error: ${err.message}`
+        } else if (err.message.includes('Network') || err.message.includes('fetch')) {
+          errorMessage = `Network error: ${err.message}`
+        } else {
+          errorMessage = `Detailed error: ${err.message}`
+        }
+      } else {
+        errorMessage = `Unknown error: ${JSON.stringify(err)}`
+      }
+      
+      setError(errorMessage)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 1:
+        return babyName.trim() && babyType
+      case 2:
+        return dateOfBirth && stateTerritory
+      case 3:
+        return true // Optional measurements
+      case 4:
+        return true // Optional feeding/birth info
+      case 5:
+        return true // Add another child step
+      case 6:
+        return true // Final confirmation
+      default:
+        return false
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <div className="bg-surface border-b border-border px-4 py-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-sm font-bold text-primary-foreground">P</span>
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold text-foreground">PAM Setup</h1>
+                <p className="text-xs text-muted-foreground">Let&apos;s get you started!</p>
+              </div>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {currentStep}/{totalSteps}
+            </div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {/* Step 1: Baby Basic Info */}
+          {currentStep === 1 && (
+            <div className="content-card">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4"></div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Tell us about your baby</h2>
+                <p className="text-sm text-muted-foreground">This helps us personalise your timeline</p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Baby&apos;s name
+                  </label>
+                  <input
+                    type="text"
+                    value={babyName}
+                    onChange={(e) => setBabyName(e.target.value)}
+                    className="input-field"
+                    placeholder="Enter baby's name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Baby type
+                  </label>
+                  <div className="space-y-2">
+                    {babyTypes.map((type) => (
+                      <button
+                        key={type.value}
+                        onClick={() => setBabyType(type.value)}
+                        className={`w-full p-3 rounded-xl border-2 transition-all text-left ${
+                          babyType === type.value
+                            ? 'border-red-500 bg-red-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <span className="font-medium">{type.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Date & Location */}
+          {currentStep === 2 && (
+            <div className="content-card">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4"></div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">When and where?</h2>
+                <p className="text-sm text-gray-600">This helps us show the right Australian resources</p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Date of birth (or due date)
+                  </label>
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="input-field"
+                  />
+                  <div className="mt-2">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={isDueDate}
+                        onChange={(e) => setIsDueDate(e.target.checked)}
+                        className="rounded border-border text-primary focus:ring-primary"
+                      />
+                      <span className="text-sm text-muted-foreground">This is a due date (baby not born yet)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Your state/territory
+                  </label>
+                  <select
+                    value={stateTerritory}
+                    onChange={(e) => setStateTerritory(e.target.value)}
+                    className="select-field"
+                  >
+                    <option value="">Select your state/territory</option>
+                    {australianStates.map((state) => (
+                      <option key={state.value} value={state.value}>
+                        {state.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Baby Measurements (Optional) */}
+          {currentStep === 3 && (
+            <div className="content-card">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4"></div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Birth measurements</h2>
+                <p className="text-sm text-muted-foreground">Optional - you can add these later in growth tracking</p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Gender (optional)
+                  </label>
+                  <div className="flex gap-2">
+                    {['boy', 'girl', 'other'].map((g) => (
+                      <button
+                        key={g}
+                        onClick={() => setGender(g)}
+                        className={`toggle-button flex-1 ${
+                          gender === g ? 'selected' : ''
+                        }`}
+                      >
+                        <div className="text-sm font-medium capitalize">{g}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Weight (kg)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={weight}
+                      onChange={(e) => setWeight(e.target.value)}
+                      className="input-field"
+                      placeholder="3.5"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-2">
+                      Height (cm)
+                    </label>
+                    <input
+                      type="number"
+                      value={height}
+                      onChange={(e) => setHeight(e.target.value)}
+                      className="input-field"
+                      placeholder="50"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Head circumference (cm)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={headCircumference}
+                    onChange={(e) => setHeadCircumference(e.target.value)}
+                    className="input-field"
+                    placeholder="35"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Feeding & Birth Info (Optional) */}
+          {currentStep === 4 && (
+            <div className="content-card">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4"></div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Feeding & birth details</h2>
+                <p className="text-sm text-muted-foreground">Optional - helps us give better suggestions</p>
+              </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Feeding method
+                  </label>
+                  <div className="space-y-2">
+                    {feedingMethods.map((method) => (
+                      <button
+                        key={method.value}
+                        onClick={() => setFeedingMethod(method.value)}
+                        className={`toggle-button w-full text-left ${
+                          feedingMethod === method.value ? 'selected' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl">{method.emoji}</span>
+                          <span className="font-medium">{method.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Birth type
+                  </label>
+                  <div className="space-y-2">
+                    {birthTypes.map((type) => (
+                      <button
+                        key={type.value}
+                        onClick={() => setBirthType(type.value)}
+                        className={`toggle-button w-full text-left ${
+                          birthType === type.value ? 'selected' : ''
+                        }`}
+                      >
+                        <span className="font-medium">{type.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 5: Add Another Child */}
+          {currentStep === 5 && (
+            <div className="content-card">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4">👶</div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">Add another child?</h2>
+                <p className="text-sm text-muted-foreground">
+                  Do you have more children aged 0-3 to add to PAM?
+                </p>
+              </div>
+              
+              {children.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-medium text-foreground mb-3">Children added so far:</h3>
+                  <div className="space-y-2">
+                    {[...children, { name: babyName, dateOfBirth }].map((child, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                        <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-semibold text-primary">{child.name.charAt(0)}</span>
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{child.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Born: {new Date(child.dateOfBirth).toLocaleDateString('en-AU')}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-3">
+                <button
+                  onClick={addAnotherChild}
+                  className="button-secondary w-full"
+                >
+                  + Add Another Child
+                </button>
+                <button
+                  onClick={nextStep}
+                  className="button-primary w-full"
+                >
+                  Continue with {children.length + 1} child{children.length > 0 ? 'ren' : ''}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 6: Final Welcome */}
+          {currentStep === 6 && (
+            <div className="content-card">
+              <div className="text-center mb-6">
+                <div className="text-4xl mb-4">✓</div>
+                <h2 className="text-xl font-semibold text-foreground mb-2">You&apos;re all set!</h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Welcome to PAM! We&apos;re creating your personalised timeline now.
+                </p>
+                
+                <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Heart className="w-5 h-5 text-primary" />
+                    <span className="font-medium text-foreground">Your PAM journey starts now</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground text-left">
+                    • Get personalised Australian timeline<br/>
+                    • Track {babyName}&apos;s milestones<br/>
+                    • Reduce your mental load<br/>
+                    • Take care of yourself too
+                  </p>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-error/10 border border-error/20 rounded-xl p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="text-error text-lg">WARNING</div>
+                    <div className="w-full">
+                      <h4 className="text-sm font-medium text-error mb-1">Setup Error</h4>
+                      <p className="text-sm text-error mb-2 break-words">{error}</p>
+                      <details className="text-xs text-error">
+                        <summary className="cursor-pointer hover:text-error/80">Technical details</summary>
+                        <pre className="mt-2 p-2 bg-error/10 rounded overflow-x-auto text-[10px]">{error}</pre>
+                      </details>
+                      <p className="text-xs text-error mt-2">
+                        Please check the browser console for more details. Press F12 to open developer tools.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div className="flex justify-between items-center mt-6">
+            <button
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
+                currentStep === 1
+                  ? 'text-muted-foreground cursor-not-allowed'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-surface'
+              }`}
+            >
+              <ChevronLeft className="w-5 h-5" />
+              Back
+            </button>
+
+            {currentStep < totalSteps ? (
+              <button
+                onClick={nextStep}
+                disabled={!isStepValid()}
+                className={`button-primary px-6 py-3 font-semibold ${
+                  !isStepValid() ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                Continue
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            ) : (
+              <button
+                onClick={completeOnboarding}
+                disabled={isLoading}
+                className="button-primary px-6 py-3 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Setting up...
+                  </>
+                ) : error ? (
+                  <>
+                    Try Again
+                    <Heart className="w-5 h-5" />
+                  </>
+                ) : (
+                  <>
+                    Start using PAM
+                    <Heart className="w-5 h-5" />
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

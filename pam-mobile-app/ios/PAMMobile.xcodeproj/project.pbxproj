@@ -1,0 +1,410 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		10A2A3FF2E50155800D9CB6A /* PAMDesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2A3FE2E50155800D9CB6A /* PAMDesignSystem.swift */; };
+		10A2A40C2E5022DF00D9CB6A /* OptionalChecklistItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2A40B2E5022DF00D9CB6A /* OptionalChecklistItems.swift */; };
+		10A2A40D2E5022DF00D9CB6A /* AustralianChecklistItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2A40A2E5022DF00D9CB6A /* AustralianChecklistItems.swift */; };
+		10A2A4102E50233D00D9CB6A /* BabyTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2A40E2E50233D00D9CB6A /* BabyTrackerView.swift */; };
+		10A2A4112E50233D00D9CB6A /* EnhancedTimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2A40F2E50233D00D9CB6A /* EnhancedTimelineView.swift */; };
+		10A2A4132E5023CF00D9CB6A /* OptionalItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2A4122E5023CF00D9CB6A /* OptionalItemsView.swift */; };
+		B71234562C5F3E4100123456 /* PAMMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234552C5F3E4100123456 /* PAMMobileApp.swift */; };
+		B71234582C5F3E4100123456 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234572C5F3E4100123456 /* ContentView.swift */; };
+		B712345A2C5F3E4200123456 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B71234592C5F3E4200123456 /* Assets.xcassets */; };
+		B71234642C5F3E4300123456 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234632C5F3E4300123456 /* AuthenticationView.swift */; };
+		B71234662C5F3E4300123456 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234652C5F3E4300123456 /* AuthenticationManager.swift */; };
+		B71234682C5F3E4300123456 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234672C5F3E4300123456 /* APIService.swift */; };
+		B712346A2C5F3E4300123456 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234692C5F3E4300123456 /* DataStore.swift */; };
+		B712346C2C5F3E4400123456 /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B712346B2C5F3E4400123456 /* TimelineView.swift */; };
+		B712346E2C5F3E4400123456 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B712346D2C5F3E4400123456 /* CalendarView.swift */; };
+		B71234702C5F3E4400123456 /* LocalInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B712346F2C5F3E4400123456 /* LocalInfoView.swift */; };
+		B71234722C5F3E4400123456 /* TrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234712C5F3E4400123456 /* TrackerView.swift */; };
+		B71234742C5F3E4400123456 /* GrowthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234732C5F3E4400123456 /* GrowthView.swift */; };
+		B71234762C5F3E4400123456 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B71234752C5F3E4400123456 /* SettingsView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		10A2A3FE2E50155800D9CB6A /* PAMDesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMDesignSystem.swift; sourceTree = "<group>"; };
+		10A2A40A2E5022DF00D9CB6A /* AustralianChecklistItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AustralianChecklistItems.swift; sourceTree = "<group>"; };
+		10A2A40B2E5022DF00D9CB6A /* OptionalChecklistItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalChecklistItems.swift; sourceTree = "<group>"; };
+		10A2A40E2E50233D00D9CB6A /* BabyTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BabyTrackerView.swift; sourceTree = "<group>"; };
+		10A2A40F2E50233D00D9CB6A /* EnhancedTimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnhancedTimelineView.swift; sourceTree = "<group>"; };
+		10A2A4122E5023CF00D9CB6A /* OptionalItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalItemsView.swift; sourceTree = "<group>"; };
+		B71234522C5F3E4100123456 /* PAMMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PAMMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B71234552C5F3E4100123456 /* PAMMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMMobileApp.swift; sourceTree = "<group>"; };
+		B71234572C5F3E4100123456 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B71234592C5F3E4200123456 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B71234632C5F3E4300123456 /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
+		B71234652C5F3E4300123456 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; sourceTree = "<group>"; };
+		B71234672C5F3E4300123456 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		B71234692C5F3E4300123456 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		B712346B2C5F3E4400123456 /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		B712346D2C5F3E4400123456 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		B712346F2C5F3E4400123456 /* LocalInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalInfoView.swift; sourceTree = "<group>"; };
+		B71234712C5F3E4400123456 /* TrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerView.swift; sourceTree = "<group>"; };
+		B71234732C5F3E4400123456 /* GrowthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthView.swift; sourceTree = "<group>"; };
+		B71234752C5F3E4400123456 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B712344F2C5F3E4100123456 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B71234492C5F3E4100123456 = {
+			isa = PBXGroup;
+			children = (
+				10A2A3FE2E50155800D9CB6A /* PAMDesignSystem.swift */,
+				B71234542C5F3E4100123456 /* PAMMobile */,
+				B71234532C5F3E4100123456 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B71234532C5F3E4100123456 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B71234522C5F3E4100123456 /* PAMMobile.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B71234542C5F3E4100123456 /* PAMMobile */ = {
+			isa = PBXGroup;
+			children = (
+				10A2A4122E5023CF00D9CB6A /* OptionalItemsView.swift */,
+				10A2A40E2E50233D00D9CB6A /* BabyTrackerView.swift */,
+				10A2A40F2E50233D00D9CB6A /* EnhancedTimelineView.swift */,
+				10A2A40A2E5022DF00D9CB6A /* AustralianChecklistItems.swift */,
+				10A2A40B2E5022DF00D9CB6A /* OptionalChecklistItems.swift */,
+				B71234552C5F3E4100123456 /* PAMMobileApp.swift */,
+				B71234572C5F3E4100123456 /* ContentView.swift */,
+				B71234622C5F3E4300123456 /* Views */,
+				B71234612C5F3E4300123456 /* Services */,
+				B71234592C5F3E4200123456 /* Assets.xcassets */,
+			);
+			path = PAMMobile;
+			sourceTree = "<group>";
+		};
+		B71234612C5F3E4300123456 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B71234652C5F3E4300123456 /* AuthenticationManager.swift */,
+				B71234672C5F3E4300123456 /* APIService.swift */,
+				B71234692C5F3E4300123456 /* DataStore.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B71234622C5F3E4300123456 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B71234632C5F3E4300123456 /* AuthenticationView.swift */,
+				B712346B2C5F3E4400123456 /* TimelineView.swift */,
+				B712346D2C5F3E4400123456 /* CalendarView.swift */,
+				B712346F2C5F3E4400123456 /* LocalInfoView.swift */,
+				B71234712C5F3E4400123456 /* TrackerView.swift */,
+				B71234732C5F3E4400123456 /* GrowthView.swift */,
+				B71234752C5F3E4400123456 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B71234512C5F3E4100123456 /* PAMMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B712345C2C5F3E4200123456 /* Build configuration list for PBXNativeTarget "PAMMobile" */;
+			buildPhases = (
+				B712344E2C5F3E4100123456 /* Sources */,
+				B712344F2C5F3E4100123456 /* Frameworks */,
+				B71234502C5F3E4100123456 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PAMMobile;
+			productName = PAMMobile;
+			productReference = B71234522C5F3E4100123456 /* PAMMobile.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B712344A2C5F3E4100123456 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1430;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					B71234512C5F3E4100123456 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+				};
+			};
+			buildConfigurationList = B712344D2C5F3E4100123456 /* Build configuration list for PBXProject "PAMMobile" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B71234492C5F3E4100123456;
+			productRefGroup = B71234532C5F3E4100123456 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B71234512C5F3E4100123456 /* PAMMobile */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B71234502C5F3E4100123456 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B712345A2C5F3E4200123456 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B712344E2C5F3E4100123456 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B71234582C5F3E4100123456 /* ContentView.swift in Sources */,
+				B71234562C5F3E4100123456 /* PAMMobileApp.swift in Sources */,
+				10A2A4102E50233D00D9CB6A /* BabyTrackerView.swift in Sources */,
+				10A2A4112E50233D00D9CB6A /* EnhancedTimelineView.swift in Sources */,
+				B71234642C5F3E4300123456 /* AuthenticationView.swift in Sources */,
+				B71234662C5F3E4300123456 /* AuthenticationManager.swift in Sources */,
+				10A2A40C2E5022DF00D9CB6A /* OptionalChecklistItems.swift in Sources */,
+				10A2A40D2E5022DF00D9CB6A /* AustralianChecklistItems.swift in Sources */,
+				B71234682C5F3E4300123456 /* APIService.swift in Sources */,
+				10A2A4132E5023CF00D9CB6A /* OptionalItemsView.swift in Sources */,
+				B712346A2C5F3E4300123456 /* DataStore.swift in Sources */,
+				B712346C2C5F3E4400123456 /* TimelineView.swift in Sources */,
+				B712346E2C5F3E4400123456 /* CalendarView.swift in Sources */,
+				10A2A3FF2E50155800D9CB6A /* PAMDesignSystem.swift in Sources */,
+				B71234702C5F3E4400123456 /* LocalInfoView.swift in Sources */,
+				B71234722C5F3E4400123456 /* TrackerView.swift in Sources */,
+				B71234742C5F3E4400123456 /* GrowthView.swift in Sources */,
+				B71234762C5F3E4400123456 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B712345D2C5F3E4200123456 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B712345E2C5F3E4200123456 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B712345F2C5F3E4200123456 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pam.mobile;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B71234602C5F3E4200123456 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pam.mobile;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B712344D2C5F3E4100123456 /* Build configuration list for PBXProject "PAMMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B712345D2C5F3E4200123456 /* Debug */,
+				B712345E2C5F3E4200123456 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B712345C2C5F3E4200123456 /* Build configuration list for PBXNativeTarget "PAMMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B712345F2C5F3E4200123456 /* Debug */,
+				B71234602C5F3E4200123456 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B712344A2C5F3E4100123456 /* Project object */;
+}

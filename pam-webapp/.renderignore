@@ -1,0 +1,14 @@
+archive/
+.git/
+*.log
+.DS_Store
+coverage/
+.nyc_output/
+test-results/
+.env.local
+.env.development
+.env.test
+README.md
+*.md
+.vscode/
+.idea/
